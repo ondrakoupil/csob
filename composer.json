@@ -1,0 +1,14 @@
+{
+    "name": "ondrakoupil/csob-eapi-paygate",
+    "description": "Knihovna pro pohodlnou integraci CSOB platebni brany pres eAPI",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Ondrej Koupil",
+            "email": "koupil@optimato.cz"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {}
+}
