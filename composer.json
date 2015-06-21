@@ -10,5 +10,14 @@
         }
     ],
     "minimum-stability": "dev",
-    "require": {}
+    "autoload": {
+        "psr-4": {
+            "OndraKoupil\\Csob\\": "src/"
+        }
+    },
+    "require": {
+        "ondrakoupil/tools": "^0.0.4",
+		"ext-openssl": "*",
+        "php": ">=5.3.1"
+    }
 }

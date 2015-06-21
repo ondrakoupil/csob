@@ -1,6 +1,9 @@
 composer.phar
 vendor/
 /nbproject/
+/zdroje/
+/sandbox/
+/keys/
 /run-tests.sh
 /tests/coverage.*
 /tests/*/output
