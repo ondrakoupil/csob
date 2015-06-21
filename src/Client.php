@@ -31,7 +31,12 @@ class Client {
 
 		$payment->checkAndPrepare($this->config);
 		$array = $payment->signAndExport($this->config);
-		$ret = $this->sendRequest("payment/init", $array, true, array("payId", "dttm", "resultCode", "resultMessage", "paymentStatus", "authCode"));
+		$ret = $this->sendRequest(
+			"payment/init",
+			$array,
+			"POST",
+			array("payId", "dttm", "resultCode", "resultMessage", "paymentStatus", "authCode")
+		);
 
 		if (!isset($ret["payId"]) or !$ret["payId"]) {
 			throw new \RuntimeException("Bank API did not return a payId value.");
@@ -57,7 +62,7 @@ class Client {
 		return $this->sendRequest(
 			"payment/process",
 			$payload,
-			false,
+			"POST",
 			array(),
 			array("merchantId", "payId", "dttm", "signature"),
 			true
@@ -78,7 +83,7 @@ class Client {
 		$ret = $this->sendRequest(
 			"payment/status",
 			$payload,
-			false,
+			"GET",
 			array("payId", "dttm", "resultCode", "resultMessage", "paymentStatus", "authCode"),
 			array("merchantId", "payId", "dttm", "signature")
 		);
@@ -90,8 +95,39 @@ class Client {
 		return $ret;
 	}
 
-	function paymentReverse($payment) {
+	function paymentReverse($payment, $ignoreWrongPaymentStatusError = false) {
+		$payId = $this->getPayId($payment);
 
+		$payload = array(
+			"merchantId" => $this->config->merchantId,
+			"payId" => $payId,
+			"dttm" => $this->getDTTM()
+		);
+
+		$payload["signature"] = $this->signRequest($payload);
+
+		try {
+
+			$ret = $this->sendRequest(
+				"payment/reverse",
+				$payload,
+				"PUT",
+				array("payId", "dttm", "resultCode", "resultMessage", "paymentStatus"),
+				array("merchantId", "payId", "dttm", "signature")
+			);
+
+		} catch (\RuntimeException $e) {
+			if ($e->getCode() != 150) { // Not just invalid state
+				throw $e;
+			}
+			if (!$ignoreWrongPaymentStatusError) {
+				throw $e;
+			}
+
+			return null;
+		}
+
+		return $ret;
 	}
 
 	function paymentClose($payment) {
@@ -163,7 +199,11 @@ class Client {
 	protected function sendRequest($apiMethod, $payload, $usePostMethod = true, $responseFieldsOrder = null, $requestFieldsOrder = null, $returnUrlOnly = false) {
 		$url = $this->getApiMethodUrl($apiMethod);
 
-		if (!$usePostMethod) {
+		$method = $usePostMethod;
+
+		if (!$usePostMethod or $usePostMethod === "GET") {
+			$method = "GET";
+
 			if (!$requestFieldsOrder) {
 				$requestFieldsOrder = $responseFieldsOrder;
 			}
@@ -175,15 +215,19 @@ class Client {
 			}
 		}
 
+		if ($method === true) {
+			$method = "POST";
+		}
+
 		if ($returnUrlOnly) {
 			return $url;
 		}
 
 		$ch = curl_init($url);
 
-		if ($usePostMethod) {
+		if ($method === "POST" or $method === "PUT") {
 			$encodedPayload = json_encode($payload);
-			curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
+			curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $method);
 			curl_setopt($ch, CURLOPT_POSTFIELDS, $encodedPayload);
 		}
 
@@ -217,7 +261,7 @@ class Client {
 		}
 
 		if ($decoded["resultCode"] != "0") {
-			throw new \RuntimeException("API returned an error: resultCode \"" . $decoded["resultCode"] . "\", resultMessage: ".$decoded["resultMessage"]);
+			throw new \RuntimeException("API returned an error: resultCode \"" . $decoded["resultCode"] . "\", resultMessage: ".$decoded["resultMessage"], $decoded["resultCode"]);
 		}
 
 		if (!isset($decoded["signature"]) or !$decoded["signature"]) {
