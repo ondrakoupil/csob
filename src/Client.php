@@ -31,17 +31,63 @@ class Client {
 
 		$payment->checkAndPrepare($this->config);
 		$array = $payment->signAndExport($this->config);
-		$ret = $this->sendRequest("payment/init", $array, array("payId", "dttm", "resultCode", "resultMessage", "paymentStatus", "authCode"));
+		$ret = $this->sendRequest("payment/init", $array, true, array("payId", "dttm", "resultCode", "resultMessage", "paymentStatus", "authCode"));
+
+		if (!isset($ret["payId"]) or !$ret["payId"]) {
+			throw new \RuntimeException("Bank API did not return a payId value.");
+		}
+
+		$payment->setBankId($ret["payId"]);
+
 		return $ret;
 
 	}
 
-	function paymentProcess($payment) {
+	function getPaymentProcessUrl($payment) {
+		$payId = $this->getPayId($payment);
 
+		$payload = array(
+			"merchantId" => $this->config->merchantId,
+			"payId" => $payId,
+			"dttm" => $this->getDTTM()
+		);
+
+		$payload["signature"] = $this->signRequest($payload);
+
+		return $this->sendRequest(
+			"payment/process",
+			$payload,
+			false,
+			array(),
+			array("merchantId", "payId", "dttm", "signature"),
+			true
+		);
 	}
 
-	function paymentStatus($payment) {
+	function paymentStatus($payment, $returnStatusOnly = true) {
+		$payId = $this->getPayId($payment);
 
+		$payload = array(
+			"merchantId" => $this->config->merchantId,
+			"payId" => $payId,
+			"dttm" => $this->getDTTM()
+		);
+
+		$payload["signature"] = $this->signRequest($payload);
+
+		$ret = $this->sendRequest(
+			"payment/status",
+			$payload,
+			false,
+			array("payId", "dttm", "resultCode", "resultMessage", "paymentStatus", "authCode"),
+			array("merchantId", "payId", "dttm", "signature")
+		);
+
+		if ($returnStatusOnly) {
+			return $ret["paymentStatus"];
+		}
+
+		return $ret;
 	}
 
 	function paymentReverse($payment) {
@@ -56,7 +102,7 @@ class Client {
 
 	}
 
-	function testConnection() {
+	function testPostConnection() {
 		$payload = array(
 			"merchantId" => $this->config->merchantId,
 			"dttm" => $this->getDTTM()
@@ -64,7 +110,20 @@ class Client {
 
 		$payload["signature"] = $this->signRequest($payload);
 
-		$ret = $this->sendRequest("echo", $payload);
+		$ret = $this->sendRequest("echo", $payload, true, array("dttm", "resultCode", "resultMessage"));
+
+		return $ret;
+	}
+
+	function testGetConnection() {
+		$payload = array(
+			"merchantId" => $this->config->merchantId,
+			"dttm" => $this->getDTTM()
+		);
+
+		$payload["signature"] = $this->signRequest($payload);
+
+		$ret = $this->sendRequest("echo", $payload, false, array("dttm", "resultCode", "resultMessage"), array("merchantId", "dttm", "signature"));
 
 		return $ret;
 	}
@@ -75,6 +134,19 @@ class Client {
 
 
 	// ------ COMMUNICATION ------
+
+	protected function getPayId($payment) {
+		if (!is_string($payment) and $payment instanceof Payment) {
+			$payment = $payment->getBankId();
+			if (!$payment) {
+				throw new \InvalidArgumentException("Given Payment object does not have payId. Please call paymentInit() first.");
+			}
+		}
+		if (!is_string($payment) or strlen($payment) != 15) {
+			throw new \InvalidArgumentException("Given Payment ID is not valid - it should be a string with length 15 characters.");
+		}
+		return $payment;
+	}
 
 	protected function getDTTM() {
 		return date(self::DATE_FORMAT);
@@ -88,16 +160,34 @@ class Client {
 		);
 	}
 
-	protected function sendRequest($apiMethod, $payload, $responseFieldsOrder = null) {
+	protected function sendRequest($apiMethod, $payload, $usePostMethod = true, $responseFieldsOrder = null, $requestFieldsOrder = null, $returnUrlOnly = false) {
 		$url = $this->getApiMethodUrl($apiMethod);
 
-		$ch = curl_init ($url);
+		if (!$usePostMethod) {
+			if (!$requestFieldsOrder) {
+				$requestFieldsOrder = $responseFieldsOrder;
+			}
+			$parametersToUrl = $requestFieldsOrder ? $requestFieldsOrder : array_keys($payload);
+			foreach($parametersToUrl as $param) {
+				if (isset($payload[$param])) {
+					$url .= "/" . urlencode($payload[$param]);
+				}
+			}
+		}
 
-		$encodedPayload = json_encode($payload);
+		if ($returnUrlOnly) {
+			return $url;
+		}
+
+		$ch = curl_init($url);
+
+		if ($usePostMethod) {
+			$encodedPayload = json_encode($payload);
+			curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
+			curl_setopt($ch, CURLOPT_POSTFIELDS, $encodedPayload);
+		}
 
 		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-		curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
-		curl_setopt($ch, CURLOPT_POSTFIELDS, $encodedPayload);
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 		curl_setopt($ch, CURLOPT_HTTPHEADER, array(
 			'Content-Type: application/json',
@@ -122,8 +212,6 @@ class Client {
 			throw new \RuntimeException("API did not return a parseable JSON string: \"".$result."\"");
 		}
 
-		print_r($decoded);
-
 		if (!isset($decoded["resultCode"])) {
 			throw new \RuntimeException("API did not return a response containing resultCode.");
 		}
@@ -135,7 +223,6 @@ class Client {
 		if (!isset($decoded["signature"]) or !$decoded["signature"]) {
 			throw new \RuntimeException("Result does not contain signature.");
 		}
-
 
 		$signature = $decoded["signature"];
 		$verificationResult = $this->verifyResponseSignature($decoded, $signature, $responseFieldsOrder);

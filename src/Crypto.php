@@ -47,8 +47,6 @@ class Crypto {
 
 	static function verifySignature($textToVerify, $signatureInBase64, $publicKeyFile) {
 
-		echo "Verifying text: \"$textToVerify\" ";
-
 		if (!function_exists("openssl_get_privatekey")) {
 			throw new \RuntimeException("OpenSSL extension in PHP is required. Please install or enable it.");
 		}
@@ -69,7 +67,7 @@ class Crypto {
 			throw new \RuntimeException("Verification of signature failed: ".openssl_error_string());
 		}
 
-		return $res ? false : true;
+		return $res ? true : false;
 	}
 
 }
