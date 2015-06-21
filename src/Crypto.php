@@ -3,21 +3,23 @@
 namespace OndraKoupil\Csob;
 
 /**
+ * Helper class for signing and signature verification
+ *
  * @see https://github.com/csob/paymentgateway/blob/master/eshop-integration/eAPI/v1/php/example/crypto.php
  */
-
 class Crypto {
 
 	/**
-	 * Vytvoří podpis řetězce
+	 * Signs a string
+	 *
 	 * @param string $string
-	 * @param string $privateKeyFile
-	 * @param string $privateKeyPassword
-	 * @return string Podpis zakódovaný do base64
-	 * @throws \RuntimeException Když selže proces podepisování
-	 * @throws \InvalidArgumentException Když soubor s klíčem není nalezen
+	 * @param string $privateKeyFile Path to file with your private key (the .key file from https://iplatebnibrana.csob.cz/keygen/ )
+	 * @param string $privateKeyPassword Password to the key, if it was generated with one. Leave empty if you created the key at https://iplatebnibrana.csob.cz/keygen/
+	 * @return string Signature encoded with Base64
+	 * @throws \RuntimeException When signing fails
+	 * @throws \InvalidArgumentException When key file path is not valid
 	 */
-	static function signString($string, $privateKeyFile, $privateKeyPassword) {
+	static function signString($string, $privateKeyFile, $privateKeyPassword = "") {
 
 		if (!function_exists("openssl_get_privatekey")) {
 			throw new \RuntimeException("OpenSSL extension in PHP is required. Please install or enable it.");
@@ -45,6 +47,18 @@ class Crypto {
 	}
 
 
+	/**
+	 * Verifies signature of a string
+	 * 
+	 * @param string $textToVerify The text that was signed
+	 * @param string $signatureInBase64 The signature encoded with Base64
+	 * @param string $publicKeyFile Path to file where bank's public key is saved
+	 * (you can obtain it from bank's app https://iposman.iplatebnibrana.csob.cz/posmerchant
+	 * or from their package on GitHub)
+	 * @return bool True if signature is correct
+	 * @throws \RuntimeException When some cryptographic operation fails
+	 * @throws \InvalidArgumentException When key file path is not valid
+	 */
 	static function verifySignature($textToVerify, $signatureInBase64, $publicKeyFile) {
 
 		if (!function_exists("openssl_get_privatekey")) {
