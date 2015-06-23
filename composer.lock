@@ -4,47 +4,8 @@
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "e83284480a3e539ab684e5d26c4b36fb",
+    "hash": "1bd9f8f3e40353cb5c9cc79b20c55e48",
     "packages": [
-        {
-            "name": "ondrakoupil/tools",
-            "version": "v0.0.4",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/ondrakoupil/tools.git",
-                "reference": "81ea2126a25eef9b721da316d4975e27f5d26825"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/ondrakoupil/tools/zipball/81ea2126a25eef9b721da316d4975e27f5d26825",
-                "reference": "81ea2126a25eef9b721da316d4975e27f5d26825",
-                "shasum": ""
-            },
-            "require-dev": {
-                "nette/tester": "^1.4@dev",
-                "ondrakoupil/testing-utils": "^0.0.5"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "OndraKoupil\\Tools\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Ondřej Koupil",
-                    "email": "koupil@optimato.cz"
-                }
-            ],
-            "description": "Just a bunch of tools for myself",
-            "time": "2015-05-29 09:06:25"
-        }
-    ],
-    "packages-dev": [
         {
             "name": "nette/tester",
             "version": "dev-master",
@@ -100,8 +61,86 @@
                 "unit"
             ],
             "time": "2015-06-20 14:15:03"
+        },
+        {
+            "name": "ondrakoupil/testing-utils",
+            "version": "v0.0.6",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/ondrakoupil/testing-utils.git",
+                "reference": "8c3f47660914c409eb8b645cc641930d6b2ef87d"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/ondrakoupil/testing-utils/zipball/8c3f47660914c409eb8b645cc641930d6b2ef87d",
+                "reference": "8c3f47660914c409eb8b645cc641930d6b2ef87d",
+                "shasum": ""
+            },
+            "require": {
+                "nette/tester": "^1.4",
+                "ondrakoupil/tools": "^0.0.4"
+            },
+            "suggest": {
+                "nette/database": "For creating tests with Nette Database using NetteDatabaseTestCase"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "OndraKoupil\\Testing\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Ondřej Koupil",
+                    "email": "koupil@optimato.cz"
+                }
+            ],
+            "description": "Some testing utilities",
+            "time": "2015-05-29 09:10:39"
+        },
+        {
+            "name": "ondrakoupil/tools",
+            "version": "v0.0.4",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/ondrakoupil/tools.git",
+                "reference": "81ea2126a25eef9b721da316d4975e27f5d26825"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/ondrakoupil/tools/zipball/81ea2126a25eef9b721da316d4975e27f5d26825",
+                "reference": "81ea2126a25eef9b721da316d4975e27f5d26825",
+                "shasum": ""
+            },
+            "require-dev": {
+                "nette/tester": "^1.4@dev",
+                "ondrakoupil/testing-utils": "^0.0.5"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "OndraKoupil\\Tools\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Ondřej Koupil",
+                    "email": "koupil@optimato.cz"
+                }
+            ],
+            "description": "Just a bunch of tools for myself",
+            "time": "2015-05-29 09:06:25"
         }
     ],
+    "packages-dev": [],
     "aliases": [],
     "minimum-stability": "dev",
     "stability-flags": {

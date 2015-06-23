@@ -2,6 +2,7 @@
 
 namespace OndraKoupil\Csob;
 
+use \OndraKoupil\Tools\Files;
 
 /**
  * The most important class that allows you to use payment gateway's functions.
@@ -16,15 +17,30 @@ class Client {
 	 */
 	protected $config;
 
+	protected $logFile;
+	protected $logCallback;
+
+	protected $traceLogFile;
+	protected $traceLogCallback;
+
+
 	// ------- BASICS --------
 
 	/**
 	 * Create new client with given Config.
 	 * @param Config $config
 	 */
-	function __construct(Config $config) {
+	function __construct(Config $config, $log = null, $traceLog = null) {
 
 		$this->config = $config;
+
+		if ($log) {
+			$this->setLog($log);
+		}
+
+		if ($traceLog) {
+			$this->setTraceLog($traceLog);
+		}
 
 	}
 
@@ -63,18 +79,30 @@ class Client {
 
 		$payment->checkAndPrepare($this->config);
 		$array = $payment->signAndExport($this->config);
-		$ret = $this->sendRequest(
-			"payment/init",
-			$array,
-			"POST",
-			array("payId", "dttm", "resultCode", "resultMessage", "paymentStatus", "authCode")
-		);
+
+		$this->writeToLog("payment/init started for payment with orderNo " . $payment->orderNo);
+
+		try {
+			$ret = $this->sendRequest(
+				"payment/init",
+				$array,
+				"POST",
+				array("payId", "dttm", "resultCode", "resultMessage", "paymentStatus", "authCode")
+			);
+
+		} catch (\Exception $e) {
+			$this->writeToLog("Fail, got exception: " . $e->getCode().", " . $e->getMessage());
+			throw $e;
+		}
 
 		if (!isset($ret["payId"]) or !$ret["payId"]) {
+			$this->writeToLog("Fail, no payId received.");
 			throw new \RuntimeException("Bank API did not return a payId value.");
 		}
 
 		$payment->setPayId($ret["payId"]);
+
+		$this->writeToLog("payment/init OK, got payId ".$ret["payId"]);
 
 		return $ret;
 
@@ -105,7 +133,7 @@ class Client {
 
 		$payload["signature"] = $this->signRequest($payload);
 
-		return $this->sendRequest(
+		$url = $this->sendRequest(
 			"payment/process",
 			$payload,
 			"GET",
@@ -113,6 +141,10 @@ class Client {
 			array("merchantId", "payId", "dttm", "signature"),
 			true
 		);
+
+		$this->writeToLog("URL for processing payment ".$payId.": $url");
+
+		return $url;
 	}
 
 	/**
@@ -129,11 +161,13 @@ class Client {
 	 */
 	function redirectToGateway($payment) {
 
-		if (headers_sent()) {
-			throw new \RuntimeException("Can't redirect the browser, headers were already sent.");
+		if (headers_sent($file, $line)) {
+			$this->writeToLog("Can't redirect, headers sent at $file, line $line");
+			throw new \RuntimeException("Can't redirect the browser, headers were already sent at $file line $line");
 		}
 
 		$url = $this->getPaymentProcessUrl($payment);
+		$this->writeToLog("Redirecting to payment gate...");
 
 		header("HTTP/1.1 302 Moved");
 		header("Location: $url");
@@ -154,21 +188,31 @@ class Client {
 	function paymentStatus($payment, $returnStatusOnly = true) {
 		$payId = $this->getPayId($payment);
 
+		$this->writeToLog("payment/status started for payment $payId");
+
 		$payload = array(
 			"merchantId" => $this->config->merchantId,
 			"payId" => $payId,
 			"dttm" => $this->getDTTM()
 		);
 
-		$payload["signature"] = $this->signRequest($payload);
+		try {
+			$payload["signature"] = $this->signRequest($payload);
 
-		$ret = $this->sendRequest(
-			"payment/status",
-			$payload,
-			"GET",
-			array("payId", "dttm", "resultCode", "resultMessage", "paymentStatus", "authCode"),
-			array("merchantId", "payId", "dttm", "signature")
-		);
+			$ret = $this->sendRequest(
+				"payment/status",
+				$payload,
+				"GET",
+				array("payId", "dttm", "resultCode", "resultMessage", "paymentStatus", "authCode"),
+				array("merchantId", "payId", "dttm", "signature")
+			);
+
+		} catch (\Exception $e) {
+			$this->writeToLog("Fail, got exception: " . $e->getCode().", " . $e->getMessage());
+			throw $e;
+		}
+
+		$this->writeToLog("payment/status OK, status of payment $payId is ".$ret["paymentStatus"]);
 
 		if ($returnStatusOnly) {
 			return $ret["paymentStatus"];
@@ -207,28 +251,39 @@ class Client {
 			"dttm" => $this->getDTTM()
 		);
 
-		$payload["signature"] = $this->signRequest($payload);
+		$this->writeToLog("payment/reverse started for payment $payId");
 
 		try {
+			$payload["signature"] = $this->signRequest($payload);
 
-			$ret = $this->sendRequest(
-				"payment/reverse",
-				$payload,
-				"PUT",
-				array("payId", "dttm", "resultCode", "resultMessage", "paymentStatus"),
-				array("merchantId", "payId", "dttm", "signature")
-			);
+			try {
 
-		} catch (\RuntimeException $e) {
-			if ($e->getCode() != 150) { // Not just invalid state
-				throw $e;
+				$ret = $this->sendRequest(
+					"payment/reverse",
+					$payload,
+					"PUT",
+					array("payId", "dttm", "resultCode", "resultMessage", "paymentStatus"),
+					array("merchantId", "payId", "dttm", "signature")
+				);
+
+			} catch (\RuntimeException $e) {
+				if ($e->getCode() != 150) { // Not just invalid state
+					throw $e;
+				}
+				if (!$ignoreWrongPaymentStatusError) {
+					throw $e;
+				}
+
+				$this->writeToLog("payment/reverse failed, payment is not in correct status");
+				return null;
 			}
-			if (!$ignoreWrongPaymentStatusError) {
-				throw $e;
-			}
 
-			return null;
+		} catch (\Exception $e) {
+			$this->writeToLog("Fail, got exception: " . $e->getCode().", " . $e->getMessage());
+			throw $e;
 		}
+
+		$this->writeToLog("payment/reverse OK");
 
 		return $ret;
 	}
@@ -257,6 +312,8 @@ class Client {
 
 		$ret = $this->sendRequest("echo", $payload, true, array("dttm", "resultCode", "resultMessage"));
 
+		$this->writeToLog("Connection test POST successful.");
+
 		return $ret;
 	}
 
@@ -276,6 +333,8 @@ class Client {
 
 		$ret = $this->sendRequest("echo", $payload, false, array("dttm", "resultCode", "resultMessage"), array("merchantId", "dttm", "signature"));
 
+		$this->writeToLog("Connection test GET successful.");
+
 		return $ret;
 	}
 
@@ -283,6 +342,74 @@ class Client {
 
 	}
 
+
+	// ------ LOGGING -------
+
+	function setLog($log) {
+		if (!$log) {
+			$this->logFile = null;
+			$this->logCallback = null;
+		} elseif (is_callable($log)) {
+			$this->logFile = null;
+			$this->logCallback = $log;
+		} else {
+			Files::create($log);
+			$this->logFile = $log;
+			$this->logCallback = null;
+		}
+		return $this;
+	}
+
+	function setTraceLog($log) {
+		if (!$log) {
+			$this->traceLogFile = null;
+			$this->traceLogCallback = null;
+		} elseif (is_callable($log)) {
+			$this->traceLogFile = null;
+			$this->traceLogCallback = $log;
+		} else {
+			Files::create($log);
+			$this->traceLogFile = $log;
+			$this->traceLogCallback = null;
+		}
+		return $this;
+	}
+
+	function writeToLog($message) {
+		if ($this->logFile) {
+			$timestamp = date("Y-m-d H:i:s");
+			$timestamp = str_pad($timestamp, 20);
+			if (isset($_SERVER["REMOTE_ADDR"])) {
+				$ip = $_SERVER["REMOTE_ADDR"];
+			} else {
+				$ip = "Unknown IP";
+			}
+			$ip = str_pad($ip, 15);
+			$taggedMessage = "$timestamp $ip $message\n";
+			file_put_contents($this->logFile, $taggedMessage, FILE_APPEND);
+		}
+		if ($this->logCallback) {
+			call_user_func_array($this->logCallback, array($message));
+		}
+	}
+
+	function writeToTraceLog($message) {
+		if ($this->traceLogFile) {
+			$timestamp = date("Y-m-d H:i:s");
+			$timestamp = str_pad($timestamp, 20);
+			if (isset($_SERVER["REMOTE_ADDR"])) {
+				$ip = $_SERVER["REMOTE_ADDR"];
+			} else {
+				$ip = "Unknown IP";
+			}
+			$ip = str_pad($ip, 15);
+			$taggedMessage = "$timestamp $ip $message\n";
+			file_put_contents($this->traceLogFile, $taggedMessage, FILE_APPEND);
+		}
+		if ($this->traceLogCallback) {
+			call_user_func_array($this->traceLogCallback, array($message));
+		}
+	}
 
 	// ------ COMMUNICATION ------
 
@@ -347,6 +474,8 @@ class Client {
 
 		$method = $usePostMethod;
 
+		$this->writeToTraceLog("Will send request to method $apiMethod");
+
 		if (!$usePostMethod or $usePostMethod === "GET") {
 			$method = "GET";
 
@@ -366,13 +495,16 @@ class Client {
 		}
 
 		if ($returnUrlOnly) {
+			$this->writeToTraceLog("Returned final URL: " . $url);
 			return $url;
 		}
 
 		$ch = curl_init($url);
+		$this->writeToTraceLog("URL to send request to: " . $url);
 
 		if ($method === "POST" or $method === "PUT") {
 			$encodedPayload = json_encode($payload);
+			$this->writeToTraceLog("JSON payload: ".$encodedPayload);
 			curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $method);
 			curl_setopt($ch, CURLOPT_POSTFIELDS, $encodedPayload);
 		}
@@ -387,11 +519,15 @@ class Client {
 		$result = curl_exec($ch);
 
 		if (curl_errno($ch)) {
+			$this->writeToTraceLog("CURL failed: " . curl_errno($ch) . " " . curl_error($ch));
 			throw new \RuntimeException("Failed sending data to API: ".curl_errno($ch)." ".curl_error($ch));
 		}
 
+		$this->writeToTraceLog("API response: $result");
+
 		$httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 		if ($httpCode != 200) {
+			$this->writeToTraceLog("Failed: returned HTTP code $httpCode");
 			throw new \RuntimeException("API returned HTTP code $httpCode, which is not code 200. Probably wrong signature, check crypto keys.");
 		}
 
@@ -399,27 +535,40 @@ class Client {
 
 		$decoded = @json_decode($result, true);
 		if ($decoded === null) {
+			$this->writeToTraceLog("Failed: returned value is not parsable JSON");
 			throw new \RuntimeException("API did not return a parseable JSON string: \"".$result."\"");
 		}
 
 		if (!isset($decoded["resultCode"])) {
+			$this->writeToTraceLog("Failed: API did not return response with resultCode");
 			throw new \RuntimeException("API did not return a response containing resultCode.");
 		}
 
 		if ($decoded["resultCode"] != "0") {
+			$this->writeToTraceLog("Failed: resultCode ".$decoded["resultCode"].", message ".$decoded["resultMessage"]);
 			throw new \RuntimeException("API returned an error: resultCode \"" . $decoded["resultCode"] . "\", resultMessage: ".$decoded["resultMessage"], $decoded["resultCode"]);
 		}
 
 		if (!isset($decoded["signature"]) or !$decoded["signature"]) {
+			$this->writeToTraceLog("Failed: missing response signature");
 			throw new \RuntimeException("Result does not contain signature.");
 		}
 
 		$signature = $decoded["signature"];
-		$verificationResult = $this->verifyResponseSignature($decoded, $signature, $responseFieldsOrder);
+
+		try {
+			$verificationResult = $this->verifyResponseSignature($decoded, $signature, $responseFieldsOrder);
+		} catch (\Exception $e) {
+			$this->writeToTraceLog("Failed: error occured when verifying signature.");
+			throw $e;
+		}
 
 		if (!$verificationResult) {
+			$this->writeToTraceLog("Failed: signature is incorrect.");
 			throw new \RuntimeException("Result signature is incorrect. Please make sure that bank's public key in file specified in config is correct and up-to-date.");
 		}
+
+		$this->writeToTraceLog("OK");
 
 		return $decoded;
 	}
