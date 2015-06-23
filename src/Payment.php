@@ -34,7 +34,7 @@ class Payment {
 	 * @ignore
 	 * @var number
 	 */
-	protected $totalAmount;
+	protected $totalAmount = 0;
 
 	/**
 	 * Currency of the transaction. Default value is "CZK".
@@ -250,6 +250,18 @@ class Payment {
 	}
 
 	/**
+	 * Get back merchantData, decoded to original value.
+	 *
+	 * @return string
+	 */
+	public function getMerchantData() {
+		if ($this->merchantData) {
+			return base64_decode($this->merchantData);
+		}
+		return "";
+	}
+
+	/**
 	 * After the payment has been saved using payment/init, you can
 	 * get PayID from here.
 	 *
@@ -274,6 +286,7 @@ class Payment {
 	 *
 	 * @param Config $config
 	 * @throws \RuntimeException
+	 * @return Payment Fluent interface
 	 *
 	 * @ignore
 	 */
@@ -318,6 +331,8 @@ class Payment {
 		}
 		$this->description = Strings::shorten($this->description, 240, "...");
 
+		$this->customerId = Strings::shorten($this->customerId, 50, "", true, true);
+
 		if (!$this->cart) {
 			throw new \RuntimeException("Cart is empty. Please add one or two items into cart using addCartItem() method.");
 		}
@@ -328,6 +343,8 @@ class Payment {
 
 		$sumOfItems = array_sum(Arrays::transform($this->cart, true, "amount"));
 		$this->totalAmount = $sumOfItems;
+
+		return $this;
 	}
 
 	/**
