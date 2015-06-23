@@ -108,7 +108,7 @@ class Client {
 		return $this->sendRequest(
 			"payment/process",
 			$payload,
-			"POST",
+			"GET",
 			array(),
 			array("merchantId", "payId", "dttm", "signature"),
 			true
@@ -392,7 +392,7 @@ class Client {
 
 		$httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 		if ($httpCode != 200) {
-			throw new \RuntimeException("API returned HTTP code $httpCode, which is not code 200.");
+			throw new \RuntimeException("API returned HTTP code $httpCode, which is not code 200. Probably wrong signature, check crypto keys.");
 		}
 
 		curl_close($ch);
