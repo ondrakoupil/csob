@@ -5,7 +5,51 @@ namespace OndraKoupil\Csob;
 use \OndraKoupil\Tools\Files;
 
 /**
- * The most important class that allows you to use payment gateway's functions.
+ * The main class that allows you to use payment gateway's functions.
+ *
+ * @example
+ * 
+ * <code>
+ *
+ * use OndraKoupil\Csob;
+ *
+ * $config = new Config(
+ *    "Your Merchant ID",
+ *    "Path to your private key file",
+ *    "Path to bank's public key file",
+ *    "Your e-shop name",
+ *    "Some URL to return customers to"
+ * );
+ *
+ * $client = new Client($config);
+ *
+ * // Check if connection and signing works
+ * $client->testGetConnection();
+ * $client->testPostConnection();
+ *
+ * // Create new payment with some item in cart
+ * $payment = new Payment("12345");
+ * $payment->addCartItem("Some cool stuff", 1, 10000);
+ *
+ * $client->paymentInit($payment);
+ *
+ * // Check for payment status
+ * $client->paymentStatus($payment);
+ *
+ * // Get URL to send the customer to
+ * $url = $client->getPaymentProcessUrl($payment);
+ *
+ * // Or redirect him there right now
+ * $client->redirectToGateway($payment);
+ *
+ * // Cancel the payment
+ * $client->paymentReverse($payment);
+ *
+ * // Or approve the payment (if not set to do that automatically)
+ * $client->paymentClose($payment);
+ *
+ * </code>
+ *
  */
 class Client {
 
@@ -665,6 +709,9 @@ class Client {
 		return $this;
 	}
 
+	/**
+	 * @ignore
+	 */
 	function writeToLog($message) {
 		if ($this->logFile) {
 			$timestamp = date("Y-m-d H:i:s");
@@ -683,6 +730,9 @@ class Client {
 		}
 	}
 
+	/**
+	 * @ignore
+	 */
 	function writeToTraceLog($message) {
 		if ($this->traceLogFile) {
 			$timestamp = date("Y-m-d H:i:s");
@@ -890,7 +940,7 @@ class Client {
 	/**
 	 * Gets the URL of API method
 	 * @param string $apiMethod
-	 * @return steing
+	 * @return string
 	 */
 	function getApiMethodUrl($apiMethod) {
 		return $this->config->url . "/" . $apiMethod;
