@@ -9,7 +9,24 @@ use \OndraKoupil\Tools\Files;
  */
 class Client {
 
+
 	const DATE_FORMAT = "YmdHis";
+
+	/**
+	 * Customer with given ID was not found
+	 */
+	const CUST_NOT_FOUND = 800;
+
+	/**
+	 * Customer found, but has no saved cards
+	 */
+	const CUST_NO_CARDS = 810;
+
+	/**
+	 * Customer found and has some cards
+	 */
+	const CUST_CARDS = 820;
+
 
 	/**
 	 * @var Config
@@ -17,10 +34,28 @@ class Client {
 	 */
 	protected $config;
 
+	/**
+	 * @ignore
+	 * @var string
+	 */
 	protected $logFile;
+
+	/**
+	 * @ignore
+	 * @var callable
+	 */
 	protected $logCallback;
 
+	/**
+	 * @ignore
+	 * @var string
+	 */
 	protected $traceLogFile;
+
+	/**
+	 * @ignore
+	 * @var callable
+	 */
 	protected $traceLogCallback;
 
 
@@ -28,7 +63,13 @@ class Client {
 
 	/**
 	 * Create new client with given Config.
+	 *
 	 * @param Config $config
+	 * @param callable|string $log Log for messages concerning payments
+	 * at bussiness-logic level. Either a string filename or a callback
+	 * that you can use to forward messages to your own logging system.
+	 * @param callable|string $traceLog Log for technical messages with
+	 * exact contents of communication.
 	 */
 	function __construct(Config $config, $log = null, $traceLog = null) {
 
@@ -177,6 +218,28 @@ class Client {
 	/**
 	 * Check payment status by calling payment/status API method.
 	 *
+	 * Use this to check current status of some transaction.
+	 * See ČSOB's wiki on Github for explanation of each status.
+	 *
+	 * Basically, they are:
+	 *
+	 * - 1 = new; after paymentInit() but before customer starts filling in his
+	 *	 card number and authorising the transaction
+	 * - 2 = in progress; during customer's stay at payment gateway
+	 * - 4 = after successful authorisation but before it is approved by you by
+	 *   calling paymentClose. This state is skipped if you use
+	 *   Payment->closePayment = true or Config->closePayment = true.
+	 * - 7 = waiting for being processed by bank. The payment will remain in this
+	 *   state for about one working day. You can call paymentReverse() during this
+	 *   time to stop it from being processed.
+	 * - 5 = cancelled by you. Payment gets here after calling paymentReverse().
+	 * - 8 = finished. This means money is already probably on your account.
+	 *   If you want to cancel the payment, you can only refund it by calling
+	 *   paymentRefund().
+	 * - 9 = being refunded
+	 * - 10 = refunded
+	 * - 6 or 3 = payment was not authorised or was cancelled by customer
+	 *
 	 * @param string|Payment $payment Either PayID given during paymentInit(),
 	 * or just the Payment object you used in paymentInit()
 	 *
@@ -224,15 +287,20 @@ class Client {
 	/**
 	 * Performs payment/reverse API call.
 	 *
-	 * Normally, if the payment is not in a state where it's possible to reverse
-	 * it, than gateway returns an error code 150 and exception is thrown from here.
+	 * Reversing payment means stopping payment that has not yet been processed
+	 * by bank (usually about 1 working day after being created).
+	 *
+	 * Normally, payment must be in state 4 or 7 to be reversable.
+	 * If the payment is not in an acceptable state, then the gateway
+	 * returns an error code 150 and exception is thrown from here.
 	 * Set $ignoreWrongPaymentStatusError to true if you are okay with that
 	 * situation and you want to silently ignore it. Method then returns null.
 	 *
-	 * If some other type of error occurs, exception will be thrown in all cases.
+	 * If some other type of error occurs, exception will be thrown anyway.
 	 *
-	 * @param string|Payment $payment Either PayID given during paymentInit(),
-	 * or just the Payment object you used in paymentInit()
+	 * @param string|array|Payment $payment Either PayID given during paymentInit(),
+	 * or whole returned array from paymentInit or just the Payment object
+	 * you used in paymentInit()
 	 *
 	 * @param bool $ignoreWrongPaymentStatusError
 	 *
@@ -288,12 +356,147 @@ class Client {
 		return $ret;
 	}
 
-	function paymentClose($payment) {
+	/**
+	 * Performs payment/close API call.
+	 *
+	 * If you want to accept (close) payments manually, set property $closePayment
+	 * of Payment object or Config object to false. Then, payments will wait in
+	 * state 4 for your approval by calling paymentClose().
+	 *
+	 * Normally, payment must be in state 4 to be eligible for this operation.
+	 * If the payment is not in an acceptable state, then the gateway
+	 * returns an error code 150 and exception is thrown from here.
+	 * Set $ignoreWrongPaymentStatusError to true if you are okay with that
+	 * situation and you want to silently ignore it. Method then returns null.
+	 *
+	 * If some other type of error occurs, exception will be thrown in all cases.
+	 *
+	 * @param string|Payment $payment Either PayID given during paymentInit(),
+	 * or just the Payment object you used in paymentInit()
+	 *
+	 * @param bool $ignoreWrongPaymentStatusError
+	 *
+	 * @return array|null Array with results of call or null if payment is not
+	 * in correct state
+	 *
+	 *
+	 * @throws \RuntimeException
+	 */
+	function paymentClose($payment, $ignoreWrongPaymentStatusError = false) {
+		$payId = $this->getPayId($payment);
 
+		$payload = array(
+			"merchantId" => $this->config->merchantId,
+			"payId" => $payId,
+			"dttm" => $this->getDTTM()
+		);
+
+		$this->writeToLog("payment/close started for payment $payId");
+
+		try {
+			$payload["signature"] = $this->signRequest($payload);
+
+			try {
+
+				$ret = $this->sendRequest(
+					"payment/close",
+					$payload,
+					"PUT",
+					array("payId", "dttm", "resultCode", "resultMessage", "paymentStatus"),
+					array("merchantId", "payId", "dttm", "signature")
+				);
+
+			} catch (\RuntimeException $e) {
+				if ($e->getCode() != 150) { // Not just invalid state
+					throw $e;
+				}
+				if (!$ignoreWrongPaymentStatusError) {
+					throw $e;
+				}
+
+				$this->writeToLog("payment/close failed, payment is not in correct status");
+				return null;
+			}
+
+		} catch (\Exception $e) {
+			$this->writeToLog("Fail, got exception: " . $e->getCode().", " . $e->getMessage());
+			throw $e;
+		}
+
+		$this->writeToLog("payment/close OK");
+
+		return $ret;
 	}
 
-	function paymentRefund($payment) {
+	/**
+	 * Performs payment/refind API call.
+	 *
+	 * If you want to send money back to your customer after payment has been
+	 * completely processed and money transferred, use this method.
+	 *
+	 * Normally, payment must be in state 8 to be eligible for this operation.
+	 * If the payment is not in an acceptable state, then the gateway
+	 * returns an error code 150 and exception is thrown from here.
+	 * Set $ignoreWrongPaymentStatusError to true if you are okay with that
+	 * situation and you want to silently ignore it. Method then returns null.
+	 *
+	 * If some other type of error occurs, exception will be thrown in all cases.
+	 *
+	 * @param string|Payment $payment Either PayID given during paymentInit(),
+	 * or just the Payment object you used in paymentInit()
+	 *
+	 * @param bool $ignoreWrongPaymentStatusError
+	 *
+	 * @return array|null Array with results of call or null if payment is not
+	 * in correct state
+	 *
+	 *
+	 * @throws \RuntimeException
+	 */
+	function paymentRefund($payment, $ignoreWrongPaymentStatusError = false) {
+		$payId = $this->getPayId($payment);
 
+		$payload = array(
+			"merchantId" => $this->config->merchantId,
+			"payId" => $payId,
+			"dttm" => $this->getDTTM()
+		);
+
+		$this->writeToLog("payment/refund started for payment $payId");
+
+		try {
+			$payload["signature"] = $this->signRequest($payload);
+
+			try {
+
+				$ret = $this->sendRequest(
+					"payment/refund",
+					$payload,
+					"PUT",
+					array("payId", "dttm", "resultCode", "resultMessage", "paymentStatus"),
+					array("merchantId", "payId", "dttm", "signature")
+				);
+
+			} catch (\RuntimeException $e) {
+				if ($e->getCode() != 150) { // Not just invalid state
+					throw $e;
+				}
+				if (!$ignoreWrongPaymentStatusError) {
+					throw $e;
+				}
+
+				$this->writeToLog("payment/refund failed, payment is not in correct status");
+				return null;
+			}
+
+		} catch (\Exception $e) {
+			$this->writeToLog("Fail, got exception: " . $e->getCode().", " . $e->getMessage());
+			throw $e;
+		}
+
+		$this->writeToLog("payment/refund OK");
+
+		return $ret;
 	}
 
 	/**
@@ -338,13 +541,92 @@ class Client {
 		return $ret;
 	}
 
-	function customerInfo() {
+	/**
+	 * Performs customer/info API call.
+	 *
+	 * Use this method to check if customer with given ID has any saved cards.
+	 * If he does, you can show some icon or change default payment method in
+	 * e-shop or do some other action. This is just an auxiliary method and
+	 * is not neccessary at all.
+	 *
+	 * @param string|array|Payment $customerId Customer ID, Payment object or array
+	 * as returned from paymentInit
+	 * @param bool $returnIfHasCardsOnly
+	 * @return bool|int If $returnIfHasCardsOnly is set to true, method returns
+	 * boolean indicating whether given customerID has any saved cards. If it is
+	 * set to false, then method returns one of CUSTOMER_*** constants which can
+	 * be used to distinguish more precisely whether customer just hasn't saved
+	 * any cards or was not found at all.
+	 *
+	 * @throws \Exception
+	 */
+	function customerInfo($customerId, $returnIfHasCardsOnly = true) {
+		$customerId = $this->getCustomerId($customerId);
 
+		$this->writeToLog("customer/info started for customer $customerId");
+
+		if (!$customerId) {
+			$this->writeToLog("no customer Id give, aborting");
+			return null;
+		}
+
+		$payload = array(
+			"merchantId" => $this->config->merchantId,
+			"customerId" => $customerId,
+			"dttm" => $this->getDTTM()
+		);
+
+		$payload["signature"] = $this->signRequest($payload);
+
+		$result = 0;
+		$resMessage = "";
+
+		try {
+			$ret = $this->sendRequest(
+				"customer/info",
+				$payload,
+				"GET",
+				array("customerId", "dttm", "resultCode", "resultMessage"),
+				array("merchantId", "customerId", "dttm", "signature")
+			);
+		} catch (\Exception $e) {
+			// Valid call returns non-0 resultCode, which leads to exception
+			$resMessage = $e->getMessage();
+
+			switch  ($e->getCode()) {
+
+				case self::CUST_CARDS:
+				case self::CUST_NO_CARDS:
+				case self::CUST_NOT_FOUND:
+					$result = $e->getCode();
+					break;
+
+				default:
+					throw $e;
+					// this is really some error
+			}
+		}
+
+		$this->writeToLog("Result: $result, $resMessage");
+
+		if ($returnIfHasCardsOnly) {
+			return ($result == self::CUST_CARDS);
+		}
+
+		return $result;
 	}
 
 
 	// ------ LOGGING -------
 
+	/**
+	 * Sets logging for bussiness-logic level messages.
+	 *
+	 * @param string|callback $log String filename or callback that forwards
+	 * messages to your own logging system.
+	 *
+	 * @return Client
+	 */
 	function setLog($log) {
 		if (!$log) {
 			$this->logFile = null;
@@ -360,6 +642,14 @@ class Client {
 		return $this;
 	}
 
+	/**
+	 * Sets logging for exact contents of communication
+	 *
+	 * @param string|callback $log String filename or callback that forwards
+	 * messages to your own logging system.
+	 *
+	 * @return Client
+	 */
 	function setTraceLog($log) {
 		if (!$log) {
 			$this->traceLogFile = null;
@@ -416,7 +706,7 @@ class Client {
 	/**
 	 * Get payId as string and validate it.
 	 * @ignore
-	 * @param Payment|string $payment
+	 * @param Payment|string|array $payment String, Payment object or array as returned from paymentInit call
 	 * @return string
 	 * @throws \InvalidArgumentException
 	 */
@@ -427,11 +717,35 @@ class Client {
 				throw new \InvalidArgumentException("Given Payment object does not have payId. Please call paymentInit() first.");
 			}
 		}
+		if (is_array($payment) and isset($payment["payId"])) {
+			$payment = $payment["payId"];
+		}
 		if (!is_string($payment) or strlen($payment) != 15) {
 			throw new \InvalidArgumentException("Given Payment ID is not valid - it should be a string with length 15 characters.");
 		}
 		return $payment;
 	}
+
+	/**
+	 * Get customerId as string and validate it.
+	 * @ignore
+	 * @param Payment|string|array $payment String, Payment object or array as returned from paymentInit call
+	 * @return string
+	 * @throws \InvalidArgumentException
+	 */
+	protected function getCustomerId($payment) {
+		if (!is_string($payment) and $payment instanceof Payment) {
+			$payment = $payment->customerId;
+		}
+		if (is_array($payment) and isset($payment["customerId"])) {
+			$payment = $payment["customerId"];
+		}
+		if (!is_string($payment)) {
+			throw new \InvalidArgumentException("Given Customer ID is not valid.");
+		}
+		return $payment;
+	}
+
 
 	/**
 	 * Get current timestamp in payment gate's format.
