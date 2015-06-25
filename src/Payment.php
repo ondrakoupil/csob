@@ -46,11 +46,11 @@ class Payment {
 	 * Should the payment be processed right on?
 	 * See Wiki on ČSOB's github for more information.
 	 *
-	 * Default value is true.
+	 * If not set, value from Config us used (true by default).
 	 *
-	 * @var bool
+	 * @var bool|null
 	 */
-	public $closePayment = true;
+	public $closePayment = null;
 
 	/**
 	 * Return URL to send your customers back to.
@@ -312,7 +312,7 @@ class Payment {
 		}
 
 		if ($this->closePayment === null) {
-			$this->closePayment = true;
+			$this->closePayment = $config->closePayment ? true : false;
 		}
 
 		if (!$this->returnUrl) {

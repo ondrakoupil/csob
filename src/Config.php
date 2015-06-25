@@ -82,6 +82,14 @@ class Config {
 	public $shopName;
 
 	/**
+	 * Should payments be created with closePayment = true by default?
+	 * See Wiki on ČSOB's github for more information.
+	 *
+	 * @var type
+	 */
+	public $closePayment = true;
+
+	/**
 	 * Create config with all mandatory values.
 	 *
 	 * See equally named properties of this class for more info.
