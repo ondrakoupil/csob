@@ -8,3 +8,4 @@ vendor/
 /tests/coverage.*
 /tests/*/output
 .DS_Store
+/apigen*

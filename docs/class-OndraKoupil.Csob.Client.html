@@ -1,0 +1,1018 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+
+	<title>Class OndraKoupil\Csob\Client | ČSOB payment gate PHP client</title>
+
+	<link rel="stylesheet" href="resources/style.css?ece90927a9d9c062449c24ff926274b49e781e42">
+
+</head>
+
+<body>
+<div id="left">
+	<div id="menu">
+		<a href="index.html" title="Overview"><span>Overview</span></a>
+
+
+		<div id="groups">
+				<h3>Namespaces</h3>
+			<ul>
+				<li class="active">
+					<a href="namespace-OndraKoupil.html">
+						OndraKoupil<span></span>
+					</a>
+
+						<ul>
+				<li class="active">
+					<a href="namespace-OndraKoupil.Csob.html">
+						Csob					</a>
+
+						</li>
+							</ul></li>
+			</ul>
+		</div>
+
+		<hr>
+
+
+		<div id="elements">
+			<h3>Classes</h3>
+			<ul>
+				<li class="active"><a href="class-OndraKoupil.Csob.Client.html">Client</a></li>
+				<li><a href="class-OndraKoupil.Csob.Config.html">Config</a></li>
+				<li><a href="class-OndraKoupil.Csob.Crypto.html">Crypto</a></li>
+				<li><a href="class-OndraKoupil.Csob.Payment.html">Payment</a></li>
+			</ul>
+
+
+
+
+
+		</div>
+	</div>
+</div>
+
+<div id="splitter"></div>
+
+<div id="right">
+<div id="rightInner">
+	<form id="search">
+		<input type="hidden" name="cx" value="">
+		<input type="hidden" name="ie" value="UTF-8">
+		<input type="text" name="q" class="text" placeholder="Search">
+	</form>
+
+	<div id="navigation">
+		<ul>
+			<li>
+				<a href="index.html" title="Overview"><span>Overview</span></a>
+			</li>
+			<li>
+				<a href="namespace-OndraKoupil.Csob.html" title="Summary of OndraKoupil\Csob"><span>Namespace</span></a>
+			</li>
+			<li class="active">
+<span>Class</span>			</li>
+		</ul>
+		<ul>
+		</ul>
+		<ul>
+		</ul>
+	</div>
+
+<div id="content" class="class">
+	<h1>Class Client</h1>
+
+
+	<div class="description">
+	<p>The main class that allows you to use payment gateway's functions.</p>
+	</div>
+
+
+
+
+
+
+
+
+
+	<div class="info">
+		
+		
+		<b>Namespace:</b> <a href="namespace-OndraKoupil.html">OndraKoupil</a>\<a href="namespace-OndraKoupil.Csob.html">Csob</a><br>
+		
+
+				<b>Example:</b>
+				<pre><span class="php-keyword1">use</span> OndraKoupil\Csob;
+
+<span class="php-var">$config</span> = <span class="php-keyword1">new</span> Config(
+   <span class="php-quote">&quot;Your Merchant ID&quot;</span>,
+   <span class="php-quote">&quot;Path to your private key file&quot;</span>,
+   <span class="php-quote">&quot;Path to bank's public key file&quot;</span>,
+   <span class="php-quote">&quot;Your e-shop name&quot;</span>,
+   <span class="php-quote">&quot;Some URL to return customers to&quot;</span>
+);
+
+<span class="php-var">$client</span> = <span class="php-keyword1">new</span> Client(<span class="php-var">$config</span>);
+
+<span class="php-comment">// Check if connection and signing works</span>
+<span class="php-var">$client</span>-&gt;testGetConnection();
+<span class="php-var">$client</span>-&gt;testPostConnection();
+
+<span class="php-comment">// Create new payment with some item in cart</span>
+<span class="php-var">$payment</span> = <span class="php-keyword1">new</span> Payment(<span class="php-quote">&quot;12345&quot;</span>);
+<span class="php-var">$payment</span>-&gt;addCartItem(<span class="php-quote">&quot;Some cool stuff&quot;</span>, <span class="php-num">1</span>, <span class="php-num">10000</span>);
+
+<span class="php-var">$client</span>-&gt;paymentInit(<span class="php-var">$payment</span>);
+
+<span class="php-comment">// Check for payment status</span>
+<span class="php-var">$client</span>-&gt;paymentStatus(<span class="php-var">$payment</span>);
+
+<span class="php-comment">// Get URL to send the customer to</span>
+<span class="php-var">$url</span> = <span class="php-var">$client</span>-&gt;getPaymentProcessUrl(<span class="php-var">$payment</span>);
+
+<span class="php-comment">// Or redirect him there right now</span>
+<span class="php-var">$client</span>-&gt;redirectToGateway(<span class="php-var">$payment</span>);
+
+<span class="php-comment">// Cancel the payment</span>
+<span class="php-var">$client</span>-&gt;paymentReverse(<span class="php-var">$payment</span>);
+
+<span class="php-comment">// Or approve the payment (if not set to do that automatically)</span>
+<span class="php-var">$client</span>-&gt;paymentClose(<span class="php-var">$payment</span>);</pre><br>
+			<b>Located at</b> <a href="source-class-OndraKoupil.Csob.Client.html#7-978" title="Go to source code">Client.php</a>
+		<br>
+	</div>
+
+
+
+	<table class="summary methods" id="methods">
+	<caption>Methods summary</caption>
+	<tr data-order="__construct" id="___construct">
+
+		<td class="attributes"><code>
+			 public 
+
+			
+			
+			</code>
+		</td>
+
+		<td class="name"><div>
+		<a class="anchor" href="#___construct">#</a>
+		<code><a href="source-class-OndraKoupil.Csob.Client.html#108-130" title="Go to source code">__construct</a>( <span><code><a href="class-OndraKoupil.Csob.Config.html">OndraKoupil\Csob\Config</a></code> <var>$config</var></span>, <span>callable|string <var>$log</var> = <span class="php-keyword1">null</span></span>, <span>callable|string <var>$traceLog</var> = <span class="php-keyword1">null</span></span> )</code>
+
+		<div class="description short">
+			<p>Create new client with given Config.</p>
+		</div>
+
+		<div class="description detailed hidden">
+			<p>Create new client with given Config.</p>
+
+
+				<h4>Parameters</h4>
+				<div class="list"><dl>
+					<dt><var>$config</var></dt>
+					<dd></dd>
+					<dt><var>$log</var></dt>
+					<dd><p>Log for messages concerning payments
+at bussiness-logic level. Either a string filename or a callback
+that you can use to forward messages to your own logging system.</p></dd>
+					<dt><var>$traceLog</var></dt>
+					<dd><p>Log for technical messages with
+exact contents of communication.</p></dd>
+				</dl></div>
+
+
+
+
+
+		</div>
+		</div></td>
+	</tr>
+	<tr data-order="getConfig" id="_getConfig">
+
+		<td class="attributes"><code>
+			 public 
+
+			<code><a href="class-OndraKoupil.Csob.Config.html">OndraKoupil\Csob\Config</a></code>
+			
+			</code>
+		</td>
+
+		<td class="name"><div>
+		<a class="anchor" href="#_getConfig">#</a>
+		<code><a href="source-class-OndraKoupil.Csob.Client.html#132-137" title="Go to source code">getConfig</a>( )</code>
+
+		<div class="description short">
+			
+		</div>
+
+		<div class="description detailed hidden">
+			
+
+
+
+				<h4>Returns</h4>
+				<div class="list">
+					<code><a href="class-OndraKoupil.Csob.Config.html">OndraKoupil\Csob\Config</a></code>
+				</div>
+
+
+
+
+		</div>
+		</div></td>
+	</tr>
+	<tr data-order="setConfig" id="_setConfig">
+
+		<td class="attributes"><code>
+			 public 
+
+			<code><a href="class-OndraKoupil.Csob.Client.html">OndraKoupil\Csob\Client</a></code>
+			
+			</code>
+		</td>
+
+		<td class="name"><div>
+		<a class="anchor" href="#_setConfig">#</a>
+		<code><a href="source-class-OndraKoupil.Csob.Client.html#139-146" title="Go to source code">setConfig</a>( <span><code><a href="class-OndraKoupil.Csob.Config.html">OndraKoupil\Csob\Config</a></code> <var>$config</var></span> )</code>
+
+		<div class="description short">
+			
+		</div>
+
+		<div class="description detailed hidden">
+			
+
+
+				<h4>Parameters</h4>
+				<div class="list"><dl>
+					<dt><var>$config</var></dt>
+					<dd></dd>
+				</dl></div>
+
+				<h4>Returns</h4>
+				<div class="list">
+					<code><a href="class-OndraKoupil.Csob.Client.html">OndraKoupil\Csob\Client</a></code>
+				</div>
+
+
+
+
+		</div>
+		</div></td>
+	</tr>
+	<tr data-order="paymentInit" id="_paymentInit">
+
+		<td class="attributes"><code>
+			 public 
+
+			array
+			
+			</code>
+		</td>
+
+		<td class="name"><div>
+		<a class="anchor" href="#_paymentInit">#</a>
+		<code><a href="source-class-OndraKoupil.Csob.Client.html#151-194" title="Go to source code">paymentInit</a>( <span><code><a href="class-OndraKoupil.Csob.Payment.html">OndraKoupil\Csob\Payment</a></code> <var>$payment</var></span> )</code>
+
+		<div class="description short">
+			<p>Performs payment/init API call.</p>
+		</div>
+
+		<div class="description detailed hidden">
+			<p>Performs payment/init API call.</p>
+
+<p>Use this to create new payment in payment gateway.
+After successful call, the $payment object will be updated by given PayID.</p>
+
+
+				<h4>Parameters</h4>
+				<div class="list"><dl>
+					<dt><var>$payment</var></dt>
+					<dd>Create and fill this object manually with real data.</dd>
+				</dl></div>
+
+				<h4>Returns</h4>
+				<div class="list">
+					array<br><p>Array with results of the call. You don't need to use
+any of this, PayID will be set to $payment automatically.</p>
+				</div>
+
+				<h4>Throws</h4>
+				<div class="list">
+					RuntimeException<br>When something fails.
+				</div>
+
+
+
+		</div>
+		</div></td>
+	</tr>
+	<tr data-order="getPaymentProcessUrl" id="_getPaymentProcessUrl">
+
+		<td class="attributes"><code>
+			 public 
+
+			string
+			
+			</code>
+		</td>
+
+		<td class="name"><div>
+		<a class="anchor" href="#_getPaymentProcessUrl">#</a>
+		<code><a href="source-class-OndraKoupil.Csob.Client.html#196-233" title="Go to source code">getPaymentProcessUrl</a>( <span>string|<code><a href="class-OndraKoupil.Csob.Payment.html">OndraKoupil\Csob\Payment</a></code> <var>$payment</var></span> )</code>
+
+		<div class="description short">
+			<p>Generates URL to send customer's browser to after initing the payment.</p>
+		</div>
+
+		<div class="description detailed hidden">
+			<p>Generates URL to send customer's browser to after initing the payment.</p>
+
+<p>Use this after you successfully called paymentInit() and redirect
+the customer's browser on the URL that this method returns manually,
+or use redirectToGateway().</p>
+
+
+				<h4>Parameters</h4>
+				<div class="list"><dl>
+					<dt><var>$payment</var></dt>
+					<dd><p>Either PayID given during paymentInit(),
+or just the Payment object you used in paymentInit()</p></dd>
+				</dl></div>
+
+				<h4>Returns</h4>
+				<div class="list">
+					string
+				</div>
+
+
+				<h4>See</h4>
+				<div class="list">
+						<code><a href="class-OndraKoupil.Csob.Client.html#_redirectToGateway">OndraKoupil\Csob\Client::redirectToGateway()</a></code><br>
+				</div>
+
+
+		</div>
+		</div></td>
+	</tr>
+	<tr data-order="redirectToGateway" id="_redirectToGateway">
+
+		<td class="attributes"><code>
+			 public 
+
+			
+			
+			</code>
+		</td>
+
+		<td class="name"><div>
+		<a class="anchor" href="#_redirectToGateway">#</a>
+		<code><a href="source-class-OndraKoupil.Csob.Client.html#235-260" title="Go to source code">redirectToGateway</a>( <span>string|<code><a href="class-OndraKoupil.Csob.Payment.html">OndraKoupil\Csob\Payment</a></code> <var>$payment</var></span> )</code>
+
+		<div class="description short">
+			<p>Redirect customer's browser to payment gateway.</p>
+		</div>
+
+		<div class="description detailed hidden">
+			<p>Redirect customer's browser to payment gateway.</p>
+
+<p>Use this after you successfully called paymentInit()</p>
+
+<p>Note that HTTP headers must not have been sent before.</p>
+
+
+				<h4>Parameters</h4>
+				<div class="list"><dl>
+					<dt><var>$payment</var></dt>
+					<dd><p>Either PayID given during paymentInit(),
+or just the Payment object you used in paymentInit()</p></dd>
+				</dl></div>
+
+
+				<h4>Throws</h4>
+				<div class="list">
+					RuntimeException<br>If headers has been already sent
+				</div>
+
+
+
+		</div>
+		</div></td>
+	</tr>
+	<tr data-order="paymentStatus" id="_paymentStatus">
+
+		<td class="attributes"><code>
+			 public 
+
+			array|number
+			
+			</code>
+		</td>
+
+		<td class="name"><div>
+		<a class="anchor" href="#_paymentStatus">#</a>
+		<code><a href="source-class-OndraKoupil.Csob.Client.html#262-329" title="Go to source code">paymentStatus</a>( <span>string|<code><a href="class-OndraKoupil.Csob.Payment.html">OndraKoupil\Csob\Payment</a></code> <var>$payment</var></span>, <span>boolean <var>$returnStatusOnly</var> = <span class="php-keyword1">true</span></span> )</code>
+
+		<div class="description short">
+			<p>Check payment status by calling payment/status API method.</p>
+		</div>
+
+		<div class="description detailed hidden">
+			<p>Check payment status by calling payment/status API method.</p>
+
+<p>Use this to check current status of some transaction.
+See ČSOB's wiki on Github for explanation of each status.</p>
+
+<p>Basically, they are:</p>
+
+<ul>
+<li>1 = new; after paymentInit() but before customer starts filling in his card number and authorising the transaction</li>
+<li>2 = in progress; during customer's stay at payment gateway</li>
+<li>4 = after successful authorisation but before it is approved by you by calling paymentClose. This state is skipped if you use Payment->closePayment = true or Config->closePayment = true.</li>
+<li>7 = waiting for being processed by bank. The payment will remain in this state for about one working day. You can call paymentReverse() during this time to stop it from being processed.</li>
+<li>5 = cancelled by you. Payment gets here after calling paymentReverse().</li>
+<li>8 = finished. This means money is already probably on your account. If you want to cancel the payment, you can only refund it by calling paymentRefund().</li>
+<li>9 = being refunded</li>
+<li>10 = refunded</li>
+<li>6 or 3 = payment was not authorised or was cancelled by customer</li>
+</ul>
+
+
+				<h4>Parameters</h4>
+				<div class="list"><dl>
+					<dt><var>$payment</var></dt>
+					<dd><p>Either PayID given during paymentInit(),
+or just the Payment object you used in paymentInit()</p></dd>
+					<dt><var>$returnStatusOnly</var></dt>
+					<dd><p>Leave on true if you want to return only
+status code. Set to false if you want more information as array.</p></dd>
+				</dl></div>
+
+				<h4>Returns</h4>
+				<div class="list">
+					array|number<br>Number if $returnStatusOnly was true, array otherwise.
+				</div>
+
+
+
+
+		</div>
+		</div></td>
+	</tr>
+	<tr data-order="paymentReverse" id="_paymentReverse">
+
+		<td class="attributes"><code>
+			 public 
+
+			array|null
+			
+			</code>
+		</td>
+
+		<td class="name"><div>
+		<a class="anchor" href="#_paymentReverse">#</a>
+		<code><a href="source-class-OndraKoupil.Csob.Client.html#331-401" title="Go to source code">paymentReverse</a>( <span>string|array|<code><a href="class-OndraKoupil.Csob.Payment.html">OndraKoupil\Csob\Payment</a></code> <var>$payment</var></span>, <span>boolean <var>$ignoreWrongPaymentStatusError</var> = <span class="php-keyword1">false</span></span> )</code>
+
+		<div class="description short">
+			<p>Performs payment/reverse API call.</p>
+		</div>
+
+		<div class="description detailed hidden">
+			<p>Performs payment/reverse API call.</p>
+
+<p>Reversing payment means stopping payment that has not yet been processed
+by bank (usually about 1 working day after being created).</p>
+
+<p>Normally, payment must be in state 4 or 7 to be reversable.
+If the payment is not in an acceptable state, then the gateway
+returns an error code 150 and exception is thrown from here.
+Set $ignoreWrongPaymentStatusError to true if you are okay with that
+situation and you want to silently ignore it. Method then returns null.</p>
+
+<p>If some other type of error occurs, exception will be thrown anyway.</p>
+
+
+				<h4>Parameters</h4>
+				<div class="list"><dl>
+					<dt><var>$payment</var></dt>
+					<dd><p>Either PayID given during paymentInit(),
+or whole returned array from paymentInit or just the Payment object
+you used in paymentInit()</p></dd>
+					<dt><var>$ignoreWrongPaymentStatusError</var></dt>
+					<dd></dd>
+				</dl></div>
+
+				<h4>Returns</h4>
+				<div class="list">
+					array|null<br><p>Array with results of call or null if payment is not
+in correct state</p>
+				</div>
+
+				<h4>Throws</h4>
+				<div class="list">
+					RuntimeException
+				</div>
+
+
+
+		</div>
+		</div></td>
+	</tr>
+	<tr data-order="paymentClose" id="_paymentClose">
+
+		<td class="attributes"><code>
+			 public 
+
+			array|null
+			
+			</code>
+		</td>
+
+		<td class="name"><div>
+		<a class="anchor" href="#_paymentClose">#</a>
+		<code><a href="source-class-OndraKoupil.Csob.Client.html#403-473" title="Go to source code">paymentClose</a>( <span>string|<code><a href="class-OndraKoupil.Csob.Payment.html">OndraKoupil\Csob\Payment</a></code> <var>$payment</var></span>, <span>boolean <var>$ignoreWrongPaymentStatusError</var> = <span class="php-keyword1">false</span></span> )</code>
+
+		<div class="description short">
+			<p>Performs payment/close API call.</p>
+		</div>
+
+		<div class="description detailed hidden">
+			<p>Performs payment/close API call.</p>
+
+<p>If you want to accept (close) payments manually, set property $closePayment
+of Payment object or Config object to false. Then, payments will wait in
+state 4 for your approval by calling paymentClose().</p>
+
+<p>Normally, payment must be in state 4 to be eligible for this operation.
+If the payment is not in an acceptable state, then the gateway
+returns an error code 150 and exception is thrown from here.
+Set $ignoreWrongPaymentStatusError to true if you are okay with that
+situation and you want to silently ignore it. Method then returns null.</p>
+
+<p>If some other type of error occurs, exception will be thrown in all cases.</p>
+
+
+				<h4>Parameters</h4>
+				<div class="list"><dl>
+					<dt><var>$payment</var></dt>
+					<dd><p>Either PayID given during paymentInit(),
+or just the Payment object you used in paymentInit()</p></dd>
+					<dt><var>$ignoreWrongPaymentStatusError</var></dt>
+					<dd></dd>
+				</dl></div>
+
+				<h4>Returns</h4>
+				<div class="list">
+					array|null<br><p>Array with results of call or null if payment is not
+in correct state</p>
+				</div>
+
+				<h4>Throws</h4>
+				<div class="list">
+					RuntimeException
+				</div>
+
+
+
+		</div>
+		</div></td>
+	</tr>
+	<tr data-order="paymentRefund" id="_paymentRefund">
+
+		<td class="attributes"><code>
+			 public 
+
+			array|null
+			
+			</code>
+		</td>
+
+		<td class="name"><div>
+		<a class="anchor" href="#_paymentRefund">#</a>
+		<code><a href="source-class-OndraKoupil.Csob.Client.html#475-544" title="Go to source code">paymentRefund</a>( <span>string|<code><a href="class-OndraKoupil.Csob.Payment.html">OndraKoupil\Csob\Payment</a></code> <var>$payment</var></span>, <span>boolean <var>$ignoreWrongPaymentStatusError</var> = <span class="php-keyword1">false</span></span> )</code>
+
+		<div class="description short">
+			<p>Performs payment/refind API call.</p>
+		</div>
+
+		<div class="description detailed hidden">
+			<p>Performs payment/refind API call.</p>
+
+<p>If you want to send money back to your customer after payment has been
+completely processed and money transferred, use this method.</p>
+
+<p>Normally, payment must be in state 8 to be eligible for this operation.
+If the payment is not in an acceptable state, then the gateway
+returns an error code 150 and exception is thrown from here.
+Set $ignoreWrongPaymentStatusError to true if you are okay with that
+situation and you want to silently ignore it. Method then returns null.</p>
+
+<p>If some other type of error occurs, exception will be thrown in all cases.</p>
+
+
+				<h4>Parameters</h4>
+				<div class="list"><dl>
+					<dt><var>$payment</var></dt>
+					<dd><p>Either PayID given during paymentInit(),
+or just the Payment object you used in paymentInit()</p></dd>
+					<dt><var>$ignoreWrongPaymentStatusError</var></dt>
+					<dd></dd>
+				</dl></div>
+
+				<h4>Returns</h4>
+				<div class="list">
+					array|null<br><p>Array with results of call or null if payment is not
+in correct state</p>
+				</div>
+
+				<h4>Throws</h4>
+				<div class="list">
+					RuntimeException
+				</div>
+
+
+
+		</div>
+		</div></td>
+	</tr>
+	<tr data-order="testPostConnection" id="_testPostConnection">
+
+		<td class="attributes"><code>
+			 public 
+
+			array
+			
+			</code>
+		</td>
+
+		<td class="name"><div>
+		<a class="anchor" href="#_testPostConnection">#</a>
+		<code><a href="source-class-OndraKoupil.Csob.Client.html#546-565" title="Go to source code">testPostConnection</a>( )</code>
+
+		<div class="description short">
+			<p>Test the connection using POST method.</p>
+		</div>
+
+		<div class="description detailed hidden">
+			<p>Test the connection using POST method.</p>
+
+
+
+				<h4>Returns</h4>
+				<div class="list">
+					array<br>Results of calling the method.
+				</div>
+
+
+				<h4>Throw</h4>
+				<div class="list">
+						\Exception If something goes wrong. Se exception's message for more.<br>
+				</div>
+
+
+		</div>
+		</div></td>
+	</tr>
+	<tr data-order="testGetConnection" id="_testGetConnection">
+
+		<td class="attributes"><code>
+			 public 
+
+			array
+			
+			</code>
+		</td>
+
+		<td class="name"><div>
+		<a class="anchor" href="#_testGetConnection">#</a>
+		<code><a href="source-class-OndraKoupil.Csob.Client.html#567-586" title="Go to source code">testGetConnection</a>( )</code>
+
+		<div class="description short">
+			<p>Test the connection using GET method.</p>
+		</div>
+
+		<div class="description detailed hidden">
+			<p>Test the connection using GET method.</p>
+
+
+
+				<h4>Returns</h4>
+				<div class="list">
+					array<br>Results of calling the method.
+				</div>
+
+
+				<h4>Throw</h4>
+				<div class="list">
+						\Exception If something goes wrong. Se exception's message for more.<br>
+				</div>
+
+
+		</div>
+		</div></td>
+	</tr>
+	<tr data-order="customerInfo" id="_customerInfo">
+
+		<td class="attributes"><code>
+			 public 
+
+			boolean|integer
+			
+			</code>
+		</td>
+
+		<td class="name"><div>
+		<a class="anchor" href="#_customerInfo">#</a>
+		<code><a href="source-class-OndraKoupil.Csob.Client.html#588-661" title="Go to source code">customerInfo</a>( <span>string|array|<code><a href="class-OndraKoupil.Csob.Payment.html">OndraKoupil\Csob\Payment</a></code> <var>$customerId</var></span>, <span>boolean <var>$returnIfHasCardsOnly</var> = <span class="php-keyword1">true</span></span> )</code>
+
+		<div class="description short">
+			<p>Performs customer/info API call.</p>
+		</div>
+
+		<div class="description detailed hidden">
+			<p>Performs customer/info API call.</p>
+
+<p>Use this method to check if customer with given ID has any saved cards.
+If he does, you can show some icon or change default payment method in
+e-shop or do some other action. This is just an auxiliary method and
+is not neccessary at all.</p>
+
+
+				<h4>Parameters</h4>
+				<div class="list"><dl>
+					<dt><var>$customerId</var></dt>
+					<dd><p>Customer ID, Payment object or array
+as returned from paymentInit</p></dd>
+					<dt><var>$returnIfHasCardsOnly</var></dt>
+					<dd></dd>
+				</dl></div>
+
+				<h4>Returns</h4>
+				<div class="list">
+					boolean|integer<br><p>If $returnIfHasCardsOnly is set to true, method returns
+boolean indicating whether given customerID has any saved cards. If it is
+set to false, then method returns one of CUSTOMER_*** constants which can
+be used to distinguish more precisely whether customer just hasn't saved
+any cards or was not found at all.</p>
+				</div>
+
+				<h4>Throws</h4>
+				<div class="list">
+					Exception
+				</div>
+
+
+
+		</div>
+		</div></td>
+	</tr>
+	<tr data-order="setLog" id="_setLog">
+
+		<td class="attributes"><code>
+			 public 
+
+			<code><a href="class-OndraKoupil.Csob.Client.html">OndraKoupil\Csob\Client</a></code>
+			
+			</code>
+		</td>
+
+		<td class="name"><div>
+		<a class="anchor" href="#_setLog">#</a>
+		<code><a href="source-class-OndraKoupil.Csob.Client.html#666-687" title="Go to source code">setLog</a>( <span>string|callable <var>$log</var></span> )</code>
+
+		<div class="description short">
+			<p>Sets logging for bussiness-logic level messages.</p>
+		</div>
+
+		<div class="description detailed hidden">
+			<p>Sets logging for bussiness-logic level messages.</p>
+
+
+				<h4>Parameters</h4>
+				<div class="list"><dl>
+					<dt><var>$log</var></dt>
+					<dd><p>String filename or callback that forwards
+messages to your own logging system.</p></dd>
+				</dl></div>
+
+				<h4>Returns</h4>
+				<div class="list">
+					<code><a href="class-OndraKoupil.Csob.Client.html">OndraKoupil\Csob\Client</a></code>
+				</div>
+
+
+
+
+		</div>
+		</div></td>
+	</tr>
+	<tr data-order="setTraceLog" id="_setTraceLog">
+
+		<td class="attributes"><code>
+			 public 
+
+			<code><a href="class-OndraKoupil.Csob.Client.html">OndraKoupil\Csob\Client</a></code>
+			
+			</code>
+		</td>
+
+		<td class="name"><div>
+		<a class="anchor" href="#_setTraceLog">#</a>
+		<code><a href="source-class-OndraKoupil.Csob.Client.html#689-710" title="Go to source code">setTraceLog</a>( <span>string|callable <var>$log</var></span> )</code>
+
+		<div class="description short">
+			<p>Sets logging for exact contents of communication</p>
+		</div>
+
+		<div class="description detailed hidden">
+			<p>Sets logging for exact contents of communication</p>
+
+
+				<h4>Parameters</h4>
+				<div class="list"><dl>
+					<dt><var>$log</var></dt>
+					<dd><p>String filename or callback that forwards
+messages to your own logging system.</p></dd>
+				</dl></div>
+
+				<h4>Returns</h4>
+				<div class="list">
+					<code><a href="class-OndraKoupil.Csob.Client.html">OndraKoupil\Csob\Client</a></code>
+				</div>
+
+
+
+
+		</div>
+		</div></td>
+	</tr>
+	<tr data-order="getApiMethodUrl" id="_getApiMethodUrl">
+
+		<td class="attributes"><code>
+			 public 
+
+			string
+			
+			</code>
+		</td>
+
+		<td class="name"><div>
+		<a class="anchor" href="#_getApiMethodUrl">#</a>
+		<code><a href="source-class-OndraKoupil.Csob.Client.html#940-947" title="Go to source code">getApiMethodUrl</a>( <span>string <var>$apiMethod</var></span> )</code>
+
+		<div class="description short">
+			<p>Gets the URL of API method</p>
+		</div>
+
+		<div class="description detailed hidden">
+			<p>Gets the URL of API method</p>
+
+
+				<h4>Parameters</h4>
+				<div class="list"><dl>
+					<dt><var>$apiMethod</var></dt>
+					<dd></dd>
+				</dl></div>
+
+				<h4>Returns</h4>
+				<div class="list">
+					string
+				</div>
+
+
+
+
+		</div>
+		</div></td>
+	</tr>
+	</table>
+
+
+
+
+
+
+
+
+	<table class="summary constants" id="constants">
+	<caption>Constants summary</caption>
+	<tr data-order="DATE_FORMAT" id="DATE_FORMAT">
+
+		<td class="attributes"><code>string</code></td>
+		<td class="name">
+			<code>
+				<a href="source-class-OndraKoupil.Csob.Client.html#57" title="Go to source code"><b>DATE_FORMAT</b></a>
+			</code>
+
+			<div class="description short">
+				
+			</div>
+
+			<div class="description detailed hidden">
+				
+
+			</div>
+		</td>
+		<td class="value">
+			<div>
+				<a href="#DATE_FORMAT" class="anchor">#</a>
+				<code><span class="php-quote">&quot;YmdHis&quot;</span></code>
+			</div>
+		</td>
+	</tr>
+	<tr data-order="CUST_NOT_FOUND" id="CUST_NOT_FOUND">
+
+		<td class="attributes"><code>integer</code></td>
+		<td class="name">
+			<code>
+				<a href="source-class-OndraKoupil.Csob.Client.html#59-62" title="Go to source code"><b>CUST_NOT_FOUND</b></a>
+			</code>
+
+			<div class="description short">
+				<p>Customer with given ID was not found</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Customer with given ID was not found</p>
+
+			</div>
+		</td>
+		<td class="value">
+			<div>
+				<a href="#CUST_NOT_FOUND" class="anchor">#</a>
+				<code><span class="php-num">800</span></code>
+			</div>
+		</td>
+	</tr>
+	<tr data-order="CUST_NO_CARDS" id="CUST_NO_CARDS">
+
+		<td class="attributes"><code>integer</code></td>
+		<td class="name">
+			<code>
+				<a href="source-class-OndraKoupil.Csob.Client.html#64-67" title="Go to source code"><b>CUST_NO_CARDS</b></a>
+			</code>
+
+			<div class="description short">
+				<p>Customer found, but has no saved cards</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Customer found, but has no saved cards</p>
+
+			</div>
+		</td>
+		<td class="value">
+			<div>
+				<a href="#CUST_NO_CARDS" class="anchor">#</a>
+				<code><span class="php-num">810</span></code>
+			</div>
+		</td>
+	</tr>
+	<tr data-order="CUST_CARDS" id="CUST_CARDS">
+
+		<td class="attributes"><code>integer</code></td>
+		<td class="name">
+			<code>
+				<a href="source-class-OndraKoupil.Csob.Client.html#69-72" title="Go to source code"><b>CUST_CARDS</b></a>
+			</code>
+
+			<div class="description short">
+				<p>Customer found and has some cards</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Customer found and has some cards</p>
+
+			</div>
+		</td>
+		<td class="value">
+			<div>
+				<a href="#CUST_CARDS" class="anchor">#</a>
+				<code><span class="php-num">820</span></code>
+			</div>
+		</td>
+	</tr>
+	</table>
+
+
+
+
+
+
+
+
+
+
+</div>
+
+	<div id="footer">
+		ČSOB payment gate PHP client API documentation generated by <a href="http://apigen.org">ApiGen</a>
+	</div>
+</div>
+</div>
+<script src="resources/combined.js"></script>
+<script src="elementlist.js"></script>
+</body>
+</html>

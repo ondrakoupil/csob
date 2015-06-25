@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+
+	<title>Class OndraKoupil\Csob\Payment | ČSOB payment gate PHP client</title>
+
+	<link rel="stylesheet" href="resources/style.css?ece90927a9d9c062449c24ff926274b49e781e42">
+
+</head>
+
+<body>
+<div id="left">
+	<div id="menu">
+		<a href="index.html" title="Overview"><span>Overview</span></a>
+
+
+		<div id="groups">
+				<h3>Namespaces</h3>
+			<ul>
+				<li class="active">
+					<a href="namespace-OndraKoupil.html">
+						OndraKoupil<span></span>
+					</a>
+
+						<ul>
+				<li class="active">
+					<a href="namespace-OndraKoupil.Csob.html">
+						Csob					</a>
+
+						</li>
+							</ul></li>
+			</ul>
+		</div>
+
+		<hr>
+
+
+		<div id="elements">
+			<h3>Classes</h3>
+			<ul>
+				<li><a href="class-OndraKoupil.Csob.Client.html">Client</a></li>
+				<li><a href="class-OndraKoupil.Csob.Config.html">Config</a></li>
+				<li><a href="class-OndraKoupil.Csob.Crypto.html">Crypto</a></li>
+				<li class="active"><a href="class-OndraKoupil.Csob.Payment.html">Payment</a></li>
+			</ul>
+
+
+
+
+
+		</div>
+	</div>
+</div>
+
+<div id="splitter"></div>
+
+<div id="right">
+<div id="rightInner">
+	<form id="search">
+		<input type="hidden" name="cx" value="">
+		<input type="hidden" name="ie" value="UTF-8">
+		<input type="text" name="q" class="text" placeholder="Search">
+	</form>
+
+	<div id="navigation">
+		<ul>
+			<li>
+				<a href="index.html" title="Overview"><span>Overview</span></a>
+			</li>
+			<li>
+				<a href="namespace-OndraKoupil.Csob.html" title="Summary of OndraKoupil\Csob"><span>Namespace</span></a>
+			</li>
+			<li class="active">
+<span>Class</span>			</li>
+		</ul>
+		<ul>
+		</ul>
+		<ul>
+		</ul>
+	</div>
+
+<div id="content" class="class">
+	<h1>Class Payment</h1>
+
+
+	<div class="description">
+	<p>A Payment request.</p>
+
+<p>If you want to init new payment, you have to manually create one instance
+of this class and fill its public properties with real information
+about the order.</p>
+	</div>
+
+
+
+
+
+
+
+
+
+	<div class="info">
+		
+		
+		<b>Namespace:</b> <a href="namespace-OndraKoupil.html">OndraKoupil</a>\<a href="namespace-OndraKoupil.Csob.html">Csob</a><br>
+		
+
+			<b>Located at</b> <a href="source-class-OndraKoupil.Csob.Payment.html#8-416" title="Go to source code">Payment.php</a>
+		<br>
+	</div>
+
+
+
+	<table class="summary methods" id="methods">
+	<caption>Methods summary</caption>
+	<tr data-order="__construct" id="___construct">
+
+		<td class="attributes"><code>
+			 public 
+
+			
+			
+			</code>
+		</td>
+
+		<td class="name"><div>
+		<a class="anchor" href="#___construct">#</a>
+		<code><a href="source-class-OndraKoupil.Csob.Payment.html#173-187" title="Go to source code">__construct</a>( <span>type <var>$orderNo</var></span>, <span> <var>$merchantData</var> = <span class="php-keyword1">null</span></span>, <span> <var>$customerId</var> = <span class="php-keyword1">null</span></span> )</code>
+
+		<div class="description short">
+			
+		</div>
+
+		<div class="description detailed hidden">
+			
+
+
+				<h4>Parameters</h4>
+				<div class="list"><dl>
+					<dt><var>$orderNo</var></dt>
+					<dd></dd>
+					<dt><var>$merchantData</var></dt>
+					<dd></dd>
+					<dt><var>$customerId</var></dt>
+					<dd></dd>
+				</dl></div>
+
+
+
+
+
+		</div>
+		</div></td>
+	</tr>
+	<tr data-order="addCartItem" id="_addCartItem">
+
+		<td class="attributes"><code>
+			 public 
+
+			<code><a href="class-OndraKoupil.Csob.Payment.html">OndraKoupil\Csob\Payment</a></code>
+			
+			</code>
+		</td>
+
+		<td class="name"><div>
+		<a class="anchor" href="#_addCartItem">#</a>
+		<code><a href="source-class-OndraKoupil.Csob.Payment.html#189-229" title="Go to source code">addCartItem</a>( <span>string <var>$name</var></span>, <span>number <var>$quantity</var></span>, <span>number <var>$totalAmount</var></span>, <span>string <var>$description</var> = <span class="php-quote">&quot;&quot;</span></span> )</code>
+
+		<div class="description short">
+			<p>Add one cart item.</p>
+		</div>
+
+		<div class="description detailed hidden">
+			<p>Add one cart item.</p>
+
+<p>You are required to add one or two cart items (at least on API v1).</p>
+
+<p>Remember that $totalAmount must be given in hundreth of currency units
+(cents for USD or EUR, "halíře" for CZK)</p>
+
+
+				<h4>Parameters</h4>
+				<div class="list"><dl>
+					<dt><var>$name</var></dt>
+					<dd><p>Name that customer will see
+(will be automatically trimmed to 20 characters)</p></dd>
+					<dt><var>$quantity</var></dt>
+					<dd></dd>
+					<dt><var>$totalAmount</var></dt>
+					<dd>Total price (total sum for all $quantity)</dd>
+					<dt><var>$description</var></dt>
+					<dd>Aux description (trimmed to 40 chars max)</dd>
+				</dl></div>
+
+				<h4>Returns</h4>
+				<div class="list">
+					<code><a href="class-OndraKoupil.Csob.Payment.html">OndraKoupil\Csob\Payment</a></code><br>Fluent interface
+				</div>
+
+				<h4>Throws</h4>
+				<div class="list">
+					RuntimeException<br>When more than 2nd cart item is to be added<br>
+					InvalidArgumentException<br>When other argument is invalid
+				</div>
+
+
+
+		</div>
+		</div></td>
+	</tr>
+	<tr data-order="setMerchantData" id="_setMerchantData">
+
+		<td class="attributes"><code>
+			 public 
+
+			<code><a href="class-OndraKoupil.Csob.Payment.html">OndraKoupil\Csob\Payment</a></code>
+			
+			</code>
+		</td>
+
+		<td class="name"><div>
+		<a class="anchor" href="#_setMerchantData">#</a>
+		<code><a href="source-class-OndraKoupil.Csob.Payment.html#231-250" title="Go to source code">setMerchantData</a>( <span>string <var>$data</var></span>, <span>boolean <var>$alreadyEncoded</var> = <span class="php-keyword1">false</span></span> )</code>
+
+		<div class="description short">
+			<p>Set some arbitrary data you will receive back when customer returns</p>
+		</div>
+
+		<div class="description detailed hidden">
+			<p>Set some arbitrary data you will receive back when customer returns</p>
+
+
+				<h4>Parameters</h4>
+				<div class="list"><dl>
+					<dt><var>$data</var></dt>
+					<dd></dd>
+					<dt><var>$alreadyEncoded</var></dt>
+					<dd>True if the data is already encoded to Base64</dd>
+				</dl></div>
+
+				<h4>Returns</h4>
+				<div class="list">
+					<code><a href="class-OndraKoupil.Csob.Payment.html">OndraKoupil\Csob\Payment</a></code><br>Fluent interface
+				</div>
+
+				<h4>Throws</h4>
+				<div class="list">
+					InvalidArgumentException<br>When the data is too long
+				</div>
+
+
+
+		</div>
+		</div></td>
+	</tr>
+	<tr data-order="getMerchantData" id="_getMerchantData">
+
+		<td class="attributes"><code>
+			 public 
+
+			string
+			
+			</code>
+		</td>
+
+		<td class="name"><div>
+		<a class="anchor" href="#_getMerchantData">#</a>
+		<code><a href="source-class-OndraKoupil.Csob.Payment.html#252-262" title="Go to source code">getMerchantData</a>( )</code>
+
+		<div class="description short">
+			<p>Get back merchantData, decoded to original value.</p>
+		</div>
+
+		<div class="description detailed hidden">
+			<p>Get back merchantData, decoded to original value.</p>
+
+
+
+				<h4>Returns</h4>
+				<div class="list">
+					string
+				</div>
+
+
+
+
+		</div>
+		</div></td>
+	</tr>
+	<tr data-order="getPayId" id="_getPayId">
+
+		<td class="attributes"><code>
+			 public 
+
+			string
+			
+			</code>
+		</td>
+
+		<td class="name"><div>
+		<a class="anchor" href="#_getPayId">#</a>
+		<code><a href="source-class-OndraKoupil.Csob.Payment.html#264-272" title="Go to source code">getPayId</a>( )</code>
+
+		<div class="description short">
+			<p>After the payment has been saved using payment/init, you can
+get PayID from here.</p>
+		</div>
+
+		<div class="description detailed hidden">
+			<p>After the payment has been saved using payment/init, you can
+get PayID from here.</p>
+
+
+
+				<h4>Returns</h4>
+				<div class="list">
+					string
+				</div>
+
+
+
+
+		</div>
+		</div></td>
+	</tr>
+	<tr data-order="setPayId" id="_setPayId">
+
+		<td class="attributes"><code>
+			 public 
+
+			
+			
+			</code>
+		</td>
+
+		<td class="name"><div>
+		<a class="anchor" href="#_setPayId">#</a>
+		<code><a href="source-class-OndraKoupil.Csob.Payment.html#274-281" title="Go to source code">setPayId</a>( <span>string <var>$id</var></span> )</code>
+
+		<div class="description short">
+			<p>Do not call this on your own. Really.</p>
+		</div>
+
+		<div class="description detailed hidden">
+			<p>Do not call this on your own. Really.</p>
+
+
+				<h4>Parameters</h4>
+				<div class="list"><dl>
+					<dt><var>$id</var></dt>
+					<dd></dd>
+				</dl></div>
+
+
+
+
+
+		</div>
+		</div></td>
+	</tr>
+	</table>
+
+
+
+
+
+
+
+
+
+
+
+
+	<table class="summary properties" id="properties">
+	<caption>Properties summary</caption>
+	<tr data-order="orderNo" id="$orderNo">
+		<td class="attributes"><code>
+			public  
+			string
+		</code></td>
+
+		<td class="name">
+				<a href="source-class-OndraKoupil.Csob.Payment.html#23-31" title="Go to source code"><var>$orderNo</var></a>
+
+			<div class="description short">
+				<p>Number of your order, a string of 1 to 10 numbers
+(this is basically the Variable symbol).</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Number of your order, a string of 1 to 10 numbers
+(this is basically the Variable symbol).</p>
+
+<p>This is the only one mandatory value you need to supply.</p>
+
+			</div>
+		</td>
+		<td class="value">
+			<div>
+				<a href="#$orderNo" class="anchor">#</a>
+				<code></code>
+			</div>
+		</td>
+	</tr>
+	<tr data-order="currency" id="$currency">
+		<td class="attributes"><code>
+			public  
+			string
+		</code></td>
+
+		<td class="name">
+				<a href="source-class-OndraKoupil.Csob.Payment.html#39-43" title="Go to source code"><var>$currency</var></a>
+
+			<div class="description short">
+				<p>Currency of the transaction. Default value is "CZK".</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Currency of the transaction. Default value is "CZK".</p>
+
+			</div>
+		</td>
+		<td class="value">
+			<div>
+				<a href="#$currency" class="anchor">#</a>
+				<code></code>
+			</div>
+		</td>
+	</tr>
+	<tr data-order="closePayment" id="$closePayment">
+		<td class="attributes"><code>
+			public  
+			boolean|null
+		</code></td>
+
+		<td class="name">
+				<a href="source-class-OndraKoupil.Csob.Payment.html#45-53" title="Go to source code"><var>$closePayment</var></a>
+
+			<div class="description short">
+				<p>Should the payment be processed right on?
+See Wiki on ČSOB's github for more information.</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Should the payment be processed right on?
+See Wiki on ČSOB's github for more information.</p>
+
+<p>If not set, value from Config us used (true by default).</p>
+
+			</div>
+		</td>
+		<td class="value">
+			<div>
+				<a href="#$closePayment" class="anchor">#</a>
+				<code><span class="php-keyword1">null</span></code>
+			</div>
+		</td>
+	</tr>
+	<tr data-order="returnUrl" id="$returnUrl">
+		<td class="attributes"><code>
+			public  
+			string
+		</code></td>
+
+		<td class="name">
+				<a href="source-class-OndraKoupil.Csob.Payment.html#55-63" title="Go to source code"><var>$returnUrl</var></a>
+
+			<div class="description short">
+				<p>Return URL to send your customers back to.</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Return URL to send your customers back to.</p>
+
+<p>You need to specify this only if you don't want to use the default
+URL from your Config. Leave empty to use the default one.</p>
+
+			</div>
+		</td>
+		<td class="value">
+			<div>
+				<a href="#$returnUrl" class="anchor">#</a>
+				<code></code>
+			</div>
+		</td>
+	</tr>
+	<tr data-order="returnMethod" id="$returnMethod">
+		<td class="attributes"><code>
+			public  
+			string
+		</code></td>
+
+		<td class="name">
+				<a href="source-class-OndraKoupil.Csob.Payment.html#65-70" title="Go to source code"><var>$returnMethod</var></a>
+
+			<div class="description short">
+				<p>Return method. Leave empty to use the default one.</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Return method. Leave empty to use the default one.</p>
+
+					<h4>See</h4>
+					<div class="list">
+							<code><a href="class-OndraKoupil.Csob.Payment.html#$returnUrl">OndraKoupil\Csob\Payment::<var>$returnUrl</var></a></code><br>
+					</div>
+			</div>
+		</td>
+		<td class="value">
+			<div>
+				<a href="#$returnMethod" class="anchor">#</a>
+				<code></code>
+			</div>
+		</td>
+	</tr>
+	<tr data-order="description" id="$description">
+		<td class="attributes"><code>
+			public  
+			string
+		</code></td>
+
+		<td class="name">
+				<a href="source-class-OndraKoupil.Csob.Payment.html#78-86" title="Go to source code"><var>$description</var></a>
+
+			<div class="description short">
+				<p>Description of the order that will be shown to customer during payment
+process.</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Description of the order that will be shown to customer during payment
+process.</p>
+
+<p>Leave empty to use your e-shop's name as given in Config.</p>
+
+			</div>
+		</td>
+		<td class="value">
+			<div>
+				<a href="#$description" class="anchor">#</a>
+				<code></code>
+			</div>
+		</td>
+	</tr>
+	<tr data-order="customerId" id="$customerId">
+		<td class="attributes"><code>
+			public  
+			string
+		</code></td>
+
+		<td class="name">
+				<a href="source-class-OndraKoupil.Csob.Payment.html#94-102" title="Go to source code"><var>$customerId</var></a>
+
+			<div class="description short">
+				<p>Your customer's ID (e-mail, number, whatever...)</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Your customer's ID (e-mail, number, whatever...)</p>
+
+<p>Leave empty if you don't want to use some features relying on knowing
+customer ID.</p>
+
+			</div>
+		</td>
+		<td class="value">
+			<div>
+				<a href="#$customerId" class="anchor">#</a>
+				<code></code>
+			</div>
+		</td>
+	</tr>
+	<tr data-order="language" id="$language">
+		<td class="attributes"><code>
+			public  
+			string
+		</code></td>
+
+		<td class="name">
+				<a href="source-class-OndraKoupil.Csob.Payment.html#104-112" title="Go to source code"><var>$language</var></a>
+
+			<div class="description short">
+				<p>Language of the gateway. Default is "CZ".</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Language of the gateway. Default is "CZ".</p>
+
+<p>See wiki on ČSOB's Github for other values, they are not the same
+as standard ISO language codes.</p>
+
+			</div>
+		</td>
+		<td class="value">
+			<div>
+				<a href="#$language" class="anchor">#</a>
+				<code></code>
+			</div>
+		</td>
+	</tr>
+	<tr data-order="payOperation" id="$payOperation">
+		<td class="attributes"><code>
+			public  
+			string
+		</code></td>
+
+		<td class="name">
+				<a href="source-class-OndraKoupil.Csob.Payment.html#121-129" title="Go to source code"><var>$payOperation</var></a>
+
+			<div class="description short">
+				<p>payOperation value. Leave empty to use the default
+(and the only one valid) value.</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>payOperation value. Leave empty to use the default
+(and the only one valid) value.</p>
+
+<p>Using API v1, you can ignore this.</p>
+
+			</div>
+		</td>
+		<td class="value">
+			<div>
+				<a href="#$payOperation" class="anchor">#</a>
+				<code></code>
+			</div>
+		</td>
+	</tr>
+	<tr data-order="payMethod" id="$payMethod">
+		<td class="attributes"><code>
+			public  
+			string
+		</code></td>
+
+		<td class="name">
+				<a href="source-class-OndraKoupil.Csob.Payment.html#131-139" title="Go to source code"><var>$payMethod</var></a>
+
+			<div class="description short">
+				<p>payMethod value. Leave empty to use the default
+(and the only one valid) value.</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>payMethod value. Leave empty to use the default
+(and the only one valid) value.</p>
+
+<p>Using API v1, you can ignore this.</p>
+
+			</div>
+		</td>
+		<td class="value">
+			<div>
+				<a href="#$payMethod" class="anchor">#</a>
+				<code></code>
+			</div>
+		</td>
+	</tr>
+	<tr data-order="foreignId" id="$foreignId">
+		<td class="attributes"><code>
+			protected  
+			string
+		</code></td>
+
+		<td class="name">
+				<a href="source-class-OndraKoupil.Csob.Payment.html#141-148" title="Go to source code"><var>$foreignId</var></a>
+
+			<div class="description short">
+				<p>The PayID value that you will need fo call other methods.
+It is given to your payment by bank.</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>The PayID value that you will need fo call other methods.
+It is given to your payment by bank.</p>
+
+					<h4>See</h4>
+					<div class="list">
+							<code><a href="class-OndraKoupil.Csob.Payment.html#_getPayId">OndraKoupil\Csob\Payment::getPayId()</a></code><br>
+					</div>
+			</div>
+		</td>
+		<td class="value">
+			<div>
+				<a href="#$foreignId" class="anchor">#</a>
+				<code></code>
+			</div>
+		</td>
+	</tr>
+	</table>
+
+
+
+
+
+
+</div>
+
+	<div id="footer">
+		ČSOB payment gate PHP client API documentation generated by <a href="http://apigen.org">ApiGen</a>
+	</div>
+</div>
+</div>
+<script src="resources/combined.js"></script>
+<script src="elementlist.js"></script>
+</body>
+</html>

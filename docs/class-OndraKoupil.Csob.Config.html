@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+
+	<title>Class OndraKoupil\Csob\Config | ČSOB payment gate PHP client</title>
+
+	<link rel="stylesheet" href="resources/style.css?ece90927a9d9c062449c24ff926274b49e781e42">
+
+</head>
+
+<body>
+<div id="left">
+	<div id="menu">
+		<a href="index.html" title="Overview"><span>Overview</span></a>
+
+
+		<div id="groups">
+				<h3>Namespaces</h3>
+			<ul>
+				<li class="active">
+					<a href="namespace-OndraKoupil.html">
+						OndraKoupil<span></span>
+					</a>
+
+						<ul>
+				<li class="active">
+					<a href="namespace-OndraKoupil.Csob.html">
+						Csob					</a>
+
+						</li>
+							</ul></li>
+			</ul>
+		</div>
+
+		<hr>
+
+
+		<div id="elements">
+			<h3>Classes</h3>
+			<ul>
+				<li><a href="class-OndraKoupil.Csob.Client.html">Client</a></li>
+				<li class="active"><a href="class-OndraKoupil.Csob.Config.html">Config</a></li>
+				<li><a href="class-OndraKoupil.Csob.Crypto.html">Crypto</a></li>
+				<li><a href="class-OndraKoupil.Csob.Payment.html">Payment</a></li>
+			</ul>
+
+
+
+
+
+		</div>
+	</div>
+</div>
+
+<div id="splitter"></div>
+
+<div id="right">
+<div id="rightInner">
+	<form id="search">
+		<input type="hidden" name="cx" value="">
+		<input type="hidden" name="ie" value="UTF-8">
+		<input type="text" name="q" class="text" placeholder="Search">
+	</form>
+
+	<div id="navigation">
+		<ul>
+			<li>
+				<a href="index.html" title="Overview"><span>Overview</span></a>
+			</li>
+			<li>
+				<a href="namespace-OndraKoupil.Csob.html" title="Summary of OndraKoupil\Csob"><span>Namespace</span></a>
+			</li>
+			<li class="active">
+<span>Class</span>			</li>
+		</ul>
+		<ul>
+		</ul>
+		<ul>
+		</ul>
+	</div>
+
+<div id="content" class="class">
+	<h1>Class Config</h1>
+
+
+	<div class="description">
+	<p>Configuration for integrating your app to bank gateway.</p>
+	</div>
+
+
+
+
+
+
+
+
+
+	<div class="info">
+		
+		
+		<b>Namespace:</b> <a href="namespace-OndraKoupil.html">OndraKoupil</a>\<a href="namespace-OndraKoupil.Csob.html">Csob</a><br>
+		
+
+			<b>Located at</b> <a href="source-class-OndraKoupil.Csob.Config.html#5-122" title="Go to source code">Config.php</a>
+		<br>
+	</div>
+
+
+
+	<table class="summary methods" id="methods">
+	<caption>Methods summary</caption>
+	<tr data-order="__construct" id="___construct">
+
+		<td class="attributes"><code>
+			 public 
+
+			
+			
+			</code>
+		</td>
+
+		<td class="name"><div>
+		<a class="anchor" href="#___construct">#</a>
+		<code><a href="source-class-OndraKoupil.Csob.Config.html#92-119" title="Go to source code">__construct</a>( <span>string <var>$merchantId</var></span>, <span>string <var>$privateKeyFile</var></span>, <span>string <var>$bankPublicKeyFile</var></span>, <span>string <var>$shopName</var></span>, <span>string <var>$returnUrl</var> = <span class="php-keyword1">null</span></span>, <span>string <var>$bankApiUrl</var> = <span class="php-keyword1">null</span></span>, <span>string <var>$privateKeyPassword</var> = <span class="php-keyword1">null</span></span> )</code>
+
+		<div class="description short">
+			<p>Create config with all mandatory values.</p>
+		</div>
+
+		<div class="description detailed hidden">
+			<p>Create config with all mandatory values.</p>
+
+<p>See equally named properties of this class for more info.</p>
+
+
+				<h4>Parameters</h4>
+				<div class="list"><dl>
+					<dt><var>$merchantId</var></dt>
+					<dd></dd>
+					<dt><var>$privateKeyFile</var></dt>
+					<dd></dd>
+					<dt><var>$bankPublicKeyFile</var></dt>
+					<dd></dd>
+					<dt><var>$shopName</var></dt>
+					<dd></dd>
+					<dt><var>$returnUrl</var></dt>
+					<dd></dd>
+					<dt><var>$bankApiUrl</var></dt>
+					<dd></dd>
+					<dt><var>$privateKeyPassword</var></dt>
+					<dd></dd>
+				</dl></div>
+
+
+
+
+
+		</div>
+		</div></td>
+	</tr>
+	</table>
+
+
+
+
+
+
+
+
+
+
+
+
+	<table class="summary properties" id="properties">
+	<caption>Properties summary</caption>
+	<tr data-order="url" id="$url">
+		<td class="attributes"><code>
+			public  
+			string
+		</code></td>
+
+		<td class="name">
+				<a href="source-class-OndraKoupil.Csob.Config.html#10-16" title="Go to source code"><var>$url</var></a>
+
+			<div class="description short">
+				<p>Bank API path. By default, this is the testing (playground) API.
+Change that when you are ready to go to live environment.</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Bank API path. By default, this is the testing (playground) API.
+Change that when you are ready to go to live environment.</p>
+
+			</div>
+		</td>
+		<td class="value">
+			<div>
+				<a href="#$url" class="anchor">#</a>
+				<code><span class="php-quote">&quot;https://iapi.iplatebnibrana.csob.cz/api/v1&quot;</span></code>
+			</div>
+		</td>
+	</tr>
+	<tr data-order="bankPublicKeyFile" id="$bankPublicKeyFile">
+		<td class="attributes"><code>
+			public  
+			string
+		</code></td>
+
+		<td class="name">
+				<a href="source-class-OndraKoupil.Csob.Config.html#18-27" title="Go to source code"><var>$bankPublicKeyFile</var></a>
+
+			<div class="description short">
+				<p>Path to file where bank's public key is saved.</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Path to file where bank's public key is saved.</p>
+
+<p>You can obtain the key from bank's app
+https://iposman.iplatebnibrana.csob.cz/posmerchant
+or from their package on GitHub)</p>
+
+			</div>
+		</td>
+		<td class="value">
+			<div>
+				<a href="#$bankPublicKeyFile" class="anchor">#</a>
+				<code><span class="php-quote">&quot;&quot;</span></code>
+			</div>
+		</td>
+	</tr>
+	<tr data-order="merchantId" id="$merchantId">
+		<td class="attributes"><code>
+			public  
+			string
+		</code></td>
+
+		<td class="name">
+				<a href="source-class-OndraKoupil.Csob.Config.html#29-36" title="Go to source code"><var>$merchantId</var></a>
+
+			<div class="description short">
+				<p>Your Merchant ID.</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Your Merchant ID.</p>
+
+<p>You obtain that from the bank or from https://iplatebnibrana.csob.cz/keygen/</p>
+
+			</div>
+		</td>
+		<td class="value">
+			<div>
+				<a href="#$merchantId" class="anchor">#</a>
+				<code><span class="php-quote">&quot;&quot;</span></code>
+			</div>
+		</td>
+	</tr>
+	<tr data-order="privateKeyFile" id="$privateKeyFile">
+		<td class="attributes"><code>
+			public  
+			string
+		</code></td>
+
+		<td class="name">
+				<a href="source-class-OndraKoupil.Csob.Config.html#38-47" title="Go to source code"><var>$privateKeyFile</var></a>
+
+			<div class="description short">
+				<p>Path to file where your private key is saved.</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Path to file where your private key is saved.</p>
+
+<p>You obtain that key from https://iplatebnibrana.csob.cz/keygen/ - it is
+the .key file you download from the keygen.</p>
+
+<p>Careful - that file MUST NOT BE publicly accessible on webserver!</p>
+
+			</div>
+		</td>
+		<td class="value">
+			<div>
+				<a href="#$privateKeyFile" class="anchor">#</a>
+				<code><span class="php-quote">&quot;&quot;</span></code>
+			</div>
+		</td>
+	</tr>
+	<tr data-order="privateKeyPassword" id="$privateKeyPassword">
+		<td class="attributes"><code>
+			public  
+			string
+		</code></td>
+
+		<td class="name">
+				<a href="source-class-OndraKoupil.Csob.Config.html#49-56" title="Go to source code"><var>$privateKeyPassword</var></a>
+
+			<div class="description short">
+				<p>Password for your private key.</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Password for your private key.</p>
+
+<p>You need to specify this only if your private key was not generated
+using bank's keygen https://iplatebnibrana.csob.cz/keygen/</p>
+
+			</div>
+		</td>
+		<td class="value">
+			<div>
+				<a href="#$privateKeyPassword" class="anchor">#</a>
+				<code><span class="php-keyword1">null</span></code>
+			</div>
+		</td>
+	</tr>
+	<tr data-order="returnUrl" id="$returnUrl">
+		<td class="attributes"><code>
+			public  
+			string
+		</code></td>
+
+		<td class="name">
+				<a href="source-class-OndraKoupil.Csob.Config.html#58-63" title="Go to source code"><var>$returnUrl</var></a>
+
+			<div class="description short">
+				<p>A URL of your e-shop to return your customers after the have paid.</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>A URL of your e-shop to return your customers after the have paid.</p>
+
+			</div>
+		</td>
+		<td class="value">
+			<div>
+				<a href="#$returnUrl" class="anchor">#</a>
+				<code></code>
+			</div>
+		</td>
+	</tr>
+	<tr data-order="returnMethod" id="$returnMethod">
+		<td class="attributes"><code>
+			public  
+			string
+		</code></td>
+
+		<td class="name">
+				<a href="source-class-OndraKoupil.Csob.Config.html#65-73" title="Go to source code"><var>$returnMethod</var></a>
+
+			<div class="description short">
+				<p>A method to return customers on $returnUrl.</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>A method to return customers on $returnUrl.</p>
+
+<p>Right now (api v1) it is not much significant, since (according to their doc)
+you must support both GET and POST methods.</p>
+
+			</div>
+		</td>
+		<td class="value">
+			<div>
+				<a href="#$returnMethod" class="anchor">#</a>
+				<code><span class="php-quote">&quot;POST&quot;</span></code>
+			</div>
+		</td>
+	</tr>
+	<tr data-order="shopName" id="$shopName">
+		<td class="attributes"><code>
+			public  
+			string
+		</code></td>
+
+		<td class="name">
+				<a href="source-class-OndraKoupil.Csob.Config.html#76-82" title="Go to source code"><var>$shopName</var></a>
+
+			<div class="description short">
+				<p>Name of your e-shop or app - it will be used on some points of
+creating payments.</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Name of your e-shop or app - it will be used on some points of
+creating payments.</p>
+
+			</div>
+		</td>
+		<td class="value">
+			<div>
+				<a href="#$shopName" class="anchor">#</a>
+				<code></code>
+			</div>
+		</td>
+	</tr>
+	<tr data-order="closePayment" id="$closePayment">
+		<td class="attributes"><code>
+			public  
+			type
+		</code></td>
+
+		<td class="name">
+				<a href="source-class-OndraKoupil.Csob.Config.html#84-90" title="Go to source code"><var>$closePayment</var></a>
+
+			<div class="description short">
+				<p>Should payments be created with closePayment = true by default?
+See Wiki on ČSOB's github for more information.</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Should payments be created with closePayment = true by default?
+See Wiki on ČSOB's github for more information.</p>
+
+			</div>
+		</td>
+		<td class="value">
+			<div>
+				<a href="#$closePayment" class="anchor">#</a>
+				<code><span class="php-keyword1">true</span></code>
+			</div>
+		</td>
+	</tr>
+	</table>
+
+
+
+
+
+
+</div>
+
+	<div id="footer">
+		ČSOB payment gate PHP client API documentation generated by <a href="http://apigen.org">ApiGen</a>
+	</div>
+</div>
+</div>
+<script src="resources/combined.js"></script>
+<script src="elementlist.js"></script>
+</body>
+</html>

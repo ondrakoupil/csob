@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+
+	<title>Class OndraKoupil\Csob\Crypto | ČSOB payment gate PHP client</title>
+
+	<link rel="stylesheet" href="resources/style.css?ece90927a9d9c062449c24ff926274b49e781e42">
+
+</head>
+
+<body>
+<div id="left">
+	<div id="menu">
+		<a href="index.html" title="Overview"><span>Overview</span></a>
+
+
+		<div id="groups">
+				<h3>Namespaces</h3>
+			<ul>
+				<li class="active">
+					<a href="namespace-OndraKoupil.html">
+						OndraKoupil<span></span>
+					</a>
+
+						<ul>
+				<li class="active">
+					<a href="namespace-OndraKoupil.Csob.html">
+						Csob					</a>
+
+						</li>
+							</ul></li>
+			</ul>
+		</div>
+
+		<hr>
+
+
+		<div id="elements">
+			<h3>Classes</h3>
+			<ul>
+				<li><a href="class-OndraKoupil.Csob.Client.html">Client</a></li>
+				<li><a href="class-OndraKoupil.Csob.Config.html">Config</a></li>
+				<li class="active"><a href="class-OndraKoupil.Csob.Crypto.html">Crypto</a></li>
+				<li><a href="class-OndraKoupil.Csob.Payment.html">Payment</a></li>
+			</ul>
+
+
+
+
+
+		</div>
+	</div>
+</div>
+
+<div id="splitter"></div>
+
+<div id="right">
+<div id="rightInner">
+	<form id="search">
+		<input type="hidden" name="cx" value="">
+		<input type="hidden" name="ie" value="UTF-8">
+		<input type="text" name="q" class="text" placeholder="Search">
+	</form>
+
+	<div id="navigation">
+		<ul>
+			<li>
+				<a href="index.html" title="Overview"><span>Overview</span></a>
+			</li>
+			<li>
+				<a href="namespace-OndraKoupil.Csob.html" title="Summary of OndraKoupil\Csob"><span>Namespace</span></a>
+			</li>
+			<li class="active">
+<span>Class</span>			</li>
+		</ul>
+		<ul>
+		</ul>
+		<ul>
+		</ul>
+	</div>
+
+<div id="content" class="class">
+	<h1>Class Crypto</h1>
+
+
+	<div class="description">
+	<p>Helper class for signing and signature verification</p>
+	</div>
+
+
+
+
+
+
+
+
+
+	<div class="info">
+		
+		
+		<b>Namespace:</b> <a href="namespace-OndraKoupil.html">OndraKoupil</a>\<a href="namespace-OndraKoupil.Csob.html">Csob</a><br>
+		
+
+				<b>See:</b>
+				https://github.com/csob/paymentgateway/blob/master/eshop-integration/eAPI/v1/php/example/crypto.php<br>
+			<b>Located at</b> <a href="source-class-OndraKoupil.Csob.Crypto.html#5-87" title="Go to source code">Crypto.php</a>
+		<br>
+	</div>
+
+
+
+	<table class="summary methods" id="methods">
+	<caption>Methods summary</caption>
+	<tr data-order="signString" id="_signString">
+
+		<td class="attributes"><code>
+			 public static
+
+			string
+			
+			</code>
+		</td>
+
+		<td class="name"><div>
+		<a class="anchor" href="#_signString">#</a>
+		<code><a href="source-class-OndraKoupil.Csob.Crypto.html#12-47" title="Go to source code">signString</a>( <span>string <var>$string</var></span>, <span>string <var>$privateKeyFile</var></span>, <span>string <var>$privateKeyPassword</var> = <span class="php-quote">&quot;&quot;</span></span> )</code>
+
+		<div class="description short">
+			<p>Signs a string</p>
+		</div>
+
+		<div class="description detailed hidden">
+			<p>Signs a string</p>
+
+
+				<h4>Parameters</h4>
+				<div class="list"><dl>
+					<dt><var>$string</var></dt>
+					<dd></dd>
+					<dt><var>$privateKeyFile</var></dt>
+					<dd>Path to file with your private key (the .key file from https://iplatebnibrana.csob.cz/keygen/ )</dd>
+					<dt><var>$privateKeyPassword</var></dt>
+					<dd>Password to the key, if it was generated with one. Leave empty if you created the key at https://iplatebnibrana.csob.cz/keygen/</dd>
+				</dl></div>
+
+				<h4>Returns</h4>
+				<div class="list">
+					string<br>Signature encoded with Base64
+				</div>
+
+				<h4>Throws</h4>
+				<div class="list">
+					RuntimeException<br>When signing fails<br>
+					InvalidArgumentException<br>When key file path is not valid
+				</div>
+
+
+
+		</div>
+		</div></td>
+	</tr>
+	<tr data-order="verifySignature" id="_verifySignature">
+
+		<td class="attributes"><code>
+			 public static
+
+			boolean
+			
+			</code>
+		</td>
+
+		<td class="name"><div>
+		<a class="anchor" href="#_verifySignature">#</a>
+		<code><a href="source-class-OndraKoupil.Csob.Crypto.html#50-85" title="Go to source code">verifySignature</a>( <span>string <var>$textToVerify</var></span>, <span>string <var>$signatureInBase64</var></span>, <span>string <var>$publicKeyFile</var></span> )</code>
+
+		<div class="description short">
+			<p>Verifies signature of a string</p>
+		</div>
+
+		<div class="description detailed hidden">
+			<p>Verifies signature of a string</p>
+
+
+				<h4>Parameters</h4>
+				<div class="list"><dl>
+					<dt><var>$textToVerify</var></dt>
+					<dd>The text that was signed</dd>
+					<dt><var>$signatureInBase64</var></dt>
+					<dd>The signature encoded with Base64</dd>
+					<dt><var>$publicKeyFile</var></dt>
+					<dd><p>Path to file where bank's public key is saved
+(you can obtain it from bank's app https://iposman.iplatebnibrana.csob.cz/posmerchant
+or from their package on GitHub)</p></dd>
+				</dl></div>
+
+				<h4>Returns</h4>
+				<div class="list">
+					boolean<br>True if signature is correct
+				</div>
+
+				<h4>Throws</h4>
+				<div class="list">
+					RuntimeException<br>When some cryptographic operation fails<br>
+					InvalidArgumentException<br>When key file path is not valid
+				</div>
+
+
+
+		</div>
+		</div></td>
+	</tr>
+	</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
+
+	<div id="footer">
+		ČSOB payment gate PHP client API documentation generated by <a href="http://apigen.org">ApiGen</a>
+	</div>
+</div>
+</div>
+<script src="resources/combined.js"></script>
+<script src="elementlist.js"></script>
+</body>
+</html>
