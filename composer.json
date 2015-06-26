@@ -16,12 +16,12 @@
         }
     },
     "require": {
-        "ondrakoupil/tools": "^0.0.4",
+        "ondrakoupil/tools": "^0.0.5",
 		"ext-openssl": "*",
         "php": ">=5.3.1"
     },
     "require-dev": {
         "nette/tester": "dev-master",
-        "ondrakoupil/testing-utils": "^0.0.6"
+        "ondrakoupil/testing-utils": "^0.0.7"
     }
 }
