@@ -6,11 +6,11 @@ use \OndraKoupil\Tools\Strings;
 use \OndraKoupil\Tools\Arrays;
 
 /**
- * A Payment request.
+ * A payment request.
  *
- * If you want to init new payment, you have to manually create one instance
- * of this class and fill its public properties with real information
- * about the order.
+ * To init new payment, you need to create an instance
+ * of this class and fill its properties with real information
+ * from the order. 
  */
 class Payment {
 
