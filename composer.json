@@ -1,6 +1,6 @@
 {
     "name": "ondrakoupil/csob-eapi-paygate",
-    "description": "Knihovna pro pohodlnou integraci CSOB platebni brany pres eAPI",
+    "description": "Client library for easy integration of ČSOB payment gateway",
     "type": "library",
     "license": "MIT",
     "authors": [
