@@ -24,7 +24,7 @@
 					</a>
 
 						<ul>
-				<li class="active">
+				<li class="active main">
 					<a href="namespace-OndraKoupil.Csob.html">
 						Csob					</a>
 
@@ -85,11 +85,11 @@
 
 
 	<div class="description">
-	<p>A Payment request.</p>
+	<p>A payment request.</p>
 
-<p>If you want to init new payment, you have to manually create one instance
-of this class and fill its public properties with real information
-about the order.</p>
+<p>To init new payment, you need to create an instance
+of this class and fill its properties with real information
+from the order.</p>
 	</div>
 
 
@@ -106,7 +106,7 @@ about the order.</p>
 		<b>Namespace:</b> <a href="namespace-OndraKoupil.html">OndraKoupil</a>\<a href="namespace-OndraKoupil.Csob.html">Csob</a><br>
 		
 
-			<b>Located at</b> <a href="source-class-OndraKoupil.Csob.Payment.html#8-416" title="Go to source code">Payment.php</a>
+			<b>Located at</b> <a href="source-class-OndraKoupil.Csob.Payment.html#8-417" title="Go to source code">Payment.php</a>
 		<br>
 	</div>
 
@@ -165,7 +165,7 @@ about the order.</p>
 
 		<td class="name"><div>
 		<a class="anchor" href="#_addCartItem">#</a>
-		<code><a href="source-class-OndraKoupil.Csob.Payment.html#189-229" title="Go to source code">addCartItem</a>( <span>string <var>$name</var></span>, <span>number <var>$quantity</var></span>, <span>number <var>$totalAmount</var></span>, <span>string <var>$description</var> = <span class="php-quote">&quot;&quot;</span></span> )</code>
+		<code><a href="source-class-OndraKoupil.Csob.Payment.html#189-230" title="Go to source code">addCartItem</a>( <span>string <var>$name</var></span>, <span>number <var>$quantity</var></span>, <span>number <var>$totalAmount</var></span>, <span>string <var>$description</var> = <span class="php-quote">&quot;&quot;</span></span> )</code>
 
 		<div class="description short">
 			<p>Add one cart item.</p>
@@ -176,7 +176,7 @@ about the order.</p>
 
 <p>You are required to add one or two cart items (at least on API v1).</p>
 
-<p>Remember that $totalAmount must be given in hundreth of currency units
+<p>Remember that $totalAmount must be given in <strong>hundredth of currency units</strong>
 (cents for USD or EUR, "halíře" for CZK)</p>
 
 
@@ -188,7 +188,8 @@ about the order.</p>
 					<dt><var>$quantity</var></dt>
 					<dd></dd>
 					<dt><var>$totalAmount</var></dt>
-					<dd>Total price (total sum for all $quantity)</dd>
+					<dd><p>Total price (total sum for all $quantity),
+in <strong>hundredths</strong> of currency unit</p></dd>
 					<dt><var>$description</var></dt>
 					<dd>Aux description (trimmed to 40 chars max)</dd>
 				</dl></div>
@@ -221,7 +222,7 @@ about the order.</p>
 
 		<td class="name"><div>
 		<a class="anchor" href="#_setMerchantData">#</a>
-		<code><a href="source-class-OndraKoupil.Csob.Payment.html#231-250" title="Go to source code">setMerchantData</a>( <span>string <var>$data</var></span>, <span>boolean <var>$alreadyEncoded</var> = <span class="php-keyword1">false</span></span> )</code>
+		<code><a href="source-class-OndraKoupil.Csob.Payment.html#232-251" title="Go to source code">setMerchantData</a>( <span>string <var>$data</var></span>, <span>boolean <var>$alreadyEncoded</var> = <span class="php-keyword1">false</span></span> )</code>
 
 		<div class="description short">
 			<p>Set some arbitrary data you will receive back when customer returns</p>
@@ -266,7 +267,7 @@ about the order.</p>
 
 		<td class="name"><div>
 		<a class="anchor" href="#_getMerchantData">#</a>
-		<code><a href="source-class-OndraKoupil.Csob.Payment.html#252-262" title="Go to source code">getMerchantData</a>( )</code>
+		<code><a href="source-class-OndraKoupil.Csob.Payment.html#253-263" title="Go to source code">getMerchantData</a>( )</code>
 
 		<div class="description short">
 			<p>Get back merchantData, decoded to original value.</p>
@@ -300,7 +301,7 @@ about the order.</p>
 
 		<td class="name"><div>
 		<a class="anchor" href="#_getPayId">#</a>
-		<code><a href="source-class-OndraKoupil.Csob.Payment.html#264-272" title="Go to source code">getPayId</a>( )</code>
+		<code><a href="source-class-OndraKoupil.Csob.Payment.html#265-273" title="Go to source code">getPayId</a>( )</code>
 
 		<div class="description short">
 			<p>After the payment has been saved using payment/init, you can
@@ -336,7 +337,7 @@ get PayID from here.</p>
 
 		<td class="name"><div>
 		<a class="anchor" href="#_setPayId">#</a>
-		<code><a href="source-class-OndraKoupil.Csob.Payment.html#274-281" title="Go to source code">setPayId</a>( <span>string <var>$id</var></span> )</code>
+		<code><a href="source-class-OndraKoupil.Csob.Payment.html#275-282" title="Go to source code">setPayId</a>( <span>string <var>$id</var></span> )</code>
 
 		<div class="description short">
 			<p>Do not call this on your own. Really.</p>

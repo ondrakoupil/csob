@@ -24,7 +24,7 @@
 					</a>
 
 						<ul>
-				<li class="active">
+				<li class="active main">
 					<a href="namespace-OndraKoupil.Csob.html">
 						Csob					</a>
 
@@ -139,7 +139,7 @@
 
 <span class="php-comment">// Or approve the payment (if not set to do that automatically)</span>
 <span class="php-var">$client</span>-&gt;paymentClose(<span class="php-var">$payment</span>);</pre><br>
-			<b>Located at</b> <a href="source-class-OndraKoupil.Csob.Client.html#7-978" title="Go to source code">Client.php</a>
+			<b>Located at</b> <a href="source-class-OndraKoupil.Csob.Client.html#7-1042" title="Go to source code">Client.php</a>
 		<br>
 	</div>
 
@@ -768,6 +768,56 @@ any cards or was not found at all.</p>
 		</div>
 		</div></td>
 	</tr>
+	<tr data-order="receiveReturningCustomer" id="_receiveReturningCustomer">
+
+		<td class="attributes"><code>
+			 public 
+
+			array|null
+			
+			</code>
+		</td>
+
+		<td class="name"><div>
+		<a class="anchor" href="#_receiveReturningCustomer">#</a>
+		<code><a href="source-class-OndraKoupil.Csob.Client.html#663-725" title="Go to source code">receiveReturningCustomer</a>( <span>array|null <var>$input</var> = <span class="php-keyword1">null</span></span> )</code>
+
+		<div class="description short">
+			<p>Processes the data that are sent together with customer when he
+returns back from payment gateway.</p>
+		</div>
+
+		<div class="description detailed hidden">
+			<p>Processes the data that are sent together with customer when he
+returns back from payment gateway.</p>
+
+<p>Call this method on your returnUrl to extract all data from request,
+validate signature, decode merchant data from base64 and return
+it all as an array. Method automatically reads data from GET or POST.</p>
+
+
+				<h4>Parameters</h4>
+				<div class="list"><dl>
+					<dt><var>$input</var></dt>
+					<dd><p>If return data is not in GET or POST, supply
+your own array with accordingly named variables.</p></dd>
+				</dl></div>
+
+				<h4>Returns</h4>
+				<div class="list">
+					array|null<br>Array with received data or null if no data is present.
+				</div>
+
+				<h4>Throws</h4>
+				<div class="list">
+					RuntimeException<br>When data is present but signature is incorrect.
+				</div>
+
+
+
+		</div>
+		</div></td>
+	</tr>
 	<tr data-order="setLog" id="_setLog">
 
 		<td class="attributes"><code>
@@ -780,7 +830,7 @@ any cards or was not found at all.</p>
 
 		<td class="name"><div>
 		<a class="anchor" href="#_setLog">#</a>
-		<code><a href="source-class-OndraKoupil.Csob.Client.html#666-687" title="Go to source code">setLog</a>( <span>string|callable <var>$log</var></span> )</code>
+		<code><a href="source-class-OndraKoupil.Csob.Client.html#730-751" title="Go to source code">setLog</a>( <span>string|callable <var>$log</var></span> )</code>
 
 		<div class="description short">
 			<p>Sets logging for bussiness-logic level messages.</p>
@@ -820,7 +870,7 @@ messages to your own logging system.</p></dd>
 
 		<td class="name"><div>
 		<a class="anchor" href="#_setTraceLog">#</a>
-		<code><a href="source-class-OndraKoupil.Csob.Client.html#689-710" title="Go to source code">setTraceLog</a>( <span>string|callable <var>$log</var></span> )</code>
+		<code><a href="source-class-OndraKoupil.Csob.Client.html#753-774" title="Go to source code">setTraceLog</a>( <span>string|callable <var>$log</var></span> )</code>
 
 		<div class="description short">
 			<p>Sets logging for exact contents of communication</p>
@@ -860,7 +910,7 @@ messages to your own logging system.</p></dd>
 
 		<td class="name"><div>
 		<a class="anchor" href="#_getApiMethodUrl">#</a>
-		<code><a href="source-class-OndraKoupil.Csob.Client.html#940-947" title="Go to source code">getApiMethodUrl</a>( <span>string <var>$apiMethod</var></span> )</code>
+		<code><a href="source-class-OndraKoupil.Csob.Client.html#1004-1011" title="Go to source code">getApiMethodUrl</a>( <span>string <var>$apiMethod</var></span> )</code>
 
 		<div class="description short">
 			<p>Gets the URL of API method</p>
