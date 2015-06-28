@@ -10,6 +10,11 @@ namespace OndraKoupil\Csob;
 class Crypto {
 
 	/**
+	 * Currently used has algorithm
+	 */
+	const HASH_METHOD = \OPENSSL_ALGO_SHA1;
+
+	/**
 	 * Signs a string
 	 *
 	 * @param string $string
@@ -36,7 +41,7 @@ class Crypto {
 			throw new \RuntimeException("Private key could not be loaded from file \"$privateKeyFile\". Please make sure that the file contains valid private key in PEM format.");
 		}
 
-		$ok = openssl_sign($string, $signature, $privateKeyId);
+		$ok = openssl_sign($string, $signature, $privateKeyId, self::HASH_METHOD);
 		if (!$ok) {
 			throw new \RuntimeException("Signing failed.");
 		}
@@ -49,7 +54,7 @@ class Crypto {
 
 	/**
 	 * Verifies signature of a string
-	 * 
+	 *
 	 * @param string $textToVerify The text that was signed
 	 * @param string $signatureInBase64 The signature encoded with Base64
 	 * @param string $publicKeyFile Path to file where bank's public key is saved
@@ -74,7 +79,7 @@ class Crypto {
 
 		$signature = base64_decode($signatureInBase64);
 
-		$res = openssl_verify($textToVerify, $signature, $publicKeyId);
+		$res = openssl_verify($textToVerify, $signature, $publicKeyId, self::HASH_METHOD);
 		openssl_free_key($publicKeyId);
 
 		if ($res == -1) {
