@@ -8,7 +8,7 @@ use \OndraKoupil\Tools\Files;
  * The main class that allows you to use payment gateway's functions.
  *
  * @example
- * 
+ *
  * <code>
  *
  * use OndraKoupil\Csob;
@@ -658,6 +658,70 @@ class Client {
 		}
 
 		return $result;
+	}
+
+	/**
+	 * Processes the data that are sent together with customer when he
+	 * returns back from payment gateway.
+	 *
+	 * Call this method on your returnUrl to extract all data from request,
+	 * validate signature, decode merchant data from base64 and return
+	 * it all as an array. Method automatically reads data from GET or POST.
+	 *
+	 *
+	 * @param array|null $input If return data is not in GET or POST, supply
+	 * your own array with accordingly named variables.
+	 * @return array|null Array with received data or null if no data is present.
+	 * @throws \RuntimeException When data is present but signature is incorrect.
+	 */
+	function receiveReturningCustomer($input = null) {
+
+		$returnDataNames = array(
+			"payId",
+			"dttm",
+			"resultCode",
+			"resultMessage",
+			"paymentStatus",
+			"authCode",
+			"merchantData",
+			"signature"
+		);
+
+		if (!$input) {
+			if (isset($_GET["payId"])) $input = $_GET;
+			elseif (isset($_POST["payId"])) $input = $_POST;
+		}
+
+		if (!$input) {
+			return null;
+		}
+
+		$this->writeToTraceLog("Received data from returning customer: ".str_replace("\n", " ", print_r($input, true)));
+
+		$nullFields = array_fill_keys($returnDataNames, null);
+		$input += $nullFields;
+
+		$signatureOk = $this->verifyResponseSignature($input, $input["signature"], $returnDataNames);
+
+		if (!$signatureOk) {
+			$this->writeToTraceLog("Signature is invalid.");
+			$this->writeToLog("Returning customer: payId $input[payId], has invalid signature.");
+			throw new \RuntimeException("Signature is invalid.");
+		}
+
+		$merch = @base64_decode($input["merchantData"]);
+		if ($merch) {
+			$input["merchantData"] = $merch;
+		}
+
+		$mess = "Returning customer: payId ".$input["payId"].", authCode ".$input["authCode"].", payment status ".$input["paymentStatus"];
+		if ($input["merchantData"]) {
+			$mess .= ", merchantData ".$input["merchantData"];
+		}
+		$this->writeToLog($mess);
+
+		return $input;
+
 	}
 
 
