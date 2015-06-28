@@ -16,9 +16,7 @@
  */
 
 
-// Comment this line to do some real testing
-
-return null;
+return null;  // Comment this line to do some real testing
 
 /*
 return new \OndraKoupil\Csob\Config(

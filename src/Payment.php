@@ -10,7 +10,7 @@ use \OndraKoupil\Tools\Arrays;
  *
  * To init new payment, you need to create an instance
  * of this class and fill its properties with real information
- * from the order. 
+ * from the order.
  */
 class Payment {
 
@@ -191,13 +191,14 @@ class Payment {
 	 *
 	 * You are required to add one or two cart items (at least on API v1).
 	 *
-	 * Remember that $totalAmount must be given in hundreth of currency units
+	 * Remember that $totalAmount must be given in **hundredth of currency units**
 	 * (cents for USD or EUR, "halíře" for CZK)
 	 *
 	 * @param string $name Name that customer will see
 	 * (will be automatically trimmed to 20 characters)
 	 * @param number $quantity
-	 * @param number $totalAmount Total price (total sum for all $quantity)
+	 * @param number $totalAmount Total price (total sum for all $quantity),
+	 * in **hundredths** of currency unit
 	 * @param string $description Aux description (trimmed to 40 chars max)
 	 *
 	 * @return Payment Fluent interface
@@ -232,11 +233,11 @@ class Payment {
 	 * Set some arbitrary data you will receive back when customer returns
 	 *
 	 * @param string $data
-	 * @param bool $alreadyEncoded True if the data is already encoded to Base64
+	 * @param bool $alreadyEncoded True if given $data is already encoded to Base64
 	 *
 	 * @return Payment Fluent interface
 	 *
-	 * @throws \InvalidArgumentException When the data is too long
+	 * @throws \InvalidArgumentException When the data is too long and can't be encoded.
 	 */
 	public function setMerchantData($data, $alreadyEncoded = false) {
 		if (!$alreadyEncoded) {

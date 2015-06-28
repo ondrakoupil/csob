@@ -1,10 +1,11 @@
 composer.phar
+composer.lock
 vendor/
 /nbproject/
 /zdroje/
 /sandbox/
 /keys/
-/run-tests.sh
+/*.sh
 /tests/coverage.*
 /tests/*/output
 .DS_Store
