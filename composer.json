@@ -1,7 +1,9 @@
 {
     "name": "ondrakoupil/csob-eapi-paygate",
-    "description": "Client library for easy integration of ČSOB payment gateway",
+    "description": "PHP Client library for easy integration of ČSOB payment gateway",
     "type": "library",
+    "homepage": "https://github.com/ondrakoupil/csob",
+    "keywords": ["payment", "pay", "merchant", "commerce", "cards", "bank", "csob"],
     "license": "MIT",
     "authors": [
         {
