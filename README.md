@@ -32,7 +32,15 @@ Knihovna se skládá z tříd:
 - Payment - představuje jednu platbu
 - Crypto - zajišťuje podepisování a ověřování podpisů
 
-## Nastavení
+Všechny třídy jsou v namespace `OndraKoupil\Csob`, je tedy třeba je na začátku souboru uvést pomocí
+`use`, anebo vždy používat celé jméno třídy včetně namespace. Zde uvedené příklady předpokládají,
+že jste už použili `use`:
+
+```php
+use OndraKoupil\Csob\Client, OndraKoupil\Csob\Config, OndraKoupil\Csob\Payment;
+``` 
+
+### Nastavení
 
 Nejdřív ze všeho je třeba vytvořit objekt `Config` a nastavit v něm potřebné hodnoty.
 Ten pak předáte objektu `Client` a voláte jeho metody, které odpovídají jednotlivým
@@ -85,6 +93,9 @@ je třeba někam uložit, bude se později hodit pro volání dalších metod.
 Pomocí `$payment->addCartItem()` se přidávají položky do objednávky. V současné verzi
 musí mít platba jednu nebo dvě položky, v budoucích verzích se toto omezení má změnit.
 
+Pozor, všechny řetězce by měly být v UTF-8. Používáte-li jiné kódování, je třeba je všude, kde hrozí
+nějaká diakritika (zejména u názvu položky v košíku), převádět pomocí funkce `iconv`.
+
 ```php
 $payment = new Payment("1234"); 
 $payment->addCartItem("Zakoupená věcička", 1, 10000);
@@ -101,7 +112,6 @@ jen 100 Kč.
 
 Při zavolání `paymentInit()` se zadanému objektu $payment nastaví jeho PayID, odkud ho lze
 přečíst přes getter, anebo ho lze získat z vráceného pole.
-
 
 ### Zaplacení (payment/process)
 

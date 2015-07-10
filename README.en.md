@@ -32,6 +32,13 @@ First of all, you need to create a Config object and set its properties to prope
 Then, you can create Client object and use its methods to call various API methods and receive
 responses. It has a method for each API method and something more.
 
+All classes are members of `OndraKoupil\Csob` namespace, so it is necessary to `use` them
+or use fully qualified names. Following examples expects you have used `use`:
+
+```php
+use OndraKoupil\Csob\Client, OndraKoupil\Csob\Config, OndraKoupil\Csob\Payment;
+``` 
+
 ```php
 $config = new Config(
 	"My Merchant ID",
@@ -95,6 +102,8 @@ You can set many more properties of `$payment`, this is just the minimum require
 After calling `paymentInit()`, you can get PayID either as part of response array, or just
 from the $payment object if everyrhing went right.
 
+Note that all strings with national characters should be encoded in UTF-8. If your application is
+not using this encoding, don't forget to `iconv` all strings before settings them into Payment.
 
 
 ### Processing payment
