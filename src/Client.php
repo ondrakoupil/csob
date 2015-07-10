@@ -927,39 +927,39 @@ class Client {
 			return $url;
 		}
 
-		$ch = curl_init($url);
+		$ch = \curl_init($url);
 		$this->writeToTraceLog("URL to send request to: " . $url);
 
 		if ($method === "POST" or $method === "PUT") {
 			$encodedPayload = json_encode($payload);
 			$this->writeToTraceLog("JSON payload: ".$encodedPayload);
-			curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $method);
-			curl_setopt($ch, CURLOPT_POSTFIELDS, $encodedPayload);
+			\curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $method);
+			\curl_setopt($ch, CURLOPT_POSTFIELDS, $encodedPayload);
 		}
 
-		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-		curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+		\curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+		\curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+		\curl_setopt($ch, CURLOPT_HTTPHEADER, array(
 			'Content-Type: application/json',
 			'Accept: application/json;charset=UTF-8'
 		));
 
-		$result = curl_exec($ch);
+		$result = \curl_exec($ch);
 
-		if (curl_errno($ch)) {
-			$this->writeToTraceLog("CURL failed: " . curl_errno($ch) . " " . curl_error($ch));
-			throw new \RuntimeException("Failed sending data to API: ".curl_errno($ch)." ".curl_error($ch));
+		if (\curl_errno($ch)) {
+			$this->writeToTraceLog("CURL failed: " . \curl_errno($ch) . " " . \curl_error($ch));
+			throw new \RuntimeException("Failed sending data to API: ".\curl_errno($ch)." ".\curl_error($ch));
 		}
 
 		$this->writeToTraceLog("API response: $result");
 
-		$httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+		$httpCode = \curl_getinfo($ch, CURLINFO_HTTP_CODE);
 		if ($httpCode != 200) {
 			$this->writeToTraceLog("Failed: returned HTTP code $httpCode");
 			throw new \RuntimeException("API returned HTTP code $httpCode, which is not code 200. Probably wrong signature, check crypto keys.");
 		}
 
-		curl_close($ch);
+		\curl_close($ch);
 
 		$decoded = @json_decode($result, true);
 		if ($decoded === null) {
