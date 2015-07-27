@@ -5,6 +5,8 @@ namespace OndraKoupil\Csob;
 // src/Client.php 
 
 
+
+
 /**
  * The main class that allows you to use payment gateway's functions.
  *
@@ -878,11 +880,17 @@ class Client {
 	 * @ignore
 	 */
 	protected function signRequest($arrayToSign) {
-		return Crypto::signString(
-			implode("|", $arrayToSign),
-			$this->config->privateKeyFile,
+		$stringToSign = implode("|", $arrayToSign);
+		$keyFile = $this->config->privateKeyFile;
+		$signature = Crypto::signString(
+			$stringToSign,
+			$keyFile,
 			$this->config->privateKeyPassword
 		);
+
+		$this->writeToTraceLog("Signing string \"$stringToSign\" using key $keyFile, result: ".$signature);
+
+		return $signature;
 	}
 
 	/**
