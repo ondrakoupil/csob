@@ -1042,6 +1042,8 @@ class Client {
 
 		$string = implode("|", $responseWithoutSignature);
 
+		$this->writeToTraceLog("String for verifying signature: \"" . $string . "\", using key " . $this->config->bankPublicKeyFile);
+
 		return Crypto::verifySignature($string, $signature, $this->config->bankPublicKeyFile);
 	}
 
