@@ -374,7 +374,7 @@ class Client {
 					"payment/reverse",
 					$payload,
 					"PUT",
-					array("payId", "dttm", "resultCode", "resultMessage", "paymentStatus"),
+					array("payId", "dttm", "resultCode", "resultMessage", "paymentStatus", "authCode"),
 					array("merchantId", "payId", "dttm", "signature")
 				);
 
@@ -446,7 +446,7 @@ class Client {
 					"payment/close",
 					$payload,
 					"PUT",
-					array("payId", "dttm", "resultCode", "resultMessage", "paymentStatus"),
+					array("payId", "dttm", "resultCode", "resultMessage", "paymentStatus", "authCode"),
 					array("merchantId", "payId", "dttm", "signature")
 				);
 
@@ -517,7 +517,7 @@ class Client {
 					"payment/refund",
 					$payload,
 					"PUT",
-					array("payId", "dttm", "resultCode", "resultMessage", "paymentStatus"),
+					array("payId", "dttm", "resultCode", "resultMessage", "paymentStatus", "authCode"),
 					array("merchantId", "payId", "dttm", "signature")
 				);
 
