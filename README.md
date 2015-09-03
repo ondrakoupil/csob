@@ -164,15 +164,17 @@ Kdykoliv lze jednoduše zjistit, v jakém stavu je zrovna platba:
 $status = $client->paymentStatus($payId);
 ```
 
-Pokud potřebujete více detailů než jen číslo stavu, dejte druhý argument na `true`.
+Pokud potřebujete více detailů než jen číslo stavu, dejte druhý argument `$returnStatusOnly` na `false`, 
+metoda pak vrátí array s různými podrobnostmi.
 
 
 ### Potvrzení, zrušení, vrácení prostředků
 
-Metoda `paymentReverse()` zruší dosud nezprocesovanou platbu, `paymentClose()` potvrzí platbu 
-a `paymentRefund()` vrátí již proběhlou platbu zpět odesílateli. 
-Pozor, platba musí být ve správném stavu, jinak nastane chyba a vyhodí se výjimka. Pokud nastavíte 
-druhý argument na `true`, tak se tato konkrétní chyba tiše ignoruje a metoda jen vrátí `null`.
+Metoda `paymentReverse()` zruší dosud nezprocesovanou platbu, `paymentClose()` potvrdí platbu 
+a `paymentRefund()` vrátí již proběhlou platbu zpět plátci. 
+
+Pozor, platba musí být ve [správném stavu][4], jinak nastane chyba a vyhodí se výjimka. Pokud nastavíte 
+druhý argument `$ignoreWrongPaymentStatusError` na `true`, tak se tato konkrétní chyba tiše ignoruje a metoda jen vrátí `null`.
 Všechny ostatní chyby nadále vyhazují výjimku.
 
 ```php

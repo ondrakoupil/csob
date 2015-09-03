@@ -152,14 +152,16 @@ This is simple:
 $status = $client->paymentStatus($payId);
 ```
 
-Set second argument to true if you want more details than just status number.
+Set second argument to false if you want more details than just status number.
 
 
 ### Reversing, confirming, refunding
 
 Use `paymentReverse()` to cancel unprocessed payment, `paymentClose()` to confirm payment 
 (if not set to do that automatically) and `paymentRefund()` to send money back to customer
-via API. Note that payment has to be in adequate state to use these methods, or an exception
+via API. 
+
+Note that payment has to be in [adequate state][4] to use these methods or an exception
 will be thrown. Set second argument to true to oppress these exceptions (then some other
 kind of error occurs, exception will be thrown anyway).
 
