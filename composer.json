@@ -18,13 +18,13 @@
         }
     },
     "require": {
-        "ondrakoupil/tools": "^0.0.5",
+        "ondrakoupil/tools": "~0.0.5",
         "ext-openssl": "*",
 		"ext-curl": "*",
         "php": ">=5.3.1"
     },
     "require-dev": {
         "nette/tester": "dev-master",
-        "ondrakoupil/testing-utils": "^0.0.7"
+        "ondrakoupil/testing-utils": "~0.0.7"
     }
 }
