@@ -200,7 +200,7 @@ if ($hasCards) {
 
 ## Logování
 
-`Client` má vestavěné jednoduché logování. Jeden log slouží pro bussiness-level zprávy
+`Client` má vestavěné jednoduché logování. Jeden log slouží pro business-level zprávy
 ("platba XYZ proběhla úspěšně"), do druhého logu (traceLog) se zaznamenává podrobná
 komunikace s API a různé detailní technikálie.
 

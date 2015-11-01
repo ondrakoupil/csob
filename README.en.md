@@ -188,7 +188,7 @@ if ($hasCards) {
 
 ## Logging
 
-Client has a simple built-in logging. Two logs can be used, first log is for bussiness-level
+Client has a simple built-in logging. Two logs can be used, first log is for business-level
 messages like "Payment XYZ has been made", second is a tracelog for technical 
 messages like "API returned this JSON: ...".
 
