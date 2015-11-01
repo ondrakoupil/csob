@@ -3,6 +3,8 @@
 namespace OndraKoupil\Csob;
 
 use \OndraKoupil\Tools\Files;
+use \OndraKoupil\Tools\Strings;
+use \OndraKoupil\Tools\Arrays;
 
 /**
  * The main class that allows you to use payment gateway's functions.
@@ -491,13 +493,17 @@ class Client {
 	 *
 	 * @param bool $ignoreWrongPaymentStatusError
 	 *
+	 * @param int $amount Optionally, an amount (in hundreths of basic money unit)
+	 * can be passed, so that the payment will be refunded partially.
+	 * Null means full refund.
+	 *
 	 * @return array|null Array with results of call or null if payment is not
 	 * in correct state
 	 *
 	 *
 	 * @throws \RuntimeException
 	 */
-	function paymentRefund($payment, $ignoreWrongPaymentStatusError = false) {
+	function paymentRefund($payment, $ignoreWrongPaymentStatusError = false, $amount = null) {
 		$payId = $this->getPayId($payment);
 
 		$payload = array(
@@ -506,7 +512,14 @@ class Client {
 			"dttm" => $this->getDTTM()
 		);
 
-		$this->writeToLog("payment/refund started for payment $payId");
+		if ($amount !== null) {
+			if (!is_numeric($amount)) {
+				throw new \InvalidArgumentException("Amount for refunding must be a number.");
+			}
+			$payload["amount"] = $amount;
+		}
+
+		$this->writeToLog("payment/refund started for payment $payId, amount = " . ($amount !== null ? $amount : "null"));
 
 		try {
 			$payload["signature"] = $this->signRequest($payload);
@@ -517,8 +530,8 @@ class Client {
 					"payment/refund",
 					$payload,
 					"PUT",
-					array("payId", "dttm", "resultCode", "resultMessage", "paymentStatus", "authCode"),
-					array("merchantId", "payId", "dttm", "signature")
+					array("payId", "dttm", "resultCode", "resultMessage", "paymentStatus"),
+					array("merchantId", "payId", "dttm", "amount", "signature")
 				);
 
 			} catch (\RuntimeException $e) {
@@ -542,6 +555,70 @@ class Client {
 
 		return $ret;
 	}
+
+
+	function paymentRecurrent($origPayment, Payment $newPayment) {
+		$origPayId = $this->getPayId($origPayment);
+
+		$newOrderNo = $newPayment->orderNo;
+
+		if (!$newOrderNo or !preg_match('~^\d{1,10}$~', $newOrderNo)) {
+			throw new \InvalidArgumentException("Given Payment object must have an \$orderNo property, numeric, max. 10 chars length.");
+		}
+
+		$newPaymentCart = $newPayment->getCart();
+		if ($newPaymentCart) {
+			$totalAmount = array_sum(Arrays::transform($newPaymentCart, true, "amount"));
+		} else {
+			$totalAmount = 0;
+		}
+
+		$newDescription = Strings::shorten($newPayment->description, 240, "...");
+
+		$payload = array(
+			"merchantId" => $this->config->merchantId,
+			"origPayId" => $origPayId,
+			"orderNo" => $newOrderNo,
+			"dttm" => $this->getDTTM(),
+		);
+
+		if ($totalAmount > 0) {
+			$payload["totalAmount"] = $totalAmount;
+		}
+
+		if ($newPayment->currency) {
+			$payload["currency"] = $newPayment->currency;
+		}
+
+		if ($newDescription) {
+			$payload["description"] = $newDescription;
+		}
+
+		$this->writeToLog("payment/recurrent started using orig payment $origPayId");
+
+		try {
+			$payload["signature"] = $this->signRequest($payload);
+
+			$ret = $this->sendRequest(
+				"payment/recurrent",
+				$payload,
+				"POST",
+				array("payId", "dttm", "resultCode", "resultMessage", "paymentStatus", "authCode"),
+				array("merchantId", "origPayId", "orderNo", "dttm", "totalAmount", "currency", "description", "signature")
+			);
+
+		} catch (\Exception $e) {
+			$this->writeToLog("Fail, got exception: " . $e->getCode().", " . $e->getMessage());
+			throw $e;
+		}
+
+		$this->writeToLog("payment/recurrent OK, new payment got payId " . $ret["payId"]);
+
+		return $ret;
+
+
+	}
+
 
 	/**
 	 * Test the connection using POST method.

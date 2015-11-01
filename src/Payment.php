@@ -14,6 +14,9 @@ use \OndraKoupil\Tools\Arrays;
  */
 class Payment {
 
+	const OPERATION_PAYMENT = "payment";
+	const OPERATION_RECURRENT = "recurrentPayment";
+
 	/**
 	 * @ignore
 	 * @var string
@@ -171,10 +174,12 @@ class Payment {
 
 
 	/**
-	 *
-	 * @param type $orderNo
+	 * @param string $orderNo
+	 * @param mixed $merchantData
+	 * @param string $customerId
+	 * @param bool|null $recurrentPayment
 	 */
-	function __construct($orderNo, $merchantData = null, $customerId = null) {
+	function __construct($orderNo, $merchantData = null, $customerId = null, $recurrentPayment = null) {
 		$this->orderNo = $orderNo;
 
 		if ($merchantData) {
@@ -183,6 +188,10 @@ class Payment {
 
 		if ($customerId) {
 			$this->customerId = $customerId;
+		}
+
+		if ($recurrentPayment !== null) {
+			$this->setRecurrentPayment($recurrentPayment);
 		}
 	}
 
@@ -273,12 +282,34 @@ class Payment {
 	}
 
 	/**
+	 * Cart items as array.
+	 * @return array
+	 */
+	function getCart() {
+		return $this->cart;
+	}
+
+	/**
 	 * Do not call this on your own. Really.
 	 *
 	 * @param string $id
 	 */
 	public function setPayId($id) {
 		$this->foreignId = $id;
+	}
+
+	/**
+	 * Mark this payment as a template for recurrent payments.
+	 *
+	 * Basically, this is a lazy method for setting $payOperation to OPERATION_RECURRENT.
+	 *
+	 * @param bool $recurrent
+	 *
+	 * @return \OndraKoupil\Csob\Payment
+	 */
+	function setRecurrentPayment($recurrent = true) {
+		$this->payOperation = $recurrent ? self::OPERATION_RECURRENT : self::OPERATION_PAYMENT;
+		return $this;
 	}
 
 	/**
@@ -297,7 +328,7 @@ class Payment {
 		$this->dttm = date(Client::DATE_FORMAT);
 
 		if (!$this->payOperation) {
-			$this->payOperation = "payment";
+			$this->payOperation = self::OPERATION_PAYMENT;
 		}
 
 		if (!$this->payMethod) {

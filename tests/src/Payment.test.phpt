@@ -118,6 +118,17 @@ class PaymentTestCase extends TestCase {
 
 	}
 
+	function testRecurrent() {
+		$payment = new Payment("ABC123");
+
+		$payment->setRecurrentPayment(true);
+		Assert::equal($payment->payOperation, Payment::OPERATION_RECURRENT);
+
+		$payment->setRecurrentPayment(false);
+		Assert::equal($payment->payOperation, Payment::OPERATION_PAYMENT);
+
+	}
+
 
 }
 

@@ -13,7 +13,7 @@ class Config {
 	 *
 	 * @var string
 	 */
-	public $url = "https://iapi.iplatebnibrana.csob.cz/api/v1";
+	public $url = "https://iapi.iplatebnibrana.csob.cz/api/v1.5";
 
 	/**
 	 * Path to file where bank's public key is saved.
