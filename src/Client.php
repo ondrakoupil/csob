@@ -475,7 +475,7 @@ class Client {
 	}
 
 	/**
-	 * Performs payment/refind API call.
+	 * Performs payment/refund API call.
 	 *
 	 * If you want to send money back to your customer after payment has been
 	 * completely processed and money transferred, use this method.
@@ -488,12 +488,17 @@ class Client {
 	 *
 	 * If some other type of error occurs, exception will be thrown in all cases.
 	 *
+	 * Note: on testing environment, refunding often ends up with HTTP code 500
+	 * and exception thrown. This is a bug in payment gateway - see
+	 * https://github.com/csob/paymentgateway/issues/43, however it is still not resolved.
+	 * On production environment, this should be OK.
+	 *
 	 * @param string|Payment $payment Either PayID given during paymentInit(),
 	 * or just the Payment object you used in paymentInit()
 	 *
 	 * @param bool $ignoreWrongPaymentStatusError
 	 *
-	 * @param int $amount Optionally, an amount (in hundreths of basic money unit)
+	 * @param int $amount Optionally, an amount (<b>in hundreths of basic money unit</b> - beware!)
 	 * can be passed, so that the payment will be refunded partially.
 	 * Null means full refund.
 	 *
@@ -522,7 +527,15 @@ class Client {
 		$this->writeToLog("payment/refund started for payment $payId, amount = " . ($amount !== null ? $amount : "null"));
 
 		try {
-			$payload["signature"] = $this->signRequest($payload);
+
+			$payloadForSigning = $payload;
+			/*
+			if (isset($payloadForSigning["amount"])) {
+				unset($payloadForSigning["amount"]);
+			}
+			 */
+
+			$payload["signature"] = $this->signRequest($payloadForSigning);
 
 			try {
 
@@ -557,6 +570,30 @@ class Client {
 	}
 
 
+	/**
+	 * Performs payment/recurrent API call.
+	 *
+	 * Use this method to redo a payment that has already been marked as
+	 * a template for recurring payments and approved by customer
+	 * - see Payment::setRecurrentPayment()
+	 *
+	 * You need PayID of the original payment and a new Payment object.
+	 * Only $orderNo, $totalAmount (sum of cart items added by addToCart), $currency
+	 * and $description of $newPayment are used, others are ignored.
+	 *
+	 * $orderNo is the only mandatory value in $newPayment. Other properties
+	 * can be left null to use original values from $origPayment.
+	 *
+	 * After successful call, received PayID will be set in $newPayment object.
+	 *
+	 * @param Payment|string $origPayment Either string PayID or a Payment object
+	 * @param Payment $newPayment
+	 * @return array Data with new values
+	 * @throws \InvalidArgumentException
+	 * @throws \Exception
+	 *
+	 * @see Payment::setRecurrentPayment()
+	 */
 	function paymentRecurrent($origPayment, Payment $newPayment) {
 		$origPayId = $this->getPayId($origPayment);
 
@@ -613,6 +650,8 @@ class Client {
 		}
 
 		$this->writeToLog("payment/recurrent OK, new payment got payId " . $ret["payId"]);
+
+		$newPayment->setPayId($ret["payId"]);
 
 		return $ret;
 
@@ -1039,7 +1078,10 @@ class Client {
 		$httpCode = \curl_getinfo($ch, CURLINFO_HTTP_CODE);
 		if ($httpCode != 200) {
 			$this->writeToTraceLog("Failed: returned HTTP code $httpCode");
-			throw new \RuntimeException("API returned HTTP code $httpCode, which is not code 200. Probably wrong signature, check crypto keys.");
+			throw new \RuntimeException(
+				"API returned HTTP code $httpCode, which is not code 200."
+				. ($httpCode == 400 ? " Probably wrong signature, check crypto keys." : "")
+			);
 		}
 
 		\curl_close($ch);

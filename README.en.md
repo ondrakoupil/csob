@@ -4,6 +4,22 @@ This library enables you to integrate ČSOB payment gateway into your e-shop or 
 
 See [https://github.com/csob/paymentgateway][1] for further information about the gateway, it's API, generating keys, payment processing steps, payment statuses and many more.
 
+## News
+
+The library now supports ČSOB eAPI 1.5. Select whichever eAPI version you want to use
+by setting address in your config object. Default is now eAPI 1.5.
+
+```
+$config->url = "https://iapi.iplatebnibrana.csob.cz/api/v1.5";  // test, eAPI 1.5 - default
+$config->url = "https://iapi.iplatebnibrana.csob.cz/api/v1.0";  // test, eAPI 1.0
+$config->url = "https://api.platebnibrana.csob.cz/api/v1.5";    // production, eAPI 1.5
+// etc.
+```
+
+Versioning of this library will now respect versioning of ČSOB eAPI.
+This means I am skipping from 0.1.3 directly to 1.5,
+but it makes more sense now.
+
 ## Installation
 
 The easy way - use composer:
@@ -28,7 +44,7 @@ The library consists of these classes:
 - Payment - represents one payment
 - Crypto - handles signing and verifying signatures, you don't need to care about it
 
-First of all, you need to create a Config object and set its properties to proper values. 
+First of all, you need to create a Config object and set its properties to proper values.
 Then, you can create Client object and use its methods to call various API methods and receive
 responses. It has a method for each API method and something more.
 
@@ -37,7 +53,7 @@ or use fully qualified names. Following examples expects you have used `use`:
 
 ```php
 use OndraKoupil\Csob\Client, OndraKoupil\Csob\Config, OndraKoupil\Csob\Payment;
-``` 
+```
 
 ```php
 $config = new Config(
@@ -50,7 +66,7 @@ $config = new Config(
 	"https://www.my-eshop.cz/return-path.php",
 
 	// Payment API URL - leave empty to use integration (testing) gateway,
-	// fill production gateway's URL when you are ready to go 
+	// fill production gateway's URL when you are ready to go
 	"https://iapi.iplatebnibrana.csob.cz/api/v1"
 );
 
@@ -65,7 +81,7 @@ See Config's doc page for more.
 
 ### Testing connection
 Use testGetConnection() and testPostConnection() to ensure that keys are set correctly and
-the gateway listens to your app. 
+the gateway listens to your app.
 
 ```php
 try {
@@ -88,7 +104,7 @@ Use `$payment->addCartItem()` to add one or two items (this is a restriction of 
 and will be changed in future versions).
 
 ```php
-$payment = new Payment("1234"); 
+$payment = new Payment("1234");
 $payment->addCartItem("Some cool stuff", 1, 10000);
 
 $response = $client->paymentInit($payment);
@@ -127,7 +143,7 @@ As the argument, you can use the $payment object from before or just plain strin
 
 ### When customer returns...
 
-You specified the URL to return the customer to in Config object or in Payment object. On that URL, 
+You specified the URL to return the customer to in Config object or in Payment object. On that URL,
 you can use `receiveReturningCustomer()` method to check if incoming data is correct and parse
 the response into array.
 
@@ -157,9 +173,9 @@ Set second argument to false if you want more details than just status number.
 
 ### Reversing, confirming, refunding
 
-Use `paymentReverse()` to cancel unprocessed payment, `paymentClose()` to confirm payment 
+Use `paymentReverse()` to cancel unprocessed payment, `paymentClose()` to confirm payment
 (if not set to do that automatically) and `paymentRefund()` to send money back to customer
-via API. 
+via API.
 
 Note that payment has to be in [adequate state][4] to use these methods or an exception
 will be thrown. Set second argument to true to oppress these exceptions (then some other
@@ -171,9 +187,21 @@ $client->paymentClose($payId);
 $client->paymentRefund($payId);
 ```
 
+Since eAPI 1.5 you can refund the payment partially. Just pass in third argument
+to `paymentRefund()` - beware, use **hundreths** of base currency unit.
+
+```php
+$client->paymentRefund($payId, false, 10000);
+// Refund 100 CZK
+```
+
+`paymentRefund()` sometimes returns with HTTP 500 code and throws an exception
+when using test environment. Accorting to [this issue][issue43] it is a bug
+in test environment that has not yet been fixed.
+
 ### Customer info
 
-Use `customerInfo()` to check whether this customer (identified i.e. by e-mail address) 
+Use `customerInfo()` to check whether this customer (identified i.e. by e-mail address)
 has paid anything with payment card before, and if so, do some personalisation stuff:
 
 ```php
@@ -185,15 +213,34 @@ if ($hasCards) {
 }
 ```
 
+### Recurring payments
+
+Since eAPI 1.5, you can make recurring payments. See the [wiki page][8] for details.
+
+- let customer authorize payment template by going through payment process as usual,
+  but before running `paymentInit()`, mark the payment as template
+  by calling `$payment->setRecurrentPayment(true)`
+- customer fills in card number, security codes etc.
+- save resulting PayID so that you can refer to this authorised payment later
+- call `paymentRecurrent()` with PayID of the original payment and new Payment
+  object. Payment gets processed silently on background.
+- new payment has its own PayID and can be manipulated as any other payment.
+
+You need PayID of the original payment and a new Payment object.
+Only $orderNo, $totalAmount (sum of cart items added by addToCart), $currency
+and $description of $newPayment are used, others are ignored.
+
+$orderNo is the only mandatory value. Other properties
+can be left null to use original values from payment template.
 
 ## Logging
 
 Client has a simple built-in logging. Two logs can be used, first log is for business-level
-messages like "Payment XYZ has been made", second is a tracelog for technical 
+messages like "Payment XYZ has been made", second is a tracelog for technical
 messages like "API returned this JSON: ...".
 
-Either give some file path or a callback which can forward the message to your 
-app's standard logging facility. Logs can be set in Client's constructor or using 
+Either give some file path or a callback which can forward the message to your
+app's standard logging facility. Logs can be set in Client's constructor or using
 `setLog()` and `setTraceLog()` method.
 
 ```php
@@ -215,3 +262,7 @@ Feel free to [contact me][5] if you have any questions or suggestions.
 [3]: https://github.com/csob/paymentgateway/tree/master/eshop-integration/keys
 [4]: https://github.com/csob/paymentgateway/wiki/eAPI-v1-CZ#user-content-%C5%BDivotn%C3%AD-cyklus-transakce-
 [5]: https://github.com/ondrakoupil
+[6]: https://platebnibrana.csob.cz/
+[7]: https://github.com/csob/paymentgateway/wiki/Testovac%C3%AD-karty
+[8]: https://github.com/csob/paymentgateway/wiki/Opakovan%C3%A1-platba
+[issue43]: https://github.com/csob/paymentgateway/issues/43

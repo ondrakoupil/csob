@@ -106,7 +106,7 @@ from the order.</p>
 		<b>Namespace:</b> <a href="namespace-OndraKoupil.html">OndraKoupil</a>\<a href="namespace-OndraKoupil.Csob.html">Csob</a><br>
 		
 
-			<b>Located at</b> <a href="source-class-OndraKoupil.Csob.Payment.html#8-417" title="Go to source code">Payment.php</a>
+			<b>Located at</b> <a href="source-class-OndraKoupil.Csob.Payment.html#8-448" title="Go to source code">Payment.php</a>
 		<br>
 	</div>
 
@@ -126,7 +126,7 @@ from the order.</p>
 
 		<td class="name"><div>
 		<a class="anchor" href="#___construct">#</a>
-		<code><a href="source-class-OndraKoupil.Csob.Payment.html#173-187" title="Go to source code">__construct</a>( <span>type <var>$orderNo</var></span>, <span> <var>$merchantData</var> = <span class="php-keyword1">null</span></span>, <span> <var>$customerId</var> = <span class="php-keyword1">null</span></span> )</code>
+		<code><a href="source-class-OndraKoupil.Csob.Payment.html#176-196" title="Go to source code">__construct</a>( <span>string <var>$orderNo</var></span>, <span>mixed <var>$merchantData</var> = <span class="php-keyword1">null</span></span>, <span>string <var>$customerId</var> = <span class="php-keyword1">null</span></span>, <span>boolean|null <var>$recurrentPayment</var> = <span class="php-keyword1">null</span></span> )</code>
 
 		<div class="description short">
 			
@@ -143,6 +143,8 @@ from the order.</p>
 					<dt><var>$merchantData</var></dt>
 					<dd></dd>
 					<dt><var>$customerId</var></dt>
+					<dd></dd>
+					<dt><var>$recurrentPayment</var></dt>
 					<dd></dd>
 				</dl></div>
 
@@ -165,7 +167,7 @@ from the order.</p>
 
 		<td class="name"><div>
 		<a class="anchor" href="#_addCartItem">#</a>
-		<code><a href="source-class-OndraKoupil.Csob.Payment.html#189-230" title="Go to source code">addCartItem</a>( <span>string <var>$name</var></span>, <span>number <var>$quantity</var></span>, <span>number <var>$totalAmount</var></span>, <span>string <var>$description</var> = <span class="php-quote">&quot;&quot;</span></span> )</code>
+		<code><a href="source-class-OndraKoupil.Csob.Payment.html#198-239" title="Go to source code">addCartItem</a>( <span>string <var>$name</var></span>, <span>number <var>$quantity</var></span>, <span>number <var>$totalAmount</var></span>, <span>string <var>$description</var> = <span class="php-quote">&quot;&quot;</span></span> )</code>
 
 		<div class="description short">
 			<p>Add one cart item.</p>
@@ -222,7 +224,7 @@ in <strong>hundredths</strong> of currency unit</p></dd>
 
 		<td class="name"><div>
 		<a class="anchor" href="#_setMerchantData">#</a>
-		<code><a href="source-class-OndraKoupil.Csob.Payment.html#232-251" title="Go to source code">setMerchantData</a>( <span>string <var>$data</var></span>, <span>boolean <var>$alreadyEncoded</var> = <span class="php-keyword1">false</span></span> )</code>
+		<code><a href="source-class-OndraKoupil.Csob.Payment.html#241-260" title="Go to source code">setMerchantData</a>( <span>string <var>$data</var></span>, <span>boolean <var>$alreadyEncoded</var> = <span class="php-keyword1">false</span></span> )</code>
 
 		<div class="description short">
 			<p>Set some arbitrary data you will receive back when customer returns</p>
@@ -237,7 +239,7 @@ in <strong>hundredths</strong> of currency unit</p></dd>
 					<dt><var>$data</var></dt>
 					<dd></dd>
 					<dt><var>$alreadyEncoded</var></dt>
-					<dd>True if the data is already encoded to Base64</dd>
+					<dd>True if given $data is already encoded to Base64</dd>
 				</dl></div>
 
 				<h4>Returns</h4>
@@ -247,7 +249,7 @@ in <strong>hundredths</strong> of currency unit</p></dd>
 
 				<h4>Throws</h4>
 				<div class="list">
-					InvalidArgumentException<br>When the data is too long
+					InvalidArgumentException<br>When the data is too long and can't be encoded.
 				</div>
 
 
@@ -267,7 +269,7 @@ in <strong>hundredths</strong> of currency unit</p></dd>
 
 		<td class="name"><div>
 		<a class="anchor" href="#_getMerchantData">#</a>
-		<code><a href="source-class-OndraKoupil.Csob.Payment.html#253-263" title="Go to source code">getMerchantData</a>( )</code>
+		<code><a href="source-class-OndraKoupil.Csob.Payment.html#262-272" title="Go to source code">getMerchantData</a>( )</code>
 
 		<div class="description short">
 			<p>Get back merchantData, decoded to original value.</p>
@@ -301,7 +303,7 @@ in <strong>hundredths</strong> of currency unit</p></dd>
 
 		<td class="name"><div>
 		<a class="anchor" href="#_getPayId">#</a>
-		<code><a href="source-class-OndraKoupil.Csob.Payment.html#265-273" title="Go to source code">getPayId</a>( )</code>
+		<code><a href="source-class-OndraKoupil.Csob.Payment.html#274-282" title="Go to source code">getPayId</a>( )</code>
 
 		<div class="description short">
 			<p>After the payment has been saved using payment/init, you can
@@ -325,6 +327,40 @@ get PayID from here.</p>
 		</div>
 		</div></td>
 	</tr>
+	<tr data-order="getCart" id="_getCart">
+
+		<td class="attributes"><code>
+			 public 
+
+			array
+			
+			</code>
+		</td>
+
+		<td class="name"><div>
+		<a class="anchor" href="#_getCart">#</a>
+		<code><a href="source-class-OndraKoupil.Csob.Payment.html#284-290" title="Go to source code">getCart</a>( )</code>
+
+		<div class="description short">
+			<p>Cart items as array.</p>
+		</div>
+
+		<div class="description detailed hidden">
+			<p>Cart items as array.</p>
+
+
+
+				<h4>Returns</h4>
+				<div class="list">
+					array
+				</div>
+
+
+
+
+		</div>
+		</div></td>
+	</tr>
 	<tr data-order="setPayId" id="_setPayId">
 
 		<td class="attributes"><code>
@@ -337,7 +373,7 @@ get PayID from here.</p>
 
 		<td class="name"><div>
 		<a class="anchor" href="#_setPayId">#</a>
-		<code><a href="source-class-OndraKoupil.Csob.Payment.html#275-282" title="Go to source code">setPayId</a>( <span>string <var>$id</var></span> )</code>
+		<code><a href="source-class-OndraKoupil.Csob.Payment.html#292-299" title="Go to source code">setPayId</a>( <span>string <var>$id</var></span> )</code>
 
 		<div class="description short">
 			<p>Do not call this on your own. Really.</p>
@@ -360,6 +396,47 @@ get PayID from here.</p>
 		</div>
 		</div></td>
 	</tr>
+	<tr data-order="setRecurrentPayment" id="_setRecurrentPayment">
+
+		<td class="attributes"><code>
+			 public 
+
+			<code><a href="class-OndraKoupil.Csob.Payment.html">OndraKoupil\Csob\Payment</a></code>
+			
+			</code>
+		</td>
+
+		<td class="name"><div>
+		<a class="anchor" href="#_setRecurrentPayment">#</a>
+		<code><a href="source-class-OndraKoupil.Csob.Payment.html#301-313" title="Go to source code">setRecurrentPayment</a>( <span>boolean <var>$recurrent</var> = <span class="php-keyword1">true</span></span> )</code>
+
+		<div class="description short">
+			<p>Mark this payment as a template for recurrent payments.</p>
+		</div>
+
+		<div class="description detailed hidden">
+			<p>Mark this payment as a template for recurrent payments.</p>
+
+<p>Basically, this is a lazy method for setting $payOperation to OPERATION_RECURRENT.</p>
+
+
+				<h4>Parameters</h4>
+				<div class="list"><dl>
+					<dt><var>$recurrent</var></dt>
+					<dd></dd>
+				</dl></div>
+
+				<h4>Returns</h4>
+				<div class="list">
+					<code><a href="class-OndraKoupil.Csob.Payment.html">OndraKoupil\Csob\Payment</a></code>
+				</div>
+
+
+
+
+		</div>
+		</div></td>
+	</tr>
 	</table>
 
 
@@ -369,6 +446,57 @@ get PayID from here.</p>
 
 
 
+	<table class="summary constants" id="constants">
+	<caption>Constants summary</caption>
+	<tr data-order="OPERATION_PAYMENT" id="OPERATION_PAYMENT">
+
+		<td class="attributes"><code>string</code></td>
+		<td class="name">
+			<code>
+				<a href="source-class-OndraKoupil.Csob.Payment.html#17" title="Go to source code"><b>OPERATION_PAYMENT</b></a>
+			</code>
+
+			<div class="description short">
+				
+			</div>
+
+			<div class="description detailed hidden">
+				
+
+			</div>
+		</td>
+		<td class="value">
+			<div>
+				<a href="#OPERATION_PAYMENT" class="anchor">#</a>
+				<code><span class="php-quote">&quot;payment&quot;</span></code>
+			</div>
+		</td>
+	</tr>
+	<tr data-order="OPERATION_RECURRENT" id="OPERATION_RECURRENT">
+
+		<td class="attributes"><code>string</code></td>
+		<td class="name">
+			<code>
+				<a href="source-class-OndraKoupil.Csob.Payment.html#18" title="Go to source code"><b>OPERATION_RECURRENT</b></a>
+			</code>
+
+			<div class="description short">
+				
+			</div>
+
+			<div class="description detailed hidden">
+				
+
+			</div>
+		</td>
+		<td class="value">
+			<div>
+				<a href="#OPERATION_RECURRENT" class="anchor">#</a>
+				<code><span class="php-quote">&quot;recurrentPayment&quot;</span></code>
+			</div>
+		</td>
+	</tr>
+	</table>
 
 
 
@@ -382,7 +510,7 @@ get PayID from here.</p>
 		</code></td>
 
 		<td class="name">
-				<a href="source-class-OndraKoupil.Csob.Payment.html#23-31" title="Go to source code"><var>$orderNo</var></a>
+				<a href="source-class-OndraKoupil.Csob.Payment.html#26-34" title="Go to source code"><var>$orderNo</var></a>
 
 			<div class="description short">
 				<p>Number of your order, a string of 1 to 10 numbers
@@ -411,7 +539,7 @@ get PayID from here.</p>
 		</code></td>
 
 		<td class="name">
-				<a href="source-class-OndraKoupil.Csob.Payment.html#39-43" title="Go to source code"><var>$currency</var></a>
+				<a href="source-class-OndraKoupil.Csob.Payment.html#42-46" title="Go to source code"><var>$currency</var></a>
 
 			<div class="description short">
 				<p>Currency of the transaction. Default value is "CZK".</p>
@@ -436,7 +564,7 @@ get PayID from here.</p>
 		</code></td>
 
 		<td class="name">
-				<a href="source-class-OndraKoupil.Csob.Payment.html#45-53" title="Go to source code"><var>$closePayment</var></a>
+				<a href="source-class-OndraKoupil.Csob.Payment.html#48-56" title="Go to source code"><var>$closePayment</var></a>
 
 			<div class="description short">
 				<p>Should the payment be processed right on?
@@ -465,7 +593,7 @@ See Wiki on ČSOB's github for more information.</p>
 		</code></td>
 
 		<td class="name">
-				<a href="source-class-OndraKoupil.Csob.Payment.html#55-63" title="Go to source code"><var>$returnUrl</var></a>
+				<a href="source-class-OndraKoupil.Csob.Payment.html#58-66" title="Go to source code"><var>$returnUrl</var></a>
 
 			<div class="description short">
 				<p>Return URL to send your customers back to.</p>
@@ -493,7 +621,7 @@ URL from your Config. Leave empty to use the default one.</p>
 		</code></td>
 
 		<td class="name">
-				<a href="source-class-OndraKoupil.Csob.Payment.html#65-70" title="Go to source code"><var>$returnMethod</var></a>
+				<a href="source-class-OndraKoupil.Csob.Payment.html#68-73" title="Go to source code"><var>$returnMethod</var></a>
 
 			<div class="description short">
 				<p>Return method. Leave empty to use the default one.</p>
@@ -522,7 +650,7 @@ URL from your Config. Leave empty to use the default one.</p>
 		</code></td>
 
 		<td class="name">
-				<a href="source-class-OndraKoupil.Csob.Payment.html#78-86" title="Go to source code"><var>$description</var></a>
+				<a href="source-class-OndraKoupil.Csob.Payment.html#81-89" title="Go to source code"><var>$description</var></a>
 
 			<div class="description short">
 				<p>Description of the order that will be shown to customer during payment
@@ -551,7 +679,7 @@ process.</p>
 		</code></td>
 
 		<td class="name">
-				<a href="source-class-OndraKoupil.Csob.Payment.html#94-102" title="Go to source code"><var>$customerId</var></a>
+				<a href="source-class-OndraKoupil.Csob.Payment.html#97-105" title="Go to source code"><var>$customerId</var></a>
 
 			<div class="description short">
 				<p>Your customer's ID (e-mail, number, whatever...)</p>
@@ -579,7 +707,7 @@ customer ID.</p>
 		</code></td>
 
 		<td class="name">
-				<a href="source-class-OndraKoupil.Csob.Payment.html#104-112" title="Go to source code"><var>$language</var></a>
+				<a href="source-class-OndraKoupil.Csob.Payment.html#107-115" title="Go to source code"><var>$language</var></a>
 
 			<div class="description short">
 				<p>Language of the gateway. Default is "CZ".</p>
@@ -607,7 +735,7 @@ as standard ISO language codes.</p>
 		</code></td>
 
 		<td class="name">
-				<a href="source-class-OndraKoupil.Csob.Payment.html#121-129" title="Go to source code"><var>$payOperation</var></a>
+				<a href="source-class-OndraKoupil.Csob.Payment.html#124-132" title="Go to source code"><var>$payOperation</var></a>
 
 			<div class="description short">
 				<p>payOperation value. Leave empty to use the default
@@ -636,7 +764,7 @@ as standard ISO language codes.</p>
 		</code></td>
 
 		<td class="name">
-				<a href="source-class-OndraKoupil.Csob.Payment.html#131-139" title="Go to source code"><var>$payMethod</var></a>
+				<a href="source-class-OndraKoupil.Csob.Payment.html#134-142" title="Go to source code"><var>$payMethod</var></a>
 
 			<div class="description short">
 				<p>payMethod value. Leave empty to use the default
@@ -665,7 +793,7 @@ as standard ISO language codes.</p>
 		</code></td>
 
 		<td class="name">
-				<a href="source-class-OndraKoupil.Csob.Payment.html#141-148" title="Go to source code"><var>$foreignId</var></a>
+				<a href="source-class-OndraKoupil.Csob.Payment.html#144-151" title="Go to source code"><var>$foreignId</var></a>
 
 			<div class="description short">
 				<p>The PayID value that you will need fo call other methods.
