@@ -199,12 +199,16 @@ $client->paymentClose($payId);
 $client->paymentRefund($payId);
 ```
 
-Počínaje API 1.5 umožňuje platební brána vrátit jen část prostředků pomocí netody `paymentRefund()`.
-Jako třetí argument lze zadat požadovanou částku k vrácení v **setinách** základní měny (pozor!):
+Počínaje API 1.5 umožňuje platební brána vrátit jen část prostředků pomocí netody `paymentRefund()`
+nebo potvrdit transakci s nižší než původně autorizovanou částkou u metody `paymentClose()`.
+Jako třetí argument těchto metod lze zadat požadovanou částku k vrácení v **setinách** základní měny (pozor!):
 
 ```php
-$client->paymentRefund($payId, false, 10000);
+// Potvrdit transakci jen na 100 Kč
+$client->paymentClose($payId, false, 10000);
+
 // Vrátit 100 Kč
+$client->paymentRefund($payId, false, 10000);
 ```
 
 `paymentRefund()` občas v testovacím prostředí vrací HTTP stav 500, což vede k vyhození výjimky.

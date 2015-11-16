@@ -422,13 +422,17 @@ class Client {
 	 *
 	 * @param bool $ignoreWrongPaymentStatusError
 	 *
+	 * @param int $amount Amount of finance to close (if different from originally authorized amount).
+	 * Use hundreths of basic currency unit.
+	 *
+	 *
 	 * @return array|null Array with results of call or null if payment is not
 	 * in correct state
 	 *
 	 *
 	 * @throws \RuntimeException
 	 */
-	function paymentClose($payment, $ignoreWrongPaymentStatusError = false) {
+	function paymentClose($payment, $ignoreWrongPaymentStatusError = false, $amount = null) {
 		$payId = $this->getPayId($payment);
 
 		$payload = array(
@@ -437,7 +441,11 @@ class Client {
 			"dttm" => $this->getDTTM()
 		);
 
-		$this->writeToLog("payment/close started for payment $payId");
+		if ($amount !== null) {
+			$payload["totalAmount"] = $amount;
+		}
+
+		$this->writeToLog("payment/close started for payment $payId" . ($amount !== null ? ", amount $amount" : ""));
 
 		try {
 			$payload["signature"] = $this->signRequest($payload);
@@ -449,7 +457,7 @@ class Client {
 					$payload,
 					"PUT",
 					array("payId", "dttm", "resultCode", "resultMessage", "paymentStatus", "authCode"),
-					array("merchantId", "payId", "dttm", "signature")
+					array("merchantId", "payId", "dttm", "totalAmount", "signature")
 				);
 
 			} catch (\RuntimeException $e) {

@@ -187,17 +187,24 @@ $client->paymentClose($payId);
 $client->paymentRefund($payId);
 ```
 
-Since eAPI 1.5 you can refund the payment partially. Just pass in third argument
-to `paymentRefund()` - beware, use **hundreths** of base currency unit.
+Since eAPI 1.5 you can partially authorize (close) the payment or refund it.
+Just pass in third argument to `paymentClose()` or `paymentRefund()`
+- just beware, use **hundreths** of base currency unit.
 
 ```php
-$client->paymentRefund($payId, false, 10000);
+// Confirm transaction with amount only 100 CZK
+$client->paymentClose($payId, false, 10000);
+
 // Refund 100 CZK
+$client->paymentRefund($payId, false, 10000);
 ```
 
 `paymentRefund()` sometimes returns with HTTP 500 code and throws an exception
 when using test environment. Accorting to [this issue][issue43] it is a bug
 in test environment that has not yet been fixed.
+
+Note that if using paymentClose() with amount parameter, the amount requested
+must be less than the amount originally authorized by customer.
 
 ### Customer info
 
