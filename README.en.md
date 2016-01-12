@@ -236,6 +236,8 @@ Since eAPI 1.5, you can make recurring payments. See the [wiki page][8] for deta
 You need PayID of the original payment and a new Payment object.
 Only $orderNo, $totalAmount (sum of cart items added by addToCart), $currency
 and $description of $newPayment are used, others are ignored.
+Note that if $totalAmount is set, then also $currency should be set. If not,
+CZK is used as default value.
 
 $orderNo is the only mandatory value. Other properties
 can be left null to use original values from payment template.

@@ -589,6 +589,9 @@ class Client {
 	 * Only $orderNo, $totalAmount (sum of cart items added by addToCart), $currency
 	 * and $description of $newPayment are used, others are ignored.
 	 *
+	 * Note that if $totalAmount is set, then also $currency must be set. If not,
+	 * CZK is used as default value.
+	 *
 	 * $orderNo is the only mandatory value in $newPayment. Other properties
 	 * can be left null to use original values from $origPayment.
 	 *
@@ -629,10 +632,7 @@ class Client {
 
 		if ($totalAmount > 0) {
 			$payload["totalAmount"] = $totalAmount;
-		}
-
-		if ($newPayment->currency) {
-			$payload["currency"] = $newPayment->currency;
+			$payload["currency"] = $newPayment->currency ?: "CZK"; // Currency is mandatory since 2016-01-10
 		}
 
 		if ($newDescription) {

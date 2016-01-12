@@ -9,4 +9,5 @@ vendor/
 /tests/coverage.*
 /tests/*/output
 .DS_Store
+.idea
 /apigen*

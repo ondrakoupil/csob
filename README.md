@@ -246,6 +246,8 @@ Počínaje API 1.5 lze provádět opakované platby. Jak přesně to funguje se 
 Při volání `paymentRecurrent()` se zadáváte nový Payment objekt, nicméně se bere v potaz pouze
 $orderNo, $totalAmount, $currency a $description. Ostatní proměnné jsou ignorovány.
 $totalAmount vznikne součtem položek přidávaných přes `addToCart()`.
+Pokud je nastaven $totalAmount, pak je vhodné určit i $currency - výchozí je CZK, nezávisle
+na hodnotě z původní šablony platby.
 
 $orderNo je jediná proměnná, která musí být nastavena (musí být jedinečná napříč všemi
 transakcemi). Ostatní lze vynechat, brána pak použije hodnoty z původní šablony platby.

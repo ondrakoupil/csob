@@ -139,7 +139,7 @@
 
 <span class="php-comment">// Or approve the payment (if not set to do that automatically)</span>
 <span class="php-var">$client</span>-&gt;paymentClose(<span class="php-var">$payment</span>);</pre><br>
-			<b>Located at</b> <a href="source-class-OndraKoupil.Csob.Client.html#9-1169" title="Go to source code">Client.php</a>
+			<b>Located at</b> <a href="source-class-OndraKoupil.Csob.Client.html#9-1177" title="Go to source code">Client.php</a>
 		<br>
 	</div>
 
@@ -532,7 +532,7 @@ in correct state</p>
 
 		<td class="name"><div>
 		<a class="anchor" href="#_paymentClose">#</a>
-		<code><a href="source-class-OndraKoupil.Csob.Client.html#405-475" title="Go to source code">paymentClose</a>( <span>string|<code><a href="class-OndraKoupil.Csob.Payment.html">OndraKoupil\Csob\Payment</a></code> <var>$payment</var></span>, <span>boolean <var>$ignoreWrongPaymentStatusError</var> = <span class="php-keyword1">false</span></span> )</code>
+		<code><a href="source-class-OndraKoupil.Csob.Client.html#405-483" title="Go to source code">paymentClose</a>( <span>string|<code><a href="class-OndraKoupil.Csob.Payment.html">OndraKoupil\Csob\Payment</a></code> <var>$payment</var></span>, <span>boolean <var>$ignoreWrongPaymentStatusError</var> = <span class="php-keyword1">false</span></span>, <span>integer <var>$amount</var> = <span class="php-keyword1">null</span></span> )</code>
 
 		<div class="description short">
 			<p>Performs payment/close API call.</p>
@@ -561,6 +561,9 @@ situation and you want to silently ignore it. Method then returns null.</p>
 or just the Payment object you used in paymentInit()</p></dd>
 					<dt><var>$ignoreWrongPaymentStatusError</var></dt>
 					<dd></dd>
+					<dt><var>$amount</var></dt>
+					<dd><p>Amount of finance to close (if different from originally authorized amount).
+Use hundreths of basic currency unit.</p></dd>
 				</dl></div>
 
 				<h4>Returns</h4>
@@ -591,7 +594,7 @@ in correct state</p>
 
 		<td class="name"><div>
 		<a class="anchor" href="#_paymentRefund">#</a>
-		<code><a href="source-class-OndraKoupil.Csob.Client.html#477-570" title="Go to source code">paymentRefund</a>( <span>string|<code><a href="class-OndraKoupil.Csob.Payment.html">OndraKoupil\Csob\Payment</a></code> <var>$payment</var></span>, <span>boolean <var>$ignoreWrongPaymentStatusError</var> = <span class="php-keyword1">false</span></span>, <span>integer <var>$amount</var> = <span class="php-keyword1">null</span></span> )</code>
+		<code><a href="source-class-OndraKoupil.Csob.Client.html#485-578" title="Go to source code">paymentRefund</a>( <span>string|<code><a href="class-OndraKoupil.Csob.Payment.html">OndraKoupil\Csob\Payment</a></code> <var>$payment</var></span>, <span>boolean <var>$ignoreWrongPaymentStatusError</var> = <span class="php-keyword1">false</span></span>, <span>integer <var>$amount</var> = <span class="php-keyword1">null</span></span> )</code>
 
 		<div class="description short">
 			<p>Performs payment/refund API call.</p>
@@ -658,7 +661,7 @@ in correct state</p>
 
 		<td class="name"><div>
 		<a class="anchor" href="#_paymentRecurrent">#</a>
-		<code><a href="source-class-OndraKoupil.Csob.Client.html#573-659" title="Go to source code">paymentRecurrent</a>( <span><code><a href="class-OndraKoupil.Csob.Payment.html">OndraKoupil\Csob\Payment</a></code>|string <var>$origPayment</var></span>, <span><code><a href="class-OndraKoupil.Csob.Payment.html">OndraKoupil\Csob\Payment</a></code> <var>$newPayment</var></span> )</code>
+		<code><a href="source-class-OndraKoupil.Csob.Client.html#581-667" title="Go to source code">paymentRecurrent</a>( <span><code><a href="class-OndraKoupil.Csob.Payment.html">OndraKoupil\Csob\Payment</a></code>|string <var>$origPayment</var></span>, <span><code><a href="class-OndraKoupil.Csob.Payment.html">OndraKoupil\Csob\Payment</a></code> <var>$newPayment</var></span> )</code>
 
 		<div class="description short">
 			<p>Performs payment/recurrent API call.</p>
@@ -674,6 +677,9 @@ a template for recurring payments and approved by customer
 <p>You need PayID of the original payment and a new Payment object.
 Only $orderNo, $totalAmount (sum of cart items added by addToCart), $currency
 and $description of $newPayment are used, others are ignored.</p>
+
+<p>Note that if $totalAmount is set, then also $currency must be set. If not,
+CZK is used as default value.</p>
 
 <p>$orderNo is the only mandatory value in $newPayment. Other properties
 can be left null to use original values from $origPayment.</p>
@@ -721,7 +727,7 @@ can be left null to use original values from $origPayment.</p>
 
 		<td class="name"><div>
 		<a class="anchor" href="#_testPostConnection">#</a>
-		<code><a href="source-class-OndraKoupil.Csob.Client.html#662-681" title="Go to source code">testPostConnection</a>( )</code>
+		<code><a href="source-class-OndraKoupil.Csob.Client.html#670-689" title="Go to source code">testPostConnection</a>( )</code>
 
 		<div class="description short">
 			<p>Test the connection using POST method.</p>
@@ -759,7 +765,7 @@ can be left null to use original values from $origPayment.</p>
 
 		<td class="name"><div>
 		<a class="anchor" href="#_testGetConnection">#</a>
-		<code><a href="source-class-OndraKoupil.Csob.Client.html#683-702" title="Go to source code">testGetConnection</a>( )</code>
+		<code><a href="source-class-OndraKoupil.Csob.Client.html#691-710" title="Go to source code">testGetConnection</a>( )</code>
 
 		<div class="description short">
 			<p>Test the connection using GET method.</p>
@@ -797,7 +803,7 @@ can be left null to use original values from $origPayment.</p>
 
 		<td class="name"><div>
 		<a class="anchor" href="#_customerInfo">#</a>
-		<code><a href="source-class-OndraKoupil.Csob.Client.html#704-777" title="Go to source code">customerInfo</a>( <span>string|array|<code><a href="class-OndraKoupil.Csob.Payment.html">OndraKoupil\Csob\Payment</a></code> <var>$customerId</var></span>, <span>boolean <var>$returnIfHasCardsOnly</var> = <span class="php-keyword1">true</span></span> )</code>
+		<code><a href="source-class-OndraKoupil.Csob.Client.html#712-785" title="Go to source code">customerInfo</a>( <span>string|array|<code><a href="class-OndraKoupil.Csob.Payment.html">OndraKoupil\Csob\Payment</a></code> <var>$customerId</var></span>, <span>boolean <var>$returnIfHasCardsOnly</var> = <span class="php-keyword1">true</span></span> )</code>
 
 		<div class="description short">
 			<p>Performs customer/info API call.</p>
@@ -852,7 +858,7 @@ any cards or was not found at all.</p>
 
 		<td class="name"><div>
 		<a class="anchor" href="#_receiveReturningCustomer">#</a>
-		<code><a href="source-class-OndraKoupil.Csob.Client.html#779-841" title="Go to source code">receiveReturningCustomer</a>( <span>array|null <var>$input</var> = <span class="php-keyword1">null</span></span> )</code>
+		<code><a href="source-class-OndraKoupil.Csob.Client.html#787-849" title="Go to source code">receiveReturningCustomer</a>( <span>array|null <var>$input</var> = <span class="php-keyword1">null</span></span> )</code>
 
 		<div class="description short">
 			<p>Processes the data that are sent together with customer when he
@@ -902,7 +908,7 @@ your own array with accordingly named variables.</p></dd>
 
 		<td class="name"><div>
 		<a class="anchor" href="#_setLog">#</a>
-		<code><a href="source-class-OndraKoupil.Csob.Client.html#846-867" title="Go to source code">setLog</a>( <span>string|callable <var>$log</var></span> )</code>
+		<code><a href="source-class-OndraKoupil.Csob.Client.html#854-875" title="Go to source code">setLog</a>( <span>string|callable <var>$log</var></span> )</code>
 
 		<div class="description short">
 			<p>Sets logging for bussiness-logic level messages.</p>
@@ -942,7 +948,7 @@ messages to your own logging system.</p></dd>
 
 		<td class="name"><div>
 		<a class="anchor" href="#_setTraceLog">#</a>
-		<code><a href="source-class-OndraKoupil.Csob.Client.html#869-890" title="Go to source code">setTraceLog</a>( <span>string|callable <var>$log</var></span> )</code>
+		<code><a href="source-class-OndraKoupil.Csob.Client.html#877-898" title="Go to source code">setTraceLog</a>( <span>string|callable <var>$log</var></span> )</code>
 
 		<div class="description short">
 			<p>Sets logging for exact contents of communication</p>
@@ -982,7 +988,7 @@ messages to your own logging system.</p></dd>
 
 		<td class="name"><div>
 		<a class="anchor" href="#_getApiMethodUrl">#</a>
-		<code><a href="source-class-OndraKoupil.Csob.Client.html#1129-1136" title="Go to source code">getApiMethodUrl</a>( <span>string <var>$apiMethod</var></span> )</code>
+		<code><a href="source-class-OndraKoupil.Csob.Client.html#1137-1144" title="Go to source code">getApiMethodUrl</a>( <span>string <var>$apiMethod</var></span> )</code>
 
 		<div class="description short">
 			<p>Gets the URL of API method</p>
