@@ -1,0 +1,21 @@
+language: php
+php:
+  - '5.3'
+  - '5.4'
+  - '5.5'  
+  - '7.0'
+
+env:
+  - TESTER_PHP_BIN="php"
+
+before_install:
+  - composer self-update
+
+install:
+  - composer install --no-interaction --prefer-source  
+
+script:
+  - ./vendor/bin/tester -p $TESTER_PHP_BIN -s ./tests/src
+
+after_failure:
+  - for i in $(find ./tests -name \*.actual); do echo "--- $i"; cat $i; echo; echo; done  
