@@ -1,5 +1,10 @@
 # PHP knihovna pro práci s ČSOB platební bránou
 
+[![Build Status](https://travis-ci.org/ondrakoupil/csob.svg?branch=master)](https://travis-ci.org/ondrakoupil/csob.svg?branch=master)
+[![Number of downloads](https://img.shields.io/packagist/dt/ondrakoupil/csob-eapi-paygate.svg)](https://img.shields.io/packagist/dt/ondrakoupil/csob-eapi-paygate.svg)
+[![Current version](https://img.shields.io/packagist/v/ondrakoupil/csob-eapi-paygate.svg)](https://img.shields.io/packagist/v/ondrakoupil/csob-eapi-paygate.svg)
+[![Licence](https://img.shields.io/packagist/l/ondrakoupil/csob-eapi-paygate.svg)](https://img.shields.io/packagist/l/ondrakoupil/csob-eapi-paygate.svg)
+
 Pomocí této knihovny lze pohodlně integrovat [platební bránu ČSOB][6] do vašeho e-shopu
 nebo jiné aplikace v PHP bez nutnosti přímo pracovat s jejím API, volat
 nějaké metody, ověřovat podpisy apod.

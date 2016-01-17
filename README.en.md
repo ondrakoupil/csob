@@ -1,5 +1,10 @@
 # ČSOB payment gate PHP client library
 
+[![Build Status](https://travis-ci.org/ondrakoupil/csob.svg?branch=master)](https://travis-ci.org/ondrakoupil/csob.svg?branch=master)
+[![Number of downloads](https://img.shields.io/packagist/dt/ondrakoupil/csob-eapi-paygate.svg)](https://img.shields.io/packagist/dt/ondrakoupil/csob-eapi-paygate.svg)
+[![Current version](https://img.shields.io/packagist/v/ondrakoupil/csob-eapi-paygate.svg)](https://img.shields.io/packagist/v/ondrakoupil/csob-eapi-paygate.svg)
+[![Licence](https://img.shields.io/packagist/l/ondrakoupil/csob-eapi-paygate.svg)](https://img.shields.io/packagist/l/ondrakoupil/csob-eapi-paygate.svg)
+
 This library enables you to integrate ČSOB payment gateway into your e-shop or other web app without getting your hands dirty with cURL, signatures, return codes or other low-level stuff.
 
 See [https://github.com/csob/paymentgateway][1] for further information about the gateway, it's API, generating keys, payment processing steps, payment statuses and many more.
