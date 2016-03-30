@@ -225,8 +225,8 @@ class Payment {
 			throw new \InvalidArgumentException("Invalid quantity: $quantity. It must be numeric and >= 1");
 		}
 
-		$name = Strings::shorten($name, 20, "", true, true);
-		$description = Strings::shorten($description, 40, "");
+		$name = trim(Strings::shorten($name, 20, "", true, true));
+		$description = trim(Strings::shorten($description, 40, ""));
 
 		$this->cart[] = array(
 			"name" => $name,
