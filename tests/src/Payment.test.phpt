@@ -59,6 +59,21 @@ class PaymentTestCase extends TestCase {
 
 	}
 
+	function testCartName() {
+
+		$config = require(__DIR__ . "/../dummy-config.php");
+
+		$payment = new Payment("100");
+
+		// on char 20 must be space
+		$payment->addCartItem("Item with very long name", 10, 30000, "Desc 1");
+
+		$exported = $payment->checkAndPrepare($config)->signAndExport($config);
+
+		Assert::same("Item with very long", $exported["cart"][0]["name"]);
+
+	}
+
 	function testSignature() {
 
 		$config = require(__DIR__ . "/../dummy-config.php");
