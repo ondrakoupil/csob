@@ -20,7 +20,7 @@ class PaymentTestCase extends TestCase {
 		Assert::exception(function() {
 			$longData = str_repeat("1234567890", 200);
 			$payment = new Payment(100, $longData);
-		}, '\Exception');
+		}, 'Exception');
 
 	}
 
@@ -36,7 +36,7 @@ class PaymentTestCase extends TestCase {
 		// No more than two items can be in cart
 		Assert::exception(function() use ($payment) {
 			$payment->addCartItem("Third item", 1, 2000);
-		}, '\Exception');
+		}, '\OndraKoupil\Csob\Exception');
 
 		$exported = $payment->checkAndPrepare($config)->signAndExport($config);
 
@@ -55,7 +55,7 @@ class PaymentTestCase extends TestCase {
 		$payment = new Payment("200");
 		Assert::exception(function() use ($payment, $config) {
 			$payment->checkAndPrepare($config);
-		}, '\Exception');
+		}, '\OndraKoupil\Csob\Exception');
 
 	}
 
@@ -122,7 +122,7 @@ class PaymentTestCase extends TestCase {
 		$longString = str_repeat("1234567890", 200);
 		Assert::exception(function() use ($payment, $longString) {
 			$payment->setMerchantData($longString);
-		}, '\Exception');
+		}, '\OndraKoupil\Csob\Exception');
 
 		Assert::equal($str, $payment->getMerchantData());
 

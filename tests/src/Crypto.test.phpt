@@ -23,11 +23,11 @@ class CryptoTestCase extends TestCase {
 
 		Assert::exception(function() {
 			Crypto::signString("whatever", "invalid-file");
-		}, '\Exception');
+		}, '\OndraKoupil\Csob\CryptoException');
 
 		Assert::exception(function() {
 			Crypto::verifySignature("whatever", "whatever", "invalid-file");
-		}, '\Exception');
+		}, '\OndraKoupil\Csob\CryptoException');
 
 	}
 

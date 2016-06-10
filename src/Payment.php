@@ -212,17 +212,16 @@ class Payment {
 	 *
 	 * @return Payment Fluent interface
 	 *
-	 * @throws \RuntimeException When more than 2nd cart item is to be added
-	 * @throws \InvalidArgumentException When other argument is invalid
+	 * @throws Exception When more than 2nd cart item is to be added or other argument is invalid
 	 */
 	function addCartItem($name, $quantity, $totalAmount, $description = "") {
 
 		if (count($this->cart) >= 2) {
-			throw new \RuntimeException("This version of banks's API supports only up to 2 cart items in single payment, you can't add any more items.");
+			throw new Exception("This version of banks's API supports only up to 2 cart items in single payment, you can't add any more items.");
 		}
 
 		if (!is_numeric($quantity) or $quantity < 1) {
-			throw new \InvalidArgumentException("Invalid quantity: $quantity. It must be numeric and >= 1");
+			throw new Exception("Invalid quantity: $quantity. It must be numeric and >= 1");
 		}
 
 		$name = trim(Strings::shorten($name, 20, "", true, true));
@@ -246,14 +245,14 @@ class Payment {
 	 *
 	 * @return Payment Fluent interface
 	 *
-	 * @throws \InvalidArgumentException When the data is too long and can't be encoded.
+	 * @throws Exception When the data is too long and can't be encoded.
 	 */
 	public function setMerchantData($data, $alreadyEncoded = false) {
 		if (!$alreadyEncoded) {
 			$data = base64_encode($data);
 		}
 		if (strlen($data) > 255) {
-			throw new \InvalidArgumentException("Merchant data can not be longer than 255 characters after base64 encoding.");
+			throw new Exception("Merchant data can not be longer than 255 characters after base64 encoding.");
 		}
 		$this->merchantData = $data;
 		return $this;
@@ -317,7 +316,7 @@ class Payment {
 	 * automatically in proper time, you never have to call it on your own.
 	 *
 	 * @param Config $config
-	 * @throws \RuntimeException
+	 * @throws Exception
 	 * @return Payment Fluent interface
 	 *
 	 * @ignore
@@ -351,7 +350,7 @@ class Payment {
 			$this->returnUrl = $config->returnUrl;
 		}
 		if (!$this->returnUrl) {
-			throw new \RuntimeException("A ReturnUrl must be set - either by setting \$returnUrl property, or by specifying it in Config.");
+			throw new Exception("A ReturnUrl must be set - either by setting \$returnUrl property, or by specifying it in Config.");
 		}
 
 		if (!$this->returnMethod) {
@@ -366,11 +365,11 @@ class Payment {
 		$this->customerId = Strings::shorten($this->customerId, 50, "", true, true);
 
 		if (!$this->cart) {
-			throw new \RuntimeException("Cart is empty. Please add one or two items into cart using addCartItem() method.");
+			throw new Exception("Cart is empty. Please add one or two items into cart using addCartItem() method.");
 		}
 
 		if (!$this->orderNo or !preg_match('~^[0-9]{1,10}$~', $this->orderNo)) {
-			throw new \RuntimeException("Invalid orderNo - it must be a non-empty numeric value, 10 characters max.");
+			throw new Exception("Invalid orderNo - it must be a non-empty numeric value, 10 characters max.");
 		}
 
 		$sumOfItems = array_sum(Arrays::transform($this->cart, true, "amount"));
