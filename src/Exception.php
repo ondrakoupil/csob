@@ -2,4 +2,4 @@
 
 namespace OndraKoupil\Csob;
 
-class Exception extends \Exception {}
+class Exception extends \RuntimeException {}
