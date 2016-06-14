@@ -160,7 +160,7 @@ class Client {
 	 * @return array Array with results of the call. You don't need to use
 	 * any of this, PayID will be set to $payment automatically.
 	 *
-	 * @throws \RuntimeException When something fails.
+	 * @throws Exception When something fails.
 	 */
 	function paymentInit(Payment $payment) {
 
@@ -177,14 +177,14 @@ class Client {
 				array("payId", "dttm", "resultCode", "resultMessage", "paymentStatus", "authCode")
 			);
 
-		} catch (\Exception $e) {
+		} catch (Exception $e) {
 			$this->writeToLog("Fail, got exception: " . $e->getCode().", " . $e->getMessage());
 			throw $e;
 		}
 
 		if (!isset($ret["payId"]) or !$ret["payId"]) {
 			$this->writeToLog("Fail, no payId received.");
-			throw new \RuntimeException("Bank API did not return a payId value.");
+			throw new Exception("Bank API did not return a payId value.");
 		}
 
 		$payment->setPayId($ret["payId"]);
@@ -244,13 +244,13 @@ class Client {
 	 * @param string|Payment $payment Either PayID given during paymentInit(),
 	 * or just the Payment object you used in paymentInit()
 	 *
-	 * @throws \RuntimeException If headers has been already sent
+	 * @throws Exception If headers has been already sent
 	 */
 	function redirectToGateway($payment) {
 
 		if (headers_sent($file, $line)) {
 			$this->writeToLog("Can't redirect, headers sent at $file, line $line");
-			throw new \RuntimeException("Can't redirect the browser, headers were already sent at $file line $line");
+			throw new Exception("Can't redirect the browser, headers were already sent at $file line $line");
 		}
 
 		$url = $this->getPaymentProcessUrl($payment);
@@ -316,7 +316,7 @@ class Client {
 				array("merchantId", "payId", "dttm", "signature")
 			);
 
-		} catch (\Exception $e) {
+		} catch (Exception $e) {
 			$this->writeToLog("Fail, got exception: " . $e->getCode().", " . $e->getMessage());
 			throw $e;
 		}
@@ -354,7 +354,7 @@ class Client {
 	 * in correct state
 	 *
 	 *
-	 * @throws \RuntimeException
+	 * @throws Exception
 	 */
 	function paymentReverse($payment, $ignoreWrongPaymentStatusError = false) {
 		$payId = $this->getPayId($payment);
@@ -380,7 +380,7 @@ class Client {
 					array("merchantId", "payId", "dttm", "signature")
 				);
 
-			} catch (\RuntimeException $e) {
+			} catch (Exception $e) {
 				if ($e->getCode() != 150) { // Not just invalid state
 					throw $e;
 				}
@@ -392,7 +392,7 @@ class Client {
 				return null;
 			}
 
-		} catch (\Exception $e) {
+		} catch (Exception $e) {
 			$this->writeToLog("Fail, got exception: " . $e->getCode().", " . $e->getMessage());
 			throw $e;
 		}
@@ -430,7 +430,7 @@ class Client {
 	 * in correct state
 	 *
 	 *
-	 * @throws \RuntimeException
+	 * @throws Exception
 	 */
 	function paymentClose($payment, $ignoreWrongPaymentStatusError = false, $amount = null) {
 		$payId = $this->getPayId($payment);
@@ -460,7 +460,7 @@ class Client {
 					array("merchantId", "payId", "dttm", "totalAmount", "signature")
 				);
 
-			} catch (\RuntimeException $e) {
+			} catch (Exception $e) {
 				if ($e->getCode() != 150) { // Not just invalid state
 					throw $e;
 				}
@@ -472,7 +472,7 @@ class Client {
 				return null;
 			}
 
-		} catch (\Exception $e) {
+		} catch (Exception $e) {
 			$this->writeToLog("Fail, got exception: " . $e->getCode().", " . $e->getMessage());
 			throw $e;
 		}
@@ -514,7 +514,7 @@ class Client {
 	 * in correct state
 	 *
 	 *
-	 * @throws \RuntimeException
+	 * @throws Exception
 	 */
 	function paymentRefund($payment, $ignoreWrongPaymentStatusError = false, $amount = null) {
 		$payId = $this->getPayId($payment);
@@ -527,7 +527,7 @@ class Client {
 
 		if ($amount !== null) {
 			if (!is_numeric($amount)) {
-				throw new \InvalidArgumentException("Amount for refunding must be a number.");
+				throw new Exception("Amount for refunding must be a number.");
 			}
 			$payload["amount"] = $amount;
 		}
@@ -555,7 +555,7 @@ class Client {
 					array("merchantId", "payId", "dttm", "amount", "signature")
 				);
 
-			} catch (\RuntimeException $e) {
+			} catch (Exception $e) {
 				if ($e->getCode() != 150) { // Not just invalid state
 					throw $e;
 				}
@@ -567,7 +567,7 @@ class Client {
 				return null;
 			}
 
-		} catch (\Exception $e) {
+		} catch (Exception $e) {
 			$this->writeToLog("Fail, got exception: " . $e->getCode().", " . $e->getMessage());
 			throw $e;
 		}
@@ -600,8 +600,7 @@ class Client {
 	 * @param Payment|string $origPayment Either string PayID or a Payment object
 	 * @param Payment $newPayment
 	 * @return array Data with new values
-	 * @throws \InvalidArgumentException
-	 * @throws \Exception
+	 * @throws Exception
 	 *
 	 * @see Payment::setRecurrentPayment()
 	 */
@@ -611,7 +610,7 @@ class Client {
 		$newOrderNo = $newPayment->orderNo;
 
 		if (!$newOrderNo or !preg_match('~^\d{1,10}$~', $newOrderNo)) {
-			throw new \InvalidArgumentException("Given Payment object must have an \$orderNo property, numeric, max. 10 chars length.");
+			throw new Exception("Given Payment object must have an \$orderNo property, numeric, max. 10 chars length.");
 		}
 
 		$newPaymentCart = $newPayment->getCart();
@@ -652,7 +651,7 @@ class Client {
 				array("merchantId", "origPayId", "orderNo", "dttm", "totalAmount", "currency", "description", "signature")
 			);
 
-		} catch (\Exception $e) {
+		} catch (Exception $e) {
 			$this->writeToLog("Fail, got exception: " . $e->getCode().", " . $e->getMessage());
 			throw $e;
 		}
@@ -671,7 +670,7 @@ class Client {
 	 * Test the connection using POST method.
 	 *
 	 * @return array Results of calling the method.
-	 * @throw \Exception If something goes wrong. Se exception's message for more.
+	 * @throw Exception If something goes wrong. Se exception's message for more.
 	 */
 	function testPostConnection() {
 		$payload = array(
@@ -692,7 +691,7 @@ class Client {
 	 * Test the connection using GET method.
 	 *
 	 * @return array Results of calling the method.
-	 * @throw \Exception If something goes wrong. Se exception's message for more.
+	 * @throw Exception If something goes wrong. Se exception's message for more.
 	 */
 	function testGetConnection() {
 		$payload = array(
@@ -726,7 +725,7 @@ class Client {
 	 * be used to distinguish more precisely whether customer just hasn't saved
 	 * any cards or was not found at all.
 	 *
-	 * @throws \Exception
+	 * @throws Exception
 	 */
 	function customerInfo($customerId, $returnIfHasCardsOnly = true) {
 		$customerId = $this->getCustomerId($customerId);
@@ -757,7 +756,7 @@ class Client {
 				array("customerId", "dttm", "resultCode", "resultMessage"),
 				array("merchantId", "customerId", "dttm", "signature")
 			);
-		} catch (\Exception $e) {
+		} catch (Exception $e) {
 			// Valid call returns non-0 resultCode, which leads to exception
 			$resMessage = $e->getMessage();
 
@@ -796,7 +795,7 @@ class Client {
 	 * @param array|null $input If return data is not in GET or POST, supply
 	 * your own array with accordingly named variables.
 	 * @return array|null Array with received data or null if no data is present.
-	 * @throws \RuntimeException When data is present but signature is incorrect.
+	 * @throws Exception When data is present but signature is incorrect.
 	 */
 	function receiveReturningCustomer($input = null) {
 
@@ -830,7 +829,7 @@ class Client {
 		if (!$signatureOk) {
 			$this->writeToTraceLog("Signature is invalid.");
 			$this->writeToLog("Returning customer: payId $input[payId], has invalid signature.");
-			throw new \RuntimeException("Signature is invalid.");
+			throw new Exception("Signature is invalid.");
 		}
 
 		$merch = @base64_decode($input["merchantData"]);
@@ -946,20 +945,20 @@ class Client {
 	 * @ignore
 	 * @param Payment|string|array $payment String, Payment object or array as returned from paymentInit call
 	 * @return string
-	 * @throws \InvalidArgumentException
+	 * @throws Exception
 	 */
 	protected function getPayId($payment) {
 		if (!is_string($payment) and $payment instanceof Payment) {
 			$payment = $payment->getPayId();
 			if (!$payment) {
-				throw new \InvalidArgumentException("Given Payment object does not have payId. Please call paymentInit() first.");
+				throw new Exception("Given Payment object does not have payId. Please call paymentInit() first.");
 			}
 		}
 		if (is_array($payment) and isset($payment["payId"])) {
 			$payment = $payment["payId"];
 		}
 		if (!is_string($payment) or strlen($payment) != 15) {
-			throw new \InvalidArgumentException("Given Payment ID is not valid - it should be a string with length 15 characters.");
+			throw new Exception("Given Payment ID is not valid - it should be a string with length 15 characters.");
 		}
 		return $payment;
 	}
@@ -969,7 +968,7 @@ class Client {
 	 * @ignore
 	 * @param Payment|string|array $payment String, Payment object or array as returned from paymentInit call
 	 * @return string
-	 * @throws \InvalidArgumentException
+	 * @throws Exception
 	 */
 	protected function getCustomerId($payment) {
 		if (!is_string($payment) and $payment instanceof Payment) {
@@ -979,7 +978,7 @@ class Client {
 			$payment = $payment["customerId"];
 		}
 		if (!is_string($payment)) {
-			throw new \InvalidArgumentException("Given Customer ID is not valid.");
+			throw new Exception("Given Customer ID is not valid.");
 		}
 		return $payment;
 	}
@@ -1024,7 +1023,7 @@ class Client {
 	 * @param array $requestFieldsOrder
 	 * @param bool $returnUrlOnly
 	 * @return string|array
-	 * @throws \RuntimeException
+	 * @throws Exception
 	 * @ignore
 	 */
 	protected function sendRequest($apiMethod, $payload, $usePostMethod = true, $responseFieldsOrder = null, $requestFieldsOrder = null, $returnUrlOnly = false) {
@@ -1078,7 +1077,7 @@ class Client {
 
 		if (\curl_errno($ch)) {
 			$this->writeToTraceLog("CURL failed: " . \curl_errno($ch) . " " . \curl_error($ch));
-			throw new \RuntimeException("Failed sending data to API: ".\curl_errno($ch)." ".\curl_error($ch));
+			throw new Exception("Failed sending data to API: ".\curl_errno($ch)." ".\curl_error($ch));
 		}
 
 		$this->writeToTraceLog("API response: $result");
@@ -1086,7 +1085,7 @@ class Client {
 		$httpCode = \curl_getinfo($ch, CURLINFO_HTTP_CODE);
 		if ($httpCode != 200) {
 			$this->writeToTraceLog("Failed: returned HTTP code $httpCode");
-			throw new \RuntimeException(
+			throw new Exception(
 				"API returned HTTP code $httpCode, which is not code 200."
 				. ($httpCode == 400 ? " Probably wrong signature, check crypto keys." : "")
 			);
@@ -1097,36 +1096,36 @@ class Client {
 		$decoded = @json_decode($result, true);
 		if ($decoded === null) {
 			$this->writeToTraceLog("Failed: returned value is not parsable JSON");
-			throw new \RuntimeException("API did not return a parseable JSON string: \"".$result."\"");
+			throw new Exception("API did not return a parseable JSON string: \"".$result."\"");
 		}
 
 		if (!isset($decoded["resultCode"])) {
 			$this->writeToTraceLog("Failed: API did not return response with resultCode");
-			throw new \RuntimeException("API did not return a response containing resultCode.");
+			throw new Exception("API did not return a response containing resultCode.");
 		}
 
 		if ($decoded["resultCode"] != "0") {
 			$this->writeToTraceLog("Failed: resultCode ".$decoded["resultCode"].", message ".$decoded["resultMessage"]);
-			throw new \RuntimeException("API returned an error: resultCode \"" . $decoded["resultCode"] . "\", resultMessage: ".$decoded["resultMessage"], $decoded["resultCode"]);
+			throw new Exception("API returned an error: resultCode \"" . $decoded["resultCode"] . "\", resultMessage: ".$decoded["resultMessage"], $decoded["resultCode"]);
 		}
 
 		if (!isset($decoded["signature"]) or !$decoded["signature"]) {
 			$this->writeToTraceLog("Failed: missing response signature");
-			throw new \RuntimeException("Result does not contain signature.");
+			throw new Exception("Result does not contain signature.");
 		}
 
 		$signature = $decoded["signature"];
 
 		try {
 			$verificationResult = $this->verifyResponseSignature($decoded, $signature, $responseFieldsOrder);
-		} catch (\Exception $e) {
+		} catch (Exception $e) {
 			$this->writeToTraceLog("Failed: error occured when verifying signature.");
 			throw $e;
 		}
 
 		if (!$verificationResult) {
 			$this->writeToTraceLog("Failed: signature is incorrect.");
-			throw new \RuntimeException("Result signature is incorrect. Please make sure that bank's public key in file specified in config is correct and up-to-date.");
+			throw new Exception("Result signature is incorrect. Please make sure that bank's public key in file specified in config is correct and up-to-date.");
 		}
 
 		$this->writeToTraceLog("OK");
