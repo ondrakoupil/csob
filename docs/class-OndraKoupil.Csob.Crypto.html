@@ -47,6 +47,11 @@
 
 
 
+			<h3>Exceptions</h3>
+			<ul>
+				<li><a href="class-OndraKoupil.Csob.CryptoException.html">CryptoException</a></li>
+				<li><a href="class-OndraKoupil.Csob.Exception.html">Exception</a></li>
+			</ul>
 
 
 		</div>
@@ -104,7 +109,7 @@
 
 				<b>See:</b>
 				https://github.com/csob/paymentgateway/blob/master/eshop-integration/eAPI/v1/php/example/crypto.php<br>
-			<b>Located at</b> <a href="source-class-OndraKoupil.Csob.Crypto.html#5-92" title="Go to source code">Crypto.php</a>
+			<b>Located at</b> <a href="source-class-OndraKoupil.Csob.Crypto.html#5-90" title="Go to source code">Crypto.php</a>
 		<br>
 	</div>
 
@@ -124,7 +129,7 @@
 
 		<td class="name"><div>
 		<a class="anchor" href="#_signString">#</a>
-		<code><a href="source-class-OndraKoupil.Csob.Crypto.html#17-52" title="Go to source code">signString</a>( <span>string <var>$string</var></span>, <span>string <var>$privateKeyFile</var></span>, <span>string <var>$privateKeyPassword</var> = <span class="php-quote">&quot;&quot;</span></span> )</code>
+		<code><a href="source-class-OndraKoupil.Csob.Crypto.html#17-51" title="Go to source code">signString</a>( <span>string <var>$string</var></span>, <span>string <var>$privateKeyFile</var></span>, <span>string <var>$privateKeyPassword</var> = <span class="php-quote">&quot;&quot;</span></span> )</code>
 
 		<div class="description short">
 			<p>Signs a string</p>
@@ -151,8 +156,7 @@
 
 				<h4>Throws</h4>
 				<div class="list">
-					RuntimeException<br>When signing fails<br>
-					InvalidArgumentException<br>When key file path is not valid
+					<code><a href="class-OndraKoupil.Csob.CryptoException.html">OndraKoupil\Csob\CryptoException</a></code><br>When signing fails or key file path is not valid
 				</div>
 
 
@@ -172,7 +176,7 @@
 
 		<td class="name"><div>
 		<a class="anchor" href="#_verifySignature">#</a>
-		<code><a href="source-class-OndraKoupil.Csob.Crypto.html#55-90" title="Go to source code">verifySignature</a>( <span>string <var>$textToVerify</var></span>, <span>string <var>$signatureInBase64</var></span>, <span>string <var>$publicKeyFile</var></span> )</code>
+		<code><a href="source-class-OndraKoupil.Csob.Crypto.html#54-88" title="Go to source code">verifySignature</a>( <span>string <var>$textToVerify</var></span>, <span>string <var>$signatureInBase64</var></span>, <span>string <var>$publicKeyFile</var></span> )</code>
 
 		<div class="description short">
 			<p>Verifies signature of a string</p>
@@ -201,8 +205,7 @@ or from their package on GitHub)</p></dd>
 
 				<h4>Throws</h4>
 				<div class="list">
-					RuntimeException<br>When some cryptographic operation fails<br>
-					InvalidArgumentException<br>When key file path is not valid
+					<code><a href="class-OndraKoupil.Csob.CryptoException.html">OndraKoupil\Csob\CryptoException</a></code><br>When some cryptographic operation fails and key file path is not valid
 				</div>
 
 

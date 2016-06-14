@@ -771,7 +771,7 @@ class Client {
 
 				default:
 					throw $e;
-				// this is really some error
+					// this is really some error
 			}
 		}
 
@@ -1842,6 +1842,21 @@ class Crypto {
 
 }
 
+
+
+// src/Exception.php 
+
+
+
+class Exception extends \RuntimeException {}
+
+
+
+// src/CryptoException.php 
+
+
+
+class CryptoException extends Exception {}
 
 
 // vendor/ondrakoupil/tools/src/Strings.php 

@@ -47,6 +47,11 @@
 
 
 
+			<h3>Exceptions</h3>
+			<ul>
+				<li><a href="class-OndraKoupil.Csob.CryptoException.html">CryptoException</a></li>
+				<li><a href="class-OndraKoupil.Csob.Exception.html">Exception</a></li>
+			</ul>
 
 
 		</div>
@@ -106,7 +111,7 @@ from the order.</p>
 		<b>Namespace:</b> <a href="namespace-OndraKoupil.html">OndraKoupil</a>\<a href="namespace-OndraKoupil.Csob.html">Csob</a><br>
 		
 
-			<b>Located at</b> <a href="source-class-OndraKoupil.Csob.Payment.html#8-448" title="Go to source code">Payment.php</a>
+			<b>Located at</b> <a href="source-class-OndraKoupil.Csob.Payment.html#8-447" title="Go to source code">Payment.php</a>
 		<br>
 	</div>
 
@@ -167,7 +172,7 @@ from the order.</p>
 
 		<td class="name"><div>
 		<a class="anchor" href="#_addCartItem">#</a>
-		<code><a href="source-class-OndraKoupil.Csob.Payment.html#198-239" title="Go to source code">addCartItem</a>( <span>string <var>$name</var></span>, <span>number <var>$quantity</var></span>, <span>number <var>$totalAmount</var></span>, <span>string <var>$description</var> = <span class="php-quote">&quot;&quot;</span></span> )</code>
+		<code><a href="source-class-OndraKoupil.Csob.Payment.html#198-238" title="Go to source code">addCartItem</a>( <span>string <var>$name</var></span>, <span>number <var>$quantity</var></span>, <span>number <var>$totalAmount</var></span>, <span>string <var>$description</var> = <span class="php-quote">&quot;&quot;</span></span> )</code>
 
 		<div class="description short">
 			<p>Add one cart item.</p>
@@ -203,8 +208,7 @@ in <strong>hundredths</strong> of currency unit</p></dd>
 
 				<h4>Throws</h4>
 				<div class="list">
-					RuntimeException<br>When more than 2nd cart item is to be added<br>
-					InvalidArgumentException<br>When other argument is invalid
+					<code><a href="class-OndraKoupil.Csob.Exception.html">OndraKoupil\Csob\Exception</a></code><br>When more than 2nd cart item is to be added or other argument is invalid
 				</div>
 
 
@@ -224,7 +228,7 @@ in <strong>hundredths</strong> of currency unit</p></dd>
 
 		<td class="name"><div>
 		<a class="anchor" href="#_setMerchantData">#</a>
-		<code><a href="source-class-OndraKoupil.Csob.Payment.html#241-260" title="Go to source code">setMerchantData</a>( <span>string <var>$data</var></span>, <span>boolean <var>$alreadyEncoded</var> = <span class="php-keyword1">false</span></span> )</code>
+		<code><a href="source-class-OndraKoupil.Csob.Payment.html#240-259" title="Go to source code">setMerchantData</a>( <span>string <var>$data</var></span>, <span>boolean <var>$alreadyEncoded</var> = <span class="php-keyword1">false</span></span> )</code>
 
 		<div class="description short">
 			<p>Set some arbitrary data you will receive back when customer returns</p>
@@ -249,7 +253,7 @@ in <strong>hundredths</strong> of currency unit</p></dd>
 
 				<h4>Throws</h4>
 				<div class="list">
-					InvalidArgumentException<br>When the data is too long and can't be encoded.
+					<code><a href="class-OndraKoupil.Csob.Exception.html">OndraKoupil\Csob\Exception</a></code><br>When the data is too long and can't be encoded.
 				</div>
 
 
@@ -269,7 +273,7 @@ in <strong>hundredths</strong> of currency unit</p></dd>
 
 		<td class="name"><div>
 		<a class="anchor" href="#_getMerchantData">#</a>
-		<code><a href="source-class-OndraKoupil.Csob.Payment.html#262-272" title="Go to source code">getMerchantData</a>( )</code>
+		<code><a href="source-class-OndraKoupil.Csob.Payment.html#261-271" title="Go to source code">getMerchantData</a>( )</code>
 
 		<div class="description short">
 			<p>Get back merchantData, decoded to original value.</p>
@@ -303,7 +307,7 @@ in <strong>hundredths</strong> of currency unit</p></dd>
 
 		<td class="name"><div>
 		<a class="anchor" href="#_getPayId">#</a>
-		<code><a href="source-class-OndraKoupil.Csob.Payment.html#274-282" title="Go to source code">getPayId</a>( )</code>
+		<code><a href="source-class-OndraKoupil.Csob.Payment.html#273-281" title="Go to source code">getPayId</a>( )</code>
 
 		<div class="description short">
 			<p>After the payment has been saved using payment/init, you can
@@ -339,7 +343,7 @@ get PayID from here.</p>
 
 		<td class="name"><div>
 		<a class="anchor" href="#_getCart">#</a>
-		<code><a href="source-class-OndraKoupil.Csob.Payment.html#284-290" title="Go to source code">getCart</a>( )</code>
+		<code><a href="source-class-OndraKoupil.Csob.Payment.html#283-289" title="Go to source code">getCart</a>( )</code>
 
 		<div class="description short">
 			<p>Cart items as array.</p>
@@ -373,7 +377,7 @@ get PayID from here.</p>
 
 		<td class="name"><div>
 		<a class="anchor" href="#_setPayId">#</a>
-		<code><a href="source-class-OndraKoupil.Csob.Payment.html#292-299" title="Go to source code">setPayId</a>( <span>string <var>$id</var></span> )</code>
+		<code><a href="source-class-OndraKoupil.Csob.Payment.html#291-298" title="Go to source code">setPayId</a>( <span>string <var>$id</var></span> )</code>
 
 		<div class="description short">
 			<p>Do not call this on your own. Really.</p>
@@ -408,7 +412,7 @@ get PayID from here.</p>
 
 		<td class="name"><div>
 		<a class="anchor" href="#_setRecurrentPayment">#</a>
-		<code><a href="source-class-OndraKoupil.Csob.Payment.html#301-313" title="Go to source code">setRecurrentPayment</a>( <span>boolean <var>$recurrent</var> = <span class="php-keyword1">true</span></span> )</code>
+		<code><a href="source-class-OndraKoupil.Csob.Payment.html#300-312" title="Go to source code">setRecurrentPayment</a>( <span>boolean <var>$recurrent</var> = <span class="php-keyword1">true</span></span> )</code>
 
 		<div class="description short">
 			<p>Mark this payment as a template for recurrent payments.</p>

@@ -47,6 +47,11 @@
 
 
 
+			<h3>Exceptions</h3>
+			<ul>
+				<li><a href="class-OndraKoupil.Csob.CryptoException.html">CryptoException</a></li>
+				<li><a href="class-OndraKoupil.Csob.Exception.html">Exception</a></li>
+			</ul>
 
 
 		</div>
@@ -139,7 +144,7 @@
 
 <span class="php-comment">// Or approve the payment (if not set to do that automatically)</span>
 <span class="php-var">$client</span>-&gt;paymentClose(<span class="php-var">$payment</span>);</pre><br>
-			<b>Located at</b> <a href="source-class-OndraKoupil.Csob.Client.html#9-1177" title="Go to source code">Client.php</a>
+			<b>Located at</b> <a href="source-class-OndraKoupil.Csob.Client.html#9-1176" title="Go to source code">Client.php</a>
 		<br>
 	</div>
 
@@ -301,7 +306,7 @@ any of this, PayID will be set to $payment automatically.</p>
 
 				<h4>Throws</h4>
 				<div class="list">
-					RuntimeException<br>When something fails.
+					<code><a href="class-OndraKoupil.Csob.Exception.html">OndraKoupil\Csob\Exception</a></code><br>When something fails.
 				</div>
 
 
@@ -393,7 +398,7 @@ or just the Payment object you used in paymentInit()</p></dd>
 
 				<h4>Throws</h4>
 				<div class="list">
-					RuntimeException<br>If headers has been already sent
+					<code><a href="class-OndraKoupil.Csob.Exception.html">OndraKoupil\Csob\Exception</a></code><br>If headers has been already sent
 				</div>
 
 
@@ -512,7 +517,7 @@ in correct state</p>
 
 				<h4>Throws</h4>
 				<div class="list">
-					RuntimeException
+					<code><a href="class-OndraKoupil.Csob.Exception.html">OndraKoupil\Csob\Exception</a></code>
 				</div>
 
 
@@ -574,7 +579,7 @@ in correct state</p>
 
 				<h4>Throws</h4>
 				<div class="list">
-					RuntimeException
+					<code><a href="class-OndraKoupil.Csob.Exception.html">OndraKoupil\Csob\Exception</a></code>
 				</div>
 
 
@@ -641,7 +646,7 @@ in correct state</p>
 
 				<h4>Throws</h4>
 				<div class="list">
-					RuntimeException
+					<code><a href="class-OndraKoupil.Csob.Exception.html">OndraKoupil\Csob\Exception</a></code>
 				</div>
 
 
@@ -661,7 +666,7 @@ in correct state</p>
 
 		<td class="name"><div>
 		<a class="anchor" href="#_paymentRecurrent">#</a>
-		<code><a href="source-class-OndraKoupil.Csob.Client.html#581-667" title="Go to source code">paymentRecurrent</a>( <span><code><a href="class-OndraKoupil.Csob.Payment.html">OndraKoupil\Csob\Payment</a></code>|string <var>$origPayment</var></span>, <span><code><a href="class-OndraKoupil.Csob.Payment.html">OndraKoupil\Csob\Payment</a></code> <var>$newPayment</var></span> )</code>
+		<code><a href="source-class-OndraKoupil.Csob.Client.html#581-666" title="Go to source code">paymentRecurrent</a>( <span><code><a href="class-OndraKoupil.Csob.Payment.html">OndraKoupil\Csob\Payment</a></code>|string <var>$origPayment</var></span>, <span><code><a href="class-OndraKoupil.Csob.Payment.html">OndraKoupil\Csob\Payment</a></code> <var>$newPayment</var></span> )</code>
 
 		<div class="description short">
 			<p>Performs payment/recurrent API call.</p>
@@ -702,8 +707,7 @@ can be left null to use original values from $origPayment.</p>
 
 				<h4>Throws</h4>
 				<div class="list">
-					InvalidArgumentException<br>
-					Exception
+					<code><a href="class-OndraKoupil.Csob.Exception.html">OndraKoupil\Csob\Exception</a></code>
 				</div>
 
 				<h4>See</h4>
@@ -727,7 +731,7 @@ can be left null to use original values from $origPayment.</p>
 
 		<td class="name"><div>
 		<a class="anchor" href="#_testPostConnection">#</a>
-		<code><a href="source-class-OndraKoupil.Csob.Client.html#670-689" title="Go to source code">testPostConnection</a>( )</code>
+		<code><a href="source-class-OndraKoupil.Csob.Client.html#669-688" title="Go to source code">testPostConnection</a>( )</code>
 
 		<div class="description short">
 			<p>Test the connection using POST method.</p>
@@ -746,7 +750,7 @@ can be left null to use original values from $origPayment.</p>
 
 				<h4>Throw</h4>
 				<div class="list">
-						\Exception If something goes wrong. Se exception's message for more.<br>
+						Exception If something goes wrong. Se exception's message for more.<br>
 				</div>
 
 
@@ -765,7 +769,7 @@ can be left null to use original values from $origPayment.</p>
 
 		<td class="name"><div>
 		<a class="anchor" href="#_testGetConnection">#</a>
-		<code><a href="source-class-OndraKoupil.Csob.Client.html#691-710" title="Go to source code">testGetConnection</a>( )</code>
+		<code><a href="source-class-OndraKoupil.Csob.Client.html#690-709" title="Go to source code">testGetConnection</a>( )</code>
 
 		<div class="description short">
 			<p>Test the connection using GET method.</p>
@@ -784,7 +788,7 @@ can be left null to use original values from $origPayment.</p>
 
 				<h4>Throw</h4>
 				<div class="list">
-						\Exception If something goes wrong. Se exception's message for more.<br>
+						Exception If something goes wrong. Se exception's message for more.<br>
 				</div>
 
 
@@ -803,7 +807,7 @@ can be left null to use original values from $origPayment.</p>
 
 		<td class="name"><div>
 		<a class="anchor" href="#_customerInfo">#</a>
-		<code><a href="source-class-OndraKoupil.Csob.Client.html#712-785" title="Go to source code">customerInfo</a>( <span>string|array|<code><a href="class-OndraKoupil.Csob.Payment.html">OndraKoupil\Csob\Payment</a></code> <var>$customerId</var></span>, <span>boolean <var>$returnIfHasCardsOnly</var> = <span class="php-keyword1">true</span></span> )</code>
+		<code><a href="source-class-OndraKoupil.Csob.Client.html#711-784" title="Go to source code">customerInfo</a>( <span>string|array|<code><a href="class-OndraKoupil.Csob.Payment.html">OndraKoupil\Csob\Payment</a></code> <var>$customerId</var></span>, <span>boolean <var>$returnIfHasCardsOnly</var> = <span class="php-keyword1">true</span></span> )</code>
 
 		<div class="description short">
 			<p>Performs customer/info API call.</p>
@@ -838,7 +842,7 @@ any cards or was not found at all.</p>
 
 				<h4>Throws</h4>
 				<div class="list">
-					Exception
+					<code><a href="class-OndraKoupil.Csob.Exception.html">OndraKoupil\Csob\Exception</a></code>
 				</div>
 
 
@@ -858,7 +862,7 @@ any cards or was not found at all.</p>
 
 		<td class="name"><div>
 		<a class="anchor" href="#_receiveReturningCustomer">#</a>
-		<code><a href="source-class-OndraKoupil.Csob.Client.html#787-849" title="Go to source code">receiveReturningCustomer</a>( <span>array|null <var>$input</var> = <span class="php-keyword1">null</span></span> )</code>
+		<code><a href="source-class-OndraKoupil.Csob.Client.html#786-848" title="Go to source code">receiveReturningCustomer</a>( <span>array|null <var>$input</var> = <span class="php-keyword1">null</span></span> )</code>
 
 		<div class="description short">
 			<p>Processes the data that are sent together with customer when he
@@ -888,7 +892,7 @@ your own array with accordingly named variables.</p></dd>
 
 				<h4>Throws</h4>
 				<div class="list">
-					RuntimeException<br>When data is present but signature is incorrect.
+					<code><a href="class-OndraKoupil.Csob.Exception.html">OndraKoupil\Csob\Exception</a></code><br>When data is present but signature is incorrect.
 				</div>
 
 
@@ -908,7 +912,7 @@ your own array with accordingly named variables.</p></dd>
 
 		<td class="name"><div>
 		<a class="anchor" href="#_setLog">#</a>
-		<code><a href="source-class-OndraKoupil.Csob.Client.html#854-875" title="Go to source code">setLog</a>( <span>string|callable <var>$log</var></span> )</code>
+		<code><a href="source-class-OndraKoupil.Csob.Client.html#853-874" title="Go to source code">setLog</a>( <span>string|callable <var>$log</var></span> )</code>
 
 		<div class="description short">
 			<p>Sets logging for bussiness-logic level messages.</p>
@@ -948,7 +952,7 @@ messages to your own logging system.</p></dd>
 
 		<td class="name"><div>
 		<a class="anchor" href="#_setTraceLog">#</a>
-		<code><a href="source-class-OndraKoupil.Csob.Client.html#877-898" title="Go to source code">setTraceLog</a>( <span>string|callable <var>$log</var></span> )</code>
+		<code><a href="source-class-OndraKoupil.Csob.Client.html#876-897" title="Go to source code">setTraceLog</a>( <span>string|callable <var>$log</var></span> )</code>
 
 		<div class="description short">
 			<p>Sets logging for exact contents of communication</p>
@@ -988,7 +992,7 @@ messages to your own logging system.</p></dd>
 
 		<td class="name"><div>
 		<a class="anchor" href="#_getApiMethodUrl">#</a>
-		<code><a href="source-class-OndraKoupil.Csob.Client.html#1137-1144" title="Go to source code">getApiMethodUrl</a>( <span>string <var>$apiMethod</var></span> )</code>
+		<code><a href="source-class-OndraKoupil.Csob.Client.html#1136-1143" title="Go to source code">getApiMethodUrl</a>( <span>string <var>$apiMethod</var></span> )</code>
 
 		<div class="description short">
 			<p>Gets the URL of API method</p>
