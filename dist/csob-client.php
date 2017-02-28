@@ -1,9 +1,14 @@
 <?php
 
-namespace OndraKoupil\Csob;
-
 // src/Client.php 
 
+namespace OndraKoupil\Csob {
+
+use \OndraKoupil\Tools\Files;
+
+use \OndraKoupil\Tools\Strings;
+
+use \OndraKoupil\Tools\Arrays;
 
 
 
@@ -21,7 +26,8 @@ namespace OndraKoupil\Csob;
  *    "Path to your private key file",
  *    "Path to bank's public key file",
  *    "Your e-shop name",
- *    "Some URL to return customers to"
+ *    "Some URL to return customers to",
+ *    GatewayUrl::TEST_LATEST
  * );
  *
  * $client = new Client($config);
@@ -158,15 +164,15 @@ class Client {
 	 * After successful call, the $payment object will be updated by given PayID.
 	 *
 	 * @param Payment $payment Create and fill this object manually with real data.
+	 * @param Extension[]|Extension $extensions Added extensions
+	 *
 	 * @return array Array with results of the call. You don't need to use
 	 * any of this, PayID will be set to $payment automatically.
-	 *
-	 * @throws Exception When something fails.
 	 */
-	function paymentInit(Payment $payment) {
+	function paymentInit(Payment $payment, $extensions = array()) {
 
 		$payment->checkAndPrepare($this->config);
-		$array = $payment->signAndExport($this->config);
+		$array = $payment->signAndExport($this);
 
 		$this->writeToLog("payment/init started for payment with orderNo " . $payment->orderNo);
 
@@ -175,7 +181,11 @@ class Client {
 				"payment/init",
 				$array,
 				"POST",
-				array("payId", "dttm", "resultCode", "resultMessage", "paymentStatus", "authCode")
+				array("payId", "dttm", "resultCode", "resultMessage", "paymentStatus", "?authCode"),
+				null,
+				false,
+				false,
+				$extensions
 			);
 
 		} catch (Exception $e) {
@@ -271,7 +281,7 @@ class Client {
 	 * Basically, they are:
 	 *
 	 * - 1 = new; after paymentInit() but before customer starts filling in his
-	 *	 card number and authorising the transaction
+	 *     card number and authorising the transaction
 	 * - 2 = in progress; during customer's stay at payment gateway
 	 * - 4 = after successful authorisation but before it is approved by you by
 	 *   calling paymentClose. This state is skipped if you use
@@ -293,9 +303,11 @@ class Client {
 	 * @param bool $returnStatusOnly Leave on true if you want to return only
 	 * status code. Set to false if you want more information as array.
 	 *
+	 * @param Extension[]|Extension $extensions
+	 *
 	 * @return array|number Number if $returnStatusOnly was true, array otherwise.
 	 */
-	function paymentStatus($payment, $returnStatusOnly = true) {
+	function paymentStatus($payment, $returnStatusOnly = true, $extensions = array()) {
 		$payId = $this->getPayId($payment);
 
 		$this->writeToLog("payment/status started for payment $payId");
@@ -313,8 +325,11 @@ class Client {
 				"payment/status",
 				$payload,
 				"GET",
-				array("payId", "dttm", "resultCode", "resultMessage", "paymentStatus", "authCode"),
-				array("merchantId", "payId", "dttm", "signature")
+				array("payId", "dttm", "resultCode", "resultMessage", "paymentStatus", "?authCode"),
+				array("merchantId", "payId", "dttm", "signature"),
+				false,
+				false,
+				$extensions
 			);
 
 		} catch (Exception $e) {
@@ -351,13 +366,15 @@ class Client {
 	 *
 	 * @param bool $ignoreWrongPaymentStatusError
 	 *
+	 * @param Extension[]|Extension $extensions
+	 *
 	 * @return array|null Array with results of call or null if payment is not
 	 * in correct state
 	 *
 	 *
 	 * @throws Exception
 	 */
-	function paymentReverse($payment, $ignoreWrongPaymentStatusError = false) {
+	function paymentReverse($payment, $ignoreWrongPaymentStatusError = false, $extensions = array()) {
 		$payId = $this->getPayId($payment);
 
 		$payload = array(
@@ -377,8 +394,11 @@ class Client {
 					"payment/reverse",
 					$payload,
 					"PUT",
-					array("payId", "dttm", "resultCode", "resultMessage", "paymentStatus", "authCode"),
-					array("merchantId", "payId", "dttm", "signature")
+					array("payId", "dttm", "resultCode", "resultMessage", "paymentStatus", "?authCode"),
+					array("merchantId", "payId", "dttm", "signature"),
+					false,
+					false,
+					$extensions
 				);
 
 			} catch (Exception $e) {
@@ -426,6 +446,7 @@ class Client {
 	 * @param int $amount Amount of finance to close (if different from originally authorized amount).
 	 * Use hundreths of basic currency unit.
 	 *
+	 * @param Extension[]|Extension $extensions
 	 *
 	 * @return array|null Array with results of call or null if payment is not
 	 * in correct state
@@ -433,7 +454,7 @@ class Client {
 	 *
 	 * @throws Exception
 	 */
-	function paymentClose($payment, $ignoreWrongPaymentStatusError = false, $amount = null) {
+	function paymentClose($payment, $ignoreWrongPaymentStatusError = false, $amount = null, $extensions = array()) {
 		$payId = $this->getPayId($payment);
 
 		$payload = array(
@@ -457,8 +478,11 @@ class Client {
 					"payment/close",
 					$payload,
 					"PUT",
-					array("payId", "dttm", "resultCode", "resultMessage", "paymentStatus", "authCode"),
-					array("merchantId", "payId", "dttm", "totalAmount", "signature")
+					array("payId", "dttm", "resultCode", "resultMessage", "paymentStatus", "?authCode"),
+					array("merchantId", "payId", "dttm", "totalAmount", "signature"),
+					false,
+					false,
+					$extensions
 				);
 
 			} catch (Exception $e) {
@@ -511,13 +535,12 @@ class Client {
 	 * can be passed, so that the payment will be refunded partially.
 	 * Null means full refund.
 	 *
+	 * @param Extension[]|Extension $extensions
+	 *
 	 * @return array|null Array with results of call or null if payment is not
 	 * in correct state
-	 *
-	 *
-	 * @throws Exception
 	 */
-	function paymentRefund($payment, $ignoreWrongPaymentStatusError = false, $amount = null) {
+	function paymentRefund($payment, $ignoreWrongPaymentStatusError = false, $amount = null, $extensions = array()) {
 		$payId = $this->getPayId($payment);
 
 		$payload = array(
@@ -553,7 +576,10 @@ class Client {
 					$payload,
 					"PUT",
 					array("payId", "dttm", "resultCode", "resultMessage", "paymentStatus"),
-					array("merchantId", "payId", "dttm", "amount", "signature")
+					array("merchantId", "payId", "dttm", "amount", "signature"),
+					false,
+					false,
+					$extensions
 				);
 
 			} catch (Exception $e) {
@@ -603,9 +629,14 @@ class Client {
 	 * @return array Data with new values
 	 * @throws Exception
 	 *
+	 * @deprecated Deprecated since eAPI 1.7, please use paymentOneClick() instead.
+	 *
 	 * @see Payment::setRecurrentPayment()
+	 * @see paymentOneClickInit()
 	 */
 	function paymentRecurrent($origPayment, Payment $newPayment) {
+		trigger_error('paymentRecurrent() is deprecated now, please use paymentOneClick() instead.', E_USER_DEPRECATED);
+
 		$origPayId = $this->getPayId($origPayment);
 
 		$newOrderNo = $newPayment->orderNo;
@@ -648,7 +679,7 @@ class Client {
 				"payment/recurrent",
 				$payload,
 				"POST",
-				array("payId", "dttm", "resultCode", "resultMessage", "paymentStatus", "authCode"),
+				array("payId", "dttm", "resultCode", "resultMessage", "paymentStatus", "?authCode"),
 				array("merchantId", "origPayId", "orderNo", "dttm", "totalAmount", "currency", "description", "signature")
 			);
 
@@ -665,6 +696,292 @@ class Client {
 
 
 	}
+
+	/**
+	 * Performs a payment/oneclick/init API call.
+	 *
+	 * Use this method to redo a payment that has already been marked as
+	 * a template for recurring payments and approved by customer
+	 * - see Payment::setOneClickPayment()
+	 *
+	 * You need PayID of the original payment and a new Payment object.
+	 * Only $orderNo, $totalAmount (sum of cart items added by addToCart), $currency
+	 * and $description of $newPayment are used, others are ignored.
+	 *
+	 * Note that if $totalAmount is set, then also $currency must be set. If not,
+	 * CZK is used as default value.
+	 *
+	 * $orderNo is the only mandatory value in $newPayment. Other properties
+	 * can be left null to use original values from $origPayment.
+	 *
+	 * After successful call, received PayID will be set in $newPayment object.
+	 * Then, pass this object to paymentOneClickStart method.
+	 *
+	 * This method is a successor of now deprecated paymentRecurrent() method.
+	 *
+	 * @param Payment|string $origPayment Either string PayID or a Payment object
+	 * @param Payment $newPayment
+	 * @param Extension[]|Extension $extensions
+	 * @return array Data with new values
+	 * @throws Exception
+	 *
+	 * @see Payment::setOneClickPayment()
+	 * @see paumentOneClickStart()
+	 */
+	function paymentOneClickInit($origPayment, Payment $newPayment, $extensions = array()) {
+		$origPayId = $this->getPayId($origPayment);
+
+		$newOrderNo = $newPayment->orderNo;
+
+		if (!$newOrderNo or !preg_match('~^\d{1,10}$~', $newOrderNo)) {
+			throw new Exception("Given Payment object must have an \$orderNo property, numeric, max. 10 chars length.");
+		}
+
+		$newPaymentCart = $newPayment->getCart();
+		if ($newPaymentCart) {
+			$totalAmount = array_sum(Arrays::transform($newPaymentCart, true, "amount"));
+		} else {
+			$totalAmount = 0;
+		}
+
+		$newDescription = Strings::shorten($newPayment->description, 240, "...");
+
+		$payload = array(
+			"merchantId" => $this->config->merchantId,
+			"origPayId" => $origPayId,
+			"orderNo" => $newOrderNo,
+			"dttm" => $this->getDTTM(),
+		);
+
+		if ($totalAmount > 0) {
+			$payload["totalAmount"] = $totalAmount;
+			$payload["currency"] = $newPayment->currency ?: "CZK"; // Currency is mandatory since 2016-01-10
+		}
+
+		if ($newDescription) {
+			$payload["description"] = $newDescription;
+		}
+
+		$this->writeToLog("payment/oneclick/init started using orig payment $origPayId");
+
+		try {
+			$payload["signature"] = $this->signRequest($payload);
+
+			$ret = $this->sendRequest(
+				"payment/oneclick/init",
+				$payload,
+				"POST",
+				array("payId", "dttm", "resultCode", "resultMessage", "?paymentStatus", "?authCode"),
+				array("merchantId", "origPayId", "orderNo", "dttm", "totalAmount", "currency", "description", "signature"),
+				false,
+				false,
+				$extensions
+			);
+
+		} catch (Exception $e) {
+			$this->writeToLog("Fail, got exception: " . $e->getCode().", " . $e->getMessage());
+			throw $e;
+		}
+
+		$this->writeToLog("payment/oneclick/init OK, new payment got payId " . $ret["payId"]);
+
+		$newPayment->setPayId($ret["payId"]);
+
+		return $ret;
+	}
+
+	/**
+	 * Performs a payment/oneclick/start API call.
+	 *
+	 * Use this method to confirm a recurring one click payment
+	 * that was previously initiated using paymentOneClickInit() method.
+	 *
+	 * @param Payment $newPayment
+	 * @param Extension[]|Extension $extensions
+	 *
+	 * @return array|string
+	 */
+	function paymentOneClickStart(Payment $newPayment, $extensions = array()) {
+
+		$newPayId = $newPayment->getPayId();
+		if (!$newPayId) {
+			throw new Exception('Given Payment object does not have a PayId. Please provide a Payment object that was returned from paymentOneClickInit() method.');
+		}
+
+		$payload = array(
+			"merchantId" => $this->config->merchantId,
+			"payId" => $newPayId,
+			"dttm" => $this->getDTTM(),
+		);
+
+		$this->writeToLog("payment/oneclick/start started with PayId $newPayId");
+
+		try {
+			$payload["signature"] = $this->signRequest($payload);
+
+			$ret = $this->sendRequest(
+				"payment/oneclick/start",
+				$payload,
+				"POST",
+				array("payId", "dttm", "resultCode", "resultMessage", "?paymentStatus"),
+				array("merchantId", "payId", "dttm", "signature"),
+				false,
+				false,
+				$extensions
+			);
+
+		} catch (Exception $e) {
+			$this->writeToLog("Fail, got exception: " . $e->getCode().", " . $e->getMessage());
+			throw $e;
+		}
+
+		$this->writeToLog("payment/oneclick/start OK");
+
+		return $ret;
+	}
+
+	/**
+	 * Performs a payment/button API call.
+	 *
+	 * You need a Payment object that was already processed via paymentInit() method
+	 * (or was injected with a payId that you received from other source).
+	 *
+	 * In response, you'll receive an array with [redirect], which should be
+	 * another array with [method] and [url] items. Redirect your user to that address
+	 * to complete the payment.
+	 *
+	 * @param Payment $payment
+	 * @param string $brand "csob" or "era"
+	 * @param Extension[]|Extension $extensions
+	 *
+	 * @return array|string
+	 */
+	function paymentButton(Payment $payment, $brand = "csob", $extensions = array()) {
+
+		$payId = $payment->getPayId();
+		if (!$payId) {
+			throw new Exception('Given Payment object does not have a PayId. Please provide a Payment object that was returned from paymentInit() method.');
+		}
+
+		$payload = array(
+			"merchantId" => $this->config->merchantId,
+			"payId" => $payId,
+			"brand" => $brand,
+			"dttm" => $this->getDTTM(),
+		);
+
+		$this->writeToLog("payment/button started with PayId $payId");
+
+		try {
+			$payload["signature"] = $this->signRequest($payload);
+
+			$ret = $this->sendRequest(
+				"payment/button",
+				$payload,
+				"POST",
+				array("payId", "dttm", "resultCode", "resultMessage", "redirect"),
+				array("merchantId", "payId", "brand", "dttm", "signature"),
+				false,
+				false,
+				$extensions
+			);
+
+		} catch (Exception $e) {
+			$this->writeToLog("Fail, got exception: " . $e->getCode().", " . $e->getMessage());
+			throw $e;
+		}
+
+		$this->writeToLog("payment/button OK");
+
+		return $ret;
+
+
+	}
+
+	/**
+	 * Sends an arbitrary request to bank's API with any parameters.
+	 *
+	 * Use this method to call various masterpass/* API methods or any methods of
+	 * API versions that may come in future and are not implemented in this library yet.
+	 *
+	 * $inputPayload is an associative array with data in order in which they should be signed.
+	 * You can leave *dttm* and *merchantId* empty or null, their values will be filled automatically,
+	 * however you can't omit them completely, since they are required in the signature.
+	 * Signature field will be added automatically.
+	 *
+	 * $expectedOutputFields should be ordinary array of field names in order they appear in the response.
+	 * Their order in the array is important to verify response signature. You can leave this empty, the
+	 * base string will be created on order as the keys appear in the response. However, it can't be guaranteed
+	 * it is the correct order. If you want it to be more reliable, I recommend to define it.
+	 *
+	 * Example - testing post connection:
+	 *
+	 * ```php
+	 * $client->customRequest(
+	 *   'echo',
+	 *   array(
+	 *     'merchantId' => null,
+	 *     'dttm' => null
+	 *   )
+	 * );
+	 * ```
+	 *
+	 * @param string $methodUrl API method name, without leading slash, ie. "payment/init"
+	 * @param array $inputPayload Input payload in form of associative array. Order of items is significant.
+	 * @param array $expectedOutputFields Expected field names of response in order in which they should be returned.
+	 * @param Extension[]|Extension $extensions
+	 * @param string $method HTTP method
+	 * @param bool $logOutput Should be the complete output logged into debug log?
+	 * @param bool $ignoreInvalidReturnSignature If set to true, then in case of invalid signature of returned data,
+	 * no exception will be thrown and method will return received data as usual. Then, you should handle the situation by yourself.
+	 * Do not use this option on regular basis, it is intended only as workaround for cases when returned data or its signature is more complex
+	 * and its verification fails for some reason.
+	 *
+	 * @return array|string
+	 */
+	function customRequest($methodUrl, $inputPayload, $expectedOutputFields = array(), $extensions = array(), $method = "POST", $logOutput = false, $ignoreInvalidReturnSignature = false) {
+
+		if (array_key_exists('dttm', $inputPayload) and !$inputPayload['dttm']) {
+			$inputPayload['dttm'] = $this->getDTTM();
+		}
+
+		if (array_key_exists('merchantId', $inputPayload) and !$inputPayload['merchantId']) {
+			$inputPayload['merchantId'] = $this->config->merchantId;
+		}
+
+		$signature = $this->signRequest($inputPayload);
+		$inputPayload['signature'] = $signature;
+
+		$this->writeToLog("custom request to $methodUrl - start");
+
+		try {
+
+			$ret = $this->sendRequest(
+				$methodUrl,
+				$inputPayload,
+				$method,
+				$expectedOutputFields,
+				array_keys($inputPayload),
+				false,
+				$ignoreInvalidReturnSignature,
+				$extensions
+			);
+
+		} catch (Exception $e) {
+			$this->writeToLog("Fail, got exception: " . $e->getCode().", " . $e->getMessage());
+			throw $e;
+		}
+
+		$this->writeToLog("custom request to $methodUrl - OK");
+
+		if ($logOutput) {
+			$this->writeToTraceLog(print_r($ret, true));
+		}
+
+		return $ret;
+
+	}
+
 
 
 	/**
@@ -720,13 +1037,12 @@ class Client {
 	 * @param string|array|Payment $customerId Customer ID, Payment object or array
 	 * as returned from paymentInit
 	 * @param bool $returnIfHasCardsOnly
+	 *
 	 * @return bool|int If $returnIfHasCardsOnly is set to true, method returns
 	 * boolean indicating whether given customerID has any saved cards. If it is
 	 * set to false, then method returns one of CUSTOMER_*** constants which can
 	 * be used to distinguish more precisely whether customer just hasn't saved
 	 * any cards or was not found at all.
-	 *
-	 * @throws Exception
 	 */
 	function customerInfo($customerId, $returnIfHasCardsOnly = true) {
 		$customerId = $this->getCustomerId($customerId);
@@ -806,9 +1122,9 @@ class Client {
 			"resultCode",
 			"resultMessage",
 			"paymentStatus",
-			"authCode",
+			"?authCode",
 			"merchantData",
-			"signature"
+			// "signature"
 		);
 
 		if (!$input) {
@@ -899,6 +1215,8 @@ class Client {
 
 	/**
 	 * @ignore
+	 *
+	 * @param string $message
 	 */
 	function writeToLog($message) {
 		if ($this->logFile) {
@@ -920,6 +1238,8 @@ class Client {
 
 	/**
 	 * @ignore
+	 *
+	 * @param string $message
 	 */
 	function writeToTraceLog($message) {
 		if ($this->traceLogFile) {
@@ -990,7 +1310,7 @@ class Client {
 	 * @return string
 	 * @ignore
 	 */
-	protected function getDTTM() {
+	public function getDTTM() {
 		return date(self::DATE_FORMAT);
 	}
 
@@ -1001,7 +1321,7 @@ class Client {
 	 * @ignore
 	 */
 	protected function signRequest($arrayToSign) {
-		$stringToSign = implode("|", $arrayToSign);
+		$stringToSign = Crypto::createSignatureBaseFromArray($arrayToSign);
 		$keyFile = $this->config->privateKeyFile;
 		$signature = Crypto::signString(
 			$stringToSign,
@@ -1023,11 +1343,24 @@ class Client {
 	 * @param array $responseFieldsOrder
 	 * @param array $requestFieldsOrder
 	 * @param bool $returnUrlOnly
-	 * @return string|array
-	 * @throws Exception
+	 * @param bool $allowInvalidReturnSignature Set to true if you want to ignore the fact
+	 * that the signature of returned data was incorrect, so that you can receive the returned data anyway
+	 * and handle the situation by yourself. If false, an exception will be thrown instead of returning the received data.
+	 * @param Extension[]|Extension $extensions
+	 *
+	 * @return array|string
 	 * @ignore
 	 */
-	protected function sendRequest($apiMethod, $payload, $usePostMethod = true, $responseFieldsOrder = null, $requestFieldsOrder = null, $returnUrlOnly = false) {
+	protected function sendRequest(
+		$apiMethod,
+		$payload,
+		$usePostMethod = true,
+		$responseFieldsOrder = null,
+		$requestFieldsOrder = null,
+		$returnUrlOnly = false,
+		$allowInvalidReturnSignature = false,
+		$extensions = array()
+	) {
 		$url = $this->getApiMethodUrl($apiMethod);
 
 		$method = $usePostMethod;
@@ -1050,6 +1383,24 @@ class Client {
 
 		if ($method === true) {
 			$method = "POST";
+		}
+
+		if ($extensions) {
+			$extensions = Arrays::arrayize($extensions);
+		}
+
+		if ($extensions) {
+			$payload["extensions"] = array();
+			/** @var Extension $extension */
+			foreach ($extensions as $extension) {
+				if (!($extension instanceof Extension)) {
+					throw new Exception('Given argument is not Extension object.');
+				}
+				$addedData = $extension->createRequestArray($this);
+				if ($addedData) {
+					$payload["extensions"][] = $addedData;
+				}
+			}
 		}
 
 		if ($returnUrlOnly) {
@@ -1105,11 +1456,6 @@ class Client {
 			throw new Exception("API did not return a response containing resultCode.");
 		}
 
-		if ($decoded["resultCode"] != "0") {
-			$this->writeToTraceLog("Failed: resultCode ".$decoded["resultCode"].", message ".$decoded["resultMessage"]);
-			throw new Exception("API returned an error: resultCode \"" . $decoded["resultCode"] . "\", resultMessage: ".$decoded["resultMessage"], $decoded["resultCode"]);
-		}
-
 		if (!isset($decoded["signature"]) or !$decoded["signature"]) {
 			$this->writeToTraceLog("Failed: missing response signature");
 			throw new Exception("Result does not contain signature.");
@@ -1125,8 +1471,45 @@ class Client {
 		}
 
 		if (!$verificationResult) {
-			$this->writeToTraceLog("Failed: signature is incorrect.");
-			throw new Exception("Result signature is incorrect. Please make sure that bank's public key in file specified in config is correct and up-to-date.");
+
+			if (!$allowInvalidReturnSignature) {
+				$this->writeToTraceLog("Failed: signature is incorrect.");
+				throw new Exception("Result signature is incorrect. Please make sure that bank's public key in file specified in config is correct and up-to-date.");
+			} else {
+				$this->writeToTraceLog("Signature is incorrect, but method was called with \$allowInvalidReturnSignature = true, so we'll ignore it.");
+			}
+		}
+
+		if ($decoded["resultCode"] != "0") {
+			$this->writeToTraceLog("Failed: resultCode ".$decoded["resultCode"].", message ".$decoded["resultMessage"]);
+			throw new Exception("API returned an error: resultCode \"" . $decoded["resultCode"] . "\", resultMessage: ".$decoded["resultMessage"], $decoded["resultCode"]);
+		}
+
+		if ($extensions) {
+			$extensionsById = array();
+			foreach ($extensions as $extension) {
+				$extensionsById[$extension->getExtensionId()] = $extension;
+			}
+			$extensionsDataDecoded = isset($decoded["extensions"]) ? $decoded["extensions"] : array();
+			foreach ($extensionsDataDecoded as $extensionData) {
+				$extensionId = $extensionData['extension'];
+				if (isset($extensionsById[$extensionId])) {
+					/** @var Extension $extensionObject */
+					$extensionObject = $extensionsById[$extensionId];
+					$extensionObject->setResponseData($extensionData);
+					$signatureResult = $extensionObject->verifySignature($extensionData, $this);
+					if (!$signatureResult) {
+						$this->writeToTraceLog("Signature of extension $extensionId is incorrect.");
+						if ($extension->getStrictSignatureVerification()) {
+							throw new Exception("Result signature of extension $extensionId is incorrect. Please make sure that bank's public key in file specified in config is correct and up-to-date.");
+						} else {
+							$extension->setSignatureCorrect(false);
+						}
+					} else {
+						$extension->setSignatureCorrect(true);
+					}
+				}
+			}
 		}
 
 		$this->writeToTraceLog("OK");
@@ -1158,28 +1541,25 @@ class Client {
 		}
 
 		if ($responseFieldsOrder) {
-			$sortedResponse = array();
-			foreach($responseFieldsOrder as $f) {
-				if (isset($responseWithoutSignature[$f])) {
-					$sortedResponse[] = $responseWithoutSignature[$f];
-				}
-			}
-			$responseWithoutSignature = $sortedResponse;
+			$string = Crypto::createSignatureBaseWithOrder($responseWithoutSignature, $responseFieldsOrder, false);
+		} else {
+			$string = Crypto::createSignatureBaseFromArray($responseWithoutSignature, false);
 		}
-
-		$string = implode("|", $responseWithoutSignature);
 
 		$this->writeToTraceLog("String for verifying signature: \"" . $string . "\", using key " . $this->config->bankPublicKeyFile);
 
 		return Crypto::verifySignature($string, $signature, $this->config->bankPublicKeyFile);
 	}
 
+
 }
 
+}
 
 
 // src/Config.php 
 
+namespace OndraKoupil\Csob {
 
 
 /**
@@ -1192,8 +1572,10 @@ class Config {
 	 * Change that when you are ready to go to live environment.
 	 *
 	 * @var string
+	 *
+	 * @see GatewayUrl
 	 */
-	public $url = "https://iapi.iplatebnibrana.csob.cz/api/v1.5";
+	public $url = GatewayUrl::TEST_LATEST;
 
 	/**
 	 * Path to file where bank's public key is saved.
@@ -1265,7 +1647,7 @@ class Config {
 	 * Should payments be created with closePayment = true by default?
 	 * See Wiki on ČSOB's github for more information.
 	 *
-	 * @var type
+	 * @var boolean
 	 */
 	public $closePayment = true;
 
@@ -1273,6 +1655,8 @@ class Config {
 	 * Create config with all mandatory values.
 	 *
 	 * See equally named properties of this class for more info.
+	 *
+	 * To specify $bankApiUrl, you can use constants of GatewayUrl class.
 	 *
 	 * @param string $merchantId
 	 * @param string $privateKeyFile
@@ -1301,10 +1685,16 @@ class Config {
 
 }
 
+}
 
 
 // src/Payment.php 
 
+namespace OndraKoupil\Csob {
+
+use \OndraKoupil\Tools\Strings;
+
+use \OndraKoupil\Tools\Arrays;
 
 
 
@@ -1317,8 +1707,22 @@ class Config {
  */
 class Payment {
 
+	/**
+	 * Běžná platba
+	 */
 	const OPERATION_PAYMENT = "payment";
+
+	/**
+	 * Opakovaná platba
+	 *
+	 * @deprecated Deprecated since eAPI 1.7 - use one click payments
+	 */
 	const OPERATION_RECURRENT = "recurrentPayment";
+
+	/**
+	 * Platba na klik
+	 */
+	const OPERATION_ONE_CLICK = "oneclickPayment";
 
 	/**
 	 * @ignore
@@ -1454,6 +1858,27 @@ class Payment {
 	protected $foreignId;
 
 	/**
+	 * Lifetime of the transaction in seconds. Number from 300 to 1800.
+	 *
+	 * @var int
+	 */
+	public $ttlSec;
+
+	/**
+	 * Version of logo.
+	 *
+	 * @var int
+	 */
+	public $logoVersion;
+
+	/**
+	 * Color version
+	 *
+	 * @var int
+	 */
+	public $colorSchemeVersion;
+
+	/**
 	 * @var array
 	 * @ignore
 	 */
@@ -1472,17 +1897,22 @@ class Payment {
 		"description",
 		"merchantData",
 		"customerId",
-		"language"
+		"language",
+		"ttlSec",
+		//"logoVersion",
+		//"colorSchemeVersion"
 	);
+
+	// For unknown reason, logoVersion and colorSchemeVersion seems not to be a part of the signature base string
 
 
 	/**
 	 * @param string $orderNo
 	 * @param mixed $merchantData
 	 * @param string $customerId
-	 * @param bool|null $recurrentPayment
+	 * @param bool|null $oneClickPayment
 	 */
-	function __construct($orderNo, $merchantData = null, $customerId = null, $recurrentPayment = null) {
+	function __construct($orderNo = '', $merchantData = null, $customerId = null, $oneClickPayment = null) {
 		$this->orderNo = $orderNo;
 
 		if ($merchantData) {
@@ -1493,8 +1923,8 @@ class Payment {
 			$this->customerId = $customerId;
 		}
 
-		if ($recurrentPayment !== null) {
-			$this->setRecurrentPayment($recurrentPayment);
+		if ($oneClickPayment !== null) {
+			$this->setOneClickPayment($oneClickPayment);
 		}
 	}
 
@@ -1606,11 +2036,27 @@ class Payment {
 	 * Basically, this is a lazy method for setting $payOperation to OPERATION_RECURRENT.
 	 *
 	 * @param bool $recurrent
+	 * @deprecated Deprecated and replaced by setOneClickPayment
 	 *
 	 * @return \OndraKoupil\Csob\Payment
 	 */
 	function setRecurrentPayment($recurrent = true) {
 		$this->payOperation = $recurrent ? self::OPERATION_RECURRENT : self::OPERATION_PAYMENT;
+		trigger_error('setRecurrentPayment() is deprecated, use setOneClickPayment() instead.', E_USER_DEPRECATED);
+		return $this;
+	}
+
+	/**
+	 * Mark this payment as one-click payment template
+	 *
+	 * Basically, this is a lazy method for setting $payOperation to OPERATION_ONE_CLICK
+	 *
+	 * @param bool $oneClick
+	 *
+	 * @return $this
+	 */
+	function setOneClickPayment($oneClick = true) {
+		$this->payOperation = $oneClick ? self::OPERATION_ONE_CLICK : self::OPERATION_PAYMENT;
 		return $this;
 	}
 
@@ -1643,6 +2089,10 @@ class Payment {
 
 		if (!$this->language) {
 			$this->language = "CZ";
+		}
+		
+		if (!$this->ttlSec or !is_numeric($this->ttlSec)) {
+			$this->ttlSec = 1800;
 		}
 
 		if ($this->closePayment === null) {
@@ -1685,13 +2135,15 @@ class Payment {
 	 * Add signature and export to array. This method is called automatically
 	 * and you don't need to call is on your own.
 	 *
-	 * @param Config $config
+	 * @param Client $client
 	 * @return array
 	 *
 	 * @ignore
 	 */
-	function signAndExport(Config $config) {
+	function signAndExport(Client $client) {
 		$arr = array();
+
+		$config = $client->getConfig();
 
 		foreach($this->fieldsInOrder as $f) {
 			$val = $this->$f;
@@ -1702,6 +2154,8 @@ class Payment {
 		}
 
 		$stringToSign = $this->getSignatureString();
+
+		$client->writeToTraceLog('Signing payment request, base for the signature:' . "\n" . $stringToSign);
 
 		$signed = Crypto::signString($stringToSign, $config->privateKeyFile, $config->privateKeyPassword);
 		$arr["signature"] = $signed;
@@ -1749,10 +2203,12 @@ class Payment {
 
 }
 
+}
 
 
 // src/Crypto.php 
 
+namespace OndraKoupil\Csob {
 
 
 /**
@@ -1840,27 +2296,1472 @@ class Crypto {
 		return $res ? true : false;
 	}
 
+	/**
+	 * Vytvoří z array (i víceúrovňového) string pro výpočet podpisu.
+	 *
+	 * @param array $array
+	 * @param bool $returnAsArray
+	 *
+	 * @return string|array
+	 */
+	static function createSignatureBaseFromArray($array, $returnAsArray = false) {
+		$linearizedArray = self::createSignatureBaseRecursion($array);
+		if ($returnAsArray) {
+			return $linearizedArray;
+		}
+		return implode('|', $linearizedArray);
+	}
+
+	protected static function createSignatureBaseRecursion($array, $depthCheck = 0) {
+		if ($depthCheck > 10) {
+			return array();
+		}
+		$ret = array();
+		foreach ($array as $val) {
+			if (is_array($val)) {
+				$ret = array_merge(
+					$ret,
+					self::createSignatureBaseRecursion($val, $depthCheck + 1)
+				);
+			} else {
+				$ret[] = $val;
+			}
+		}
+		return $ret;
+	}
+
+	/**
+	 * Generická implementace linearizace pole s dopředu zadaným požadovaným pořadím.
+	 *
+	 * V $order by mělo být požadované pořadí položek formou stringových "keypath".
+	 * Keypath je název klíče v poli $data, pokud je víceúrovňové, klíče jsou spojeny tečkou.
+	 *
+	 * Pokud keypath začíná znakem otazník, považuje se za nepovinnou a není-li taková
+	 * položka nalezena, z výsledku se vynechá. V opačném případě se vloží prázdný řetězec.
+	 *
+	 * Pokud keypath odkazuje na další array, to se vloží postupně položka po položce.
+	 *
+	 * Příklad:
+	 *
+	 * ```php
+	 * $data = array(
+	 *    'foo' => 'bar',
+	 *    'arr' => array(
+	 *        'a' => 'A',
+	 *        'b' => 'B'
+	 *    )
+	 * );
+	 *
+	 * $order = array(
+	 *    'foo',
+	 *    'arr.a',
+	 *    'somethingRequired',
+	 *    '?somethingOptional',
+	 *    'foo',
+	 *    'arr.x',
+	 *    'foo',
+	 *    'arr'
+	 * );
+	 *
+	 * $result = Crypto::createSignatureBaseWithOrder($data, $order, false);
+	 *
+	 * $result == array('bar', 'A', '', 'bar', '', 'bar', 'A', 'B');
+	 * ```
+	 *
+	 * @param array $data Pole s daty
+	 * @param array $order Požadované pořadí položek.
+	 * @param bool $returnAsArray
+	 *
+	 * @return array
+	 */
+	static function createSignatureBaseWithOrder($data, $order, $returnAsArray = false) {
+
+		$result = array();
+
+		foreach ($order as $key) {
+			$optional = false;
+			if ($key[0] == '?') {
+				$optional = true;
+				$key = substr($key, 1);
+			}
+			$keyPath = explode('.', $key);
+
+			$pos = $data;
+			$found = true;
+			foreach ($keyPath as $keyPathComponent) {
+				if (array_key_exists($keyPathComponent, $pos)) {
+					$pos = $pos[$keyPathComponent];
+				} else {
+					$found = false;
+					break;
+				}
+			}
+
+			if ($found) {
+				if (is_array($pos)) {
+					$result = array_merge($result, self::createSignatureBaseFromArray($pos, true));
+				} else {
+					$result[] = $pos;
+				}
+			} else {
+				if (!$optional) {
+					$result[] = '';
+				}
+			}
+		}
+
+		if ($returnAsArray) {
+			return $result;
+		}
+
+		return implode('|', $result);
+
+	}
+
 }
 
+}
 
 
 // src/Exception.php 
 
+namespace OndraKoupil\Csob {
 
 
 class Exception extends \RuntimeException {}
 
+}
 
 
 // src/CryptoException.php 
 
+namespace OndraKoupil\Csob {
 
 
 class CryptoException extends Exception {}
+}
+
+
+// src/GatewayUrl.php 
+
+namespace OndraKoupil\Csob {
+
+
+/**
+ * Class containing for CSOB gateway URLs
+ */
+class GatewayUrl {
+
+	const TEST_LATEST = self::TEST_1_7;
+
+	const PRODUCTION_LATEST = self::PRODUCTION_1_7;
+
+	const TEST_1_0 = "https://iapi.iplatebnibrana.csob.cz/api/v1";
+
+	const PRODUCTION_1_0 = "https://api.platebnibrana.csob.cz/api/v1";
+
+	const TEST_1_5 = "https://iapi.iplatebnibrana.csob.cz/api/v1.5";
+
+	const PRODUCTION_1_5 = "https://api.platebnibrana.csob.cz/api/v1.5";
+
+	const TEST_1_6 = "https://iapi.iplatebnibrana.csob.cz/api/v1.6";
+
+	const PRODUCTION_1_6 = "https://api.platebnibrana.csob.cz/api/v1.6";
+
+	const TEST_1_7 = "https://iapi.iplatebnibrana.csob.cz/api/v1.7";
+
+	const PRODUCTION_1_7 = "https://api.platebnibrana.csob.cz/api/v1.7";
+
+}
+
+}
+
+
+// src/Extension.php 
+
+namespace OndraKoupil\Csob {
+
+
+/**
+ * Represents additional data to be sent with a request to the API
+ * and also defines how to verify the response.
+ *
+ * Each method call can have several extensions.
+ */
+class Extension {
+
+	/**
+	 * @var array
+	 */
+	protected $inputData;
+
+	/**
+	 * @var array
+	 */
+	protected $responseData;
+
+	/**
+	 * @var array
+	 */
+	protected $expectedResponseKeysOrder;
+
+	/**
+	 * @var string
+	 */
+	protected $extensionId;
+
+	/**
+	 * @var bool
+	 */
+	protected $strictSignatureVerification = true;
+
+	/**
+	 * @var bool
+	 */
+	protected $signatureCorrect = false;
+
+	/**
+	 * @param string $extensionId
+	 */
+	function __construct($extensionId) {
+		if (!$extensionId) {
+			throw new Exception('No Extension ID given!');
+		}
+		$this->extensionId = $extensionId;
+	}
+
+	/**
+	 * @return array
+	 */
+	public function getInputData() {
+		return $this->inputData;
+	}
+
+	/**
+	 * Sets the data that are sent with your request to API.
+	 *
+	 * Set this to falsey value to disable sending extension data with your request
+	 * (this extension will affect only response).
+	 *
+	 * Order of keys is significant because of generating base for signature.
+	 * Check CSOB wiki for correct order.
+	 *
+	 * If you need to insert "dttm" parameter, you can just set it to null, real valu ewill be added automatically.
+	 * The same is for "extension" parameter, which can be filled with extensionId.
+	 *
+	 * If signature base is being generated incorrectly, reimplement getRequestSignatureBase()
+	 * with a better one.
+	 *
+	 * @param array $inputData
+	 *
+	 * @return Extension
+	 */
+	public function setInputData($inputData) {
+		$this->inputData = $inputData;
+
+		return $this;
+	}
+
+	/**
+	 * @return array
+	 */
+	public function getExpectedResponseKeysOrder() {
+		return $this->expectedResponseKeysOrder;
+	}
+
+	/**
+	 * Use this method to hint in which order should the base string
+	 * for verifying signature of response be generated.
+	 * See Crypto::createSignatureBaseWithOrder() for options for specifying key paths.
+	 *
+	 * If response signatures are verifyed incorrectly because of wrong order of parts
+	 * in base string, you can reimplement getResponseSignatureBase() method with a better one.
+	 *
+	 * Set to falsey value to disable parsing of the extension object in response,
+	 * the extension will then affect only sending the request.
+	 *
+	 * @param array $expectedResponseKeysOrder
+	 *
+	 * @return Extension
+	 */
+	public function setExpectedResponseKeysOrder($expectedResponseKeysOrder) {
+		$this->expectedResponseKeysOrder = $expectedResponseKeysOrder;
+
+		return $this;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getExtensionId() {
+		return $this->extensionId;
+	}
+
+	/**
+	 * Creates array for request.
+	 *
+	 * If requests for your extension are signed incorrectly because of
+	 * wrong order of parts of the base string, check that order of keys in
+	 * your input data given to setInputData() is the same as in extension's documentation on CSOB wiki,
+	 * or extend this class and reimplement getRequestSignatureBase() method.
+	 *
+	 * @param Client $client
+	 *
+	 * @return array
+	 */
+	public function createRequestArray(Client $client) {
+
+		$sourceArray = $this->getInputData();
+
+		if (!$sourceArray) {
+			return null;
+		}
+
+		$config = $client->getConfig();
+
+		/*
+		if (!array_key_exists('dttm', $sourceArray)) {
+			$sourceArray = array(
+					'dttm' => $this->getDTTM()
+				) + $sourceArray;
+		} elseif (!$sourceArray['dttm']) {
+			$sourceArray['dttm'] = $this->getDTTM();
+		}
+
+		if (!array_key_exists('extension', $sourceArray)) {
+			$sourceArray = array(
+				'extension' => $this->getExtensionId()
+			) + $sourceArray;
+		} elseif (!$sourceArray['extension']) {
+			$sourceArray['extension'] = $this->getExtensionId();
+		}*/
+
+		if (array_key_exists('dttm', $sourceArray) and !$sourceArray['dttm']) {
+			$sourceArray['dttm'] = $client->getDTTM();
+		}
+		if (array_key_exists('extension', $sourceArray) and !$sourceArray['extension']) {
+			$sourceArray['extension'] = $this->getExtensionId();
+		}
+
+		$baseString = $this->getRequestSignatureBase($sourceArray);
+		$client->writeToTraceLog('Signing request of extension ' . $this->extensionId . ', base string is:' . "\n" . $baseString);
+		$signature = Crypto::signString($baseString, $config->privateKeyFile, $config->privateKeyPassword);
+
+		$sourceArray['signature'] = $signature;
+
+		return $sourceArray;
+
+	}
+
+	/**
+	 * Returns string that is used as basis for signature.
+	 *
+	 * Default implementation uses Crypto::createSignatureBaseFromArray.
+	 * This means that order of keys is significant. If the calculated signature
+	 * for the extension is incorrect, extend the class with your own and reimplement
+	 * this method with a better one.
+	 *
+	 * @param array $dataArray Including dttm and extension ID
+	 *
+	 * @return string
+	 */
+	public function getRequestSignatureBase($dataArray) {
+		return Crypto::createSignatureBaseFromArray($dataArray, false);
+	}
+
+	/**
+	 * Verifies signature.
+	 *
+	 * @param array $receivedData
+	 * @param Client $client
+	 *
+	 * @return bool
+	 *
+	 */
+	public function verifySignature($receivedData, Client $client) {
+
+		$signature = isset($receivedData['signature']) ? $receivedData['signature'] : '';
+		if (!$signature) {
+			return false;
+		}
+
+		$responseWithoutSignature = $receivedData;
+		unset($responseWithoutSignature["signature"]);
+
+		$baseString = $this->getResponseSignatureBase($responseWithoutSignature);
+
+		$config = $client->getConfig();
+		$client->writeToTraceLog('Verifying signature of response of extension ' . $this->extensionId . ', base string is:' . "\n" . $baseString);
+
+		return Crypto::verifySignature($baseString, $signature, $config->bankPublicKeyFile);
+
+	}
+
+	/**
+	 * Returns base string for verifying signature of response.
+	 *
+	 * If verifying signature fails because its base string has parts
+	 * in incorrect order, check that the order of keys given to
+	 * setExpectedResponseKeysOrder() is the same as in CSOB wiki,
+	 * or reimplement this method with a better one.
+	 *
+	 * @param array $responseWithoutSignature
+	 *
+	 * @return string
+	 */
+	public function getResponseSignatureBase($responseWithoutSignature) {
+		if ($this->expectedResponseKeysOrder) {
+			$baseString = Crypto::createSignatureBaseWithOrder($responseWithoutSignature, $this->expectedResponseKeysOrder, false);
+		} else {
+			$baseString = Crypto::createSignatureBaseFromArray($responseWithoutSignature, false);
+		}
+		return $baseString;
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function getStrictSignatureVerification() {
+		return $this->strictSignatureVerification;
+	}
+
+	/**
+	 * @param bool $strictSignatureVerification
+	 *
+	 * @return self
+	 */
+	public function setStrictSignatureVerification($strictSignatureVerification) {
+		$this->strictSignatureVerification = $strictSignatureVerification;
+		return $this;
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isSignatureCorrect() {
+		return $this->signatureCorrect;
+	}
+
+	/**
+	 * @param bool $signatureCorrect
+	 */
+	public function setSignatureCorrect($signatureCorrect) {
+		$this->signatureCorrect = $signatureCorrect;
+		return $this;
+	}
+
+	/**
+	 * @return mixed
+	 */
+	public function getResponseData() {
+		return $this->responseData;
+	}
+
+	/**
+	 * @param mixed $responseData
+	 */
+	public function setResponseData($responseData) {
+		$this->responseData = $responseData;
+	}
+
+
+
+
+
+
+}
+
+}
+
+
+// src/Extensions/EET/EETCloseExtension.php 
+
+namespace OndraKoupil\Csob\Extensions\EET {
+
+use OndraKoupil\Csob\Exception;
+
+use OndraKoupil\Csob\Extension;
+
+
+
+class EETCloseExtension extends Extension {
+
+	/**
+	 * @var EETData
+	 */
+	protected $data;
+
+	/**
+	 * @param EETData $data
+	 */
+	function __construct(EETData $data = null) {
+
+		parent::__construct('eetV3');
+		$this->data = $data;
+
+		$this->expectedResponseKeysOrder = null;
+	}
+
+	/**
+	 * @return EETData
+	 */
+	public function getEETData() {
+		return $this->data;
+	}
+
+	/**
+	 * @param EETData $data
+	 */
+	public function setData($data = null) {
+		$this->data = $data;
+	}
+
+	/**
+	 * Builds input data array
+	 *
+	 * @return array
+	 */
+	public function getInputData() {
+		if ($this->data) {
+			return array(
+				'extension' => $this->extensionId,
+				'dttm' => null,
+				'data' => $this->data->asArray(),
+			);
+		}
+
+		return null;
+	}
+
+	/**
+	 * Do not call this directly.
+	 *
+	 * @param array $inputData
+	 * @throws Exception
+	 *
+	 * @return void
+	 */
+	public function setInputData($inputData) {
+		throw new Exception('You cannot call this method directly.');
+	}
+}
+
+}
+
+
+// src/Extensions/EET/EETData.php 
+
+namespace OndraKoupil\Csob\Extensions\EET {
+
+
+/**
+ * Data set for the EET extension.
+ *
+ * You need to create this object when calling paymentInit.
+ *
+ * Then, you will receive this object in responses of other methods.
+ *
+ * When creating the object, remember that $totalPrice is in CZK, not halers (as is in Payment object)
+ *
+ * See https://github.com/csob/paymentgateway/wiki/Specifikace-API-roz%C5%A1%C3%AD%C5%99en%C3%AD-pro-EET
+ * for details on meaning of each property.
+ */
+class EETData {
+
+
+
+	/**
+	 * @var number Označení provozovny
+	 */
+	public $premiseId;
+
+	/**
+	 * @var string Označení pokladního zařízení poplatníka
+	 */
+	public $cashRegisterId;
+
+	/**
+	 * @var number Celková částka tržby, v případě nahlášení platby (volání v rámci payment/init, payment/oneclick/init a payment/close) musí být kladné číslo, v případě odhlášení platby (volání v rámci payment/refund) musí být záporné číslo.
+	 */
+	public $totalPrice;
+
+	/**
+	 * @var string DIČ pověřujícího poplatníka
+	 */
+	public $delegatedVatId;
+
+	/**
+	 * @var number Celková částka plnění osvobozených od DPH, ostatních plnění
+	 */
+	public $priceZeroVat;
+
+	/**
+	 * @var number Celkový základ daně se základní sazbou DPH
+	 */
+	public $priceStandardVat;
+
+	/**
+	 * @var number Celková DPH se základní sazbou
+	 */
+	public $vatStandard;
+
+	/**
+	 * @var number Celkový základ daně s první sníženou sazbou DPH
+	 */
+	public $priceFirstReducedVat;
+
+	/**
+	 * @var number Celková DPH s první sníženou sazbou
+	 */
+	public $vatFirstReduced;
+
+	/**
+	 * @var number Celkový základ daně s druhou sníženou sazbou DPH
+	 */
+	public $priceSecondReducedVat;
+
+	/**
+	 * @var number Celková DPH s druhou sníženou sazbou
+	 */
+	public $vatSecondReduced;
+
+	/**
+	 * @var number Celková částka v režimu DPH pro cestovní službu
+	 */
+	public $priceTravelService;
+
+	/**
+	 * @var number Celková částka v režimu DPH pro prodej použitého zboží se základní sazbou
+	 */
+	public $priceUsedGoodsStandardVat;
+
+	/**
+	 * @var number Celková částka v režimu DPH pro prodej použitého zboží s první sníženou sazbou
+	 */
+	public $priceUsedGoodsFirstReduced;
+
+	/**
+	 * @var number Celková částka v režimu DPH pro prodej použitého zboží s druhou sníženou sazbou
+	 */
+	public $priceUsedGoodsSecondReduced;
+
+	/**
+	 * @var number Celková částka plateb určená k následnému čerpání nebo zúčtování
+	 */
+	public $priceSubsequentSettlement;
+
+	/**
+	 * @var number Celková částka plateb, které jsou následným čerpáním nebo zúčtováním platby
+	 */
+	public $priceUsedSubsequentSettlement;
+
+	/**
+	 * @var array Contains raw data as were received from API. Only for responses.
+	 */
+	public $rawData;
+
+	/**
+	 * Constructor allows to set three mandatory properties
+	 *
+	 * @param number $premiseId
+	 * @param string $cashRegisterId
+	 * @param number $totalPrice
+	 */
+	public function __construct($premiseId = null, $cashRegisterId = null, $totalPrice = null) {
+		$this->premiseId = $premiseId;
+		$this->cashRegisterId = $cashRegisterId;
+		$this->totalPrice = $totalPrice;
+	}
+
+	/**
+	 * Export as array
+	 *
+	 * @return array
+	 */
+	public function asArray() {
+
+		$a = array();
+
+		$a['premiseId'] = +$this->premiseId;
+		$a['cashRegisterId'] = $this->cashRegisterId;
+		$a['totalPrice'] = self::formatPriceValue($this->totalPrice);
+
+		if ($this->delegatedVatId) {
+			$a['delegatedVatId'] = $this->delegatedVatId;
+		}
+		if ($this->priceStandardVat) {
+			$a['priceStandardVat'] = self::formatPriceValue($this->priceStandardVat);
+		}
+		if ($this->vatStandard) {
+			$a['vatStandard'] = self::formatPriceValue($this->vatStandard);
+		}
+		if ($this->priceFirstReducedVat) {
+			$a['priceFirstReducedVat'] = self::formatPriceValue($this->priceFirstReducedVat);
+		}
+		if ($this->vatFirstReduced) {
+			$a['vatFirstReduced'] = self::formatPriceValue($this->vatFirstReduced);
+		}
+		if ($this->priceSecondReducedVat) {
+			$a['priceSecondReducedVat'] = self::formatPriceValue($this->priceSecondReducedVat);
+		}
+		if ($this->vatSecondReduced) {
+			$a['vatSecondReduced'] = self::formatPriceValue($this->vatSecondReduced);
+		}
+		if ($this->priceTravelService) {
+			$a['priceTravelService'] = self::formatPriceValue($this->priceTravelService);
+		}
+		if ($this->priceUsedGoodsStandardVat) {
+			$a['priceUsedGoodsStandardVat'] = self::formatPriceValue($this->priceUsedGoodsStandardVat);
+		}
+		if ($this->priceUsedGoodsFirstReduced) {
+			$a['priceUsedGoodsFirstReduced'] = self::formatPriceValue($this->priceUsedGoodsFirstReduced);
+		}
+		if ($this->priceUsedGoodsSecondReduced) {
+			$a['priceUsedGoodsSecondReduced'] = self::formatPriceValue($this->priceUsedGoodsSecondReduced);
+		}
+		if ($this->priceSubsequentSettlement) {
+			$a['priceSubsequentSettlement'] = self::formatPriceValue($this->priceSubsequentSettlement);
+		}
+		if ($this->priceUsedSubsequentSettlement) {
+			$a['priceUsedSubsequentSettlement'] = self::formatPriceValue($this->priceUsedSubsequentSettlement);
+		}
+
+		return $a;
+	}
+
+
+	/**
+	 * Format a numeric price for use in EET extension
+	 *
+	 * @param number $price
+	 *
+	 * @return number
+	 */
+	static function formatPriceValue($price) {
+		return number_format($price, 2, '.', '');
+	}
+
+	static protected $keyNames = array(
+		'premiseId',
+		'cashRegisterId',
+		'totalPrice',
+		'delegatedVatId',
+		'priceStandardVat',
+		'vatStandard',
+		'priceFirstReducedVat',
+		'vatFirstReduced',
+		'priceSecondReducedVat',
+		'vatSecondReduced',
+		'priceTravelService',
+		'priceUsedGoodsStandardVat',
+		'priceUsedGoodsFirstReduced',
+		'priceUsedGoodsSecondReduced',
+		'priceSubsequentSettlement',
+		'priceUsedSubsequentSettlement',
+	);
+
+	/**
+	 * Creates EETData object from array received from API
+	 *
+	 * @param $array
+	 *
+	 * @return EETData
+	 */
+	static function fromArray($array) {
+
+		$data = new EETData();
+
+		foreach (self::$keyNames as $key) {
+			if (array_key_exists($key, $array)) {
+				$data->$key = $array[$key];
+			}
+		}
+
+		$data->rawData = $array;
+
+		return $data;
+
+	}
+
+	/**
+	 * Return part of the string required for building the signature string.
+	 *
+	 * @return string
+	 */
+	public function getSignatureBase() {
+		$array = $this->asArray();
+		return implode('|', $this->asArray());
+	}
+
+
+}
+
+}
+
+
+// src/Extensions/EET/EETError.php 
+
+namespace OndraKoupil\Csob\Extensions\EET {
+
+
+/**
+ * Common base for error and warning in EET extension
+ */
+class EETError extends EETErrorMessage {
+
+}
+
+}
+
+
+// src/Extensions/EET/EETErrorMessage.php 
+
+namespace OndraKoupil\Csob\Extensions\EET {
+
+
+/**
+ * Represents an error message from EET extension
+ */
+abstract class EETErrorMessage {
+
+	/**
+	 * @var string
+	 */
+	public $code;
+
+	/**
+	 * @var string
+	 */
+	public $desc;
+
+	/**
+	 * The constructor
+	 *
+	 * @param string $code
+	 * @param string $desc
+	 */
+	public function __construct($code, $desc) {
+		$this->code = $code;
+		$this->desc = $desc;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getSignatureBase() {
+		return $this->code . '|' . $this->desc;
+	}
+
+}
+
+}
+
+
+// src/Extensions/EET/EETInitExtension.php 
+
+namespace OndraKoupil\Csob\Extensions\EET {
+
+use OndraKoupil\Csob\Exception;
+
+use OndraKoupil\Csob\Extension;
+
+
+
+/**
+ * Extension for EET - payment/init and payment/oneclick/init operations
+ */
+class EETInitExtension extends Extension {
+
+	/**
+	 * @var bool Ověřovací (testovací) režim?
+	 */
+	public $verificationMode;
+
+	/**
+	 * @var EETData
+	 */
+	protected $data;
+
+	/**
+	 * @param EETData $data Data for EET
+	 * @param bool $verificationMode Should verification (testing) mode be used?
+	 */
+	function __construct(EETData $data, $verificationMode = false) {
+
+		parent::__construct('eetV3');
+
+		$this->data = $data;
+		$this->verificationMode = $verificationMode ? true : false;
+
+		$this->expectedResponseKeysOrder = null;
+	}
+
+	/**
+	 * @return EETData
+	 */
+	public function getEETData() {
+		return $this->data;
+	}
+
+	/**
+	 * Builds input data array
+	 *
+	 * @return array
+	 */
+	public function getInputData() {
+		$a = array(
+			'extension' => $this->extensionId,
+			'dttm' => null,
+			'data' => $this->data->asArray(),
+			'verificationMode' => $this->verificationMode ? 'true' : 'false'
+		);
+
+		return $a;
+	}
+
+	/**
+	 * Do not call this directly.
+	 *
+	 * @param array $inputData
+	 * @throws Exception
+	 *
+	 * @return void
+	 */
+	public function setInputData($inputData) {
+		throw new Exception('You cannot call this method directly.');
+	}
+
+}
+
+}
+
+
+// src/Extensions/EET/EETRefundExtension.php 
+
+namespace OndraKoupil\Csob\Extensions\EET {
+
+use OndraKoupil\Csob\Exception;
+
+use OndraKoupil\Csob\Extension;
+
+
+
+/**
+ * Remember that in data object, the amount should be NEGATIVE!
+ */
+class EETRefundExtension extends Extension {
+
+	/**
+	 * @var EETData
+	 */
+	protected $data;
+
+	/**
+	 * @param EETData $data
+	 */
+	function __construct(EETData $data = null) {
+
+		parent::__construct('eetV3');
+		$this->data = $data;
+
+		$this->expectedResponseKeysOrder = null;
+	}
+
+	/**
+	 * @return EETData
+	 */
+	public function getEETData() {
+		return $this->data;
+	}
+
+	/**
+	 * @param EETData $data
+	 */
+	public function setData($data = null) {
+		$this->data = $data;
+	}
+
+	/**
+	 * Builds input data array
+	 *
+	 * @return array
+	 */
+	public function getInputData() {
+		if ($this->data) {
+			return array(
+				'extension' => $this->extensionId,
+				'dttm' => null,
+				'data' => $this->data->asArray(),
+			);
+		}
+
+		return null;
+	}
+
+	/**
+	 * Do not call this directly.
+	 *
+	 * @param array $inputData
+	 * @throws Exception
+	 *
+	 * @return void
+	 */
+	public function setInputData($inputData) {
+		throw new Exception('You cannot call this method directly.');
+	}
+}
+
+}
+
+
+// src/Extensions/EET/EETReport.php 
+
+namespace OndraKoupil\Csob\Extensions\EET {
+
+
+use DateTime;
+
+/**
+ * Represents a result of payment/status call with EET extension activated.
+ *
+ * You will receive this object from responses, but won't ever need to create it manually.
+ */
+class EETReport {
+
+	/**
+	 * @var number stav nahlášení platby, viz životní cyklus tržby
+	 * @see https://github.com/csob/paymentgateway/wiki/%C5%BDivotn%C3%AD-cyklus-tr%C5%BEby
+	 */
+	public $eetStatus;
+
+	/**
+	 * @var EETData
+	 */
+	public $data;
+
+	/**
+	 * @var boolean Příznak ověřovacího módu odesílání
+	 */
+	public $verificationMode;
+
+	/**
+	 * @var string DIČ poplatníka
+	 */
+	public $vatId;
+
+	/**
+	 * @var string Pořadové číslo účtenky, formát YYYYMMRXXXXXXXXXX, kde YYYY je rok, MM měsíc, R znak identifikující nahlášení platby, XXXXXXXXXX pořadové číslo účtenky, např. 201701R0000000004
+	 */
+	public $receiptNumber;
+
+	/**
+	 * @var DateTime|null Datum a čas přijetí tržby
+	 */
+	public $receiptTime;
+
+	/**
+	 * @var number Režim platby, platební brána podporuje pouze běžný režim, bude vrácena hodnota 0
+	 */
+	public $evidenceMode;
+
+	/**
+	 * @var string UUID datové zprávy evidované tržby
+	 */
+	public $uuid;
+
+	/**
+	 * @var DateTime|null Datum a čas odeslání zprávy z platební brány
+	 */
+	public $sendTime;
+
+	/**
+	 * @var DateTime|null Datum a čas přijetí zprávy na FS
+	 */
+	public $acceptTime;
+
+	/**
+	 * @var string Bezpečnostní kód poplatníka
+	 */
+	public $bkp;
+
+	/**
+	 * @var string Podpisový kód poplatníka
+	 */
+	public $pkp;
+
+	/**
+	 * @var string Fiskální identifikační kód
+	 */
+	public $fik;
+
+	/**
+	 * @var DateTime|null Datum a čas odmítnutí zprávy na FS
+	 */
+	public $rejectTime;
+
+	/**
+	 * @var EETError|null error zpracování na FS, viz popis objektu error
+	 */
+	public $error;
+
+	/**
+	 * @var EETWarning[] Seznam případných varování z FS, viz popis objektu warning
+	 */
+	public $warning = array();
+
+	/**
+	 * @var array
+	 */
+	public $rawData = array();
+
+	/**
+	 * Creates an EETStatus object from received data array
+	 *
+	 * @param array $array
+	 *
+	 * @return EETReport
+	 */
+	static public function fromArray($array) {
+
+		$status = new EETReport();
+
+		$status->rawData = $array;
+
+		if (array_key_exists('eetStatus', $array)) {
+			$status->eetStatus = $array['eetStatus'];
+		}
+		if (array_key_exists('data', $array)) {
+			$status->data = EETData::fromArray($array['data']);
+		}
+		if (array_key_exists('verificationMode', $array)) {
+			$status->verificationMode = $array['verificationMode'] ? true : false;
+		}
+		if (array_key_exists('vatId', $array)) {
+			$status->vatId = $array['vatId'];
+		}
+		if (array_key_exists('receiptNumber', $array)) {
+			$status->receiptNumber = $array['receiptNumber'];
+		}
+		if (array_key_exists('receiptTime', $array)) {
+			$status->receiptTime = new DateTime($array['receiptTime']);
+		}
+		if (array_key_exists('evidenceMode', $array)) {
+			$status->evidenceMode = $array['evidenceMode'];
+		}
+		if (array_key_exists('uuid', $array)) {
+			$status->uuid = $array['uuid'];
+		}
+		if (array_key_exists('sendTime', $array)) {
+			$status->sendTime = new DateTime($array['sendTime']);
+		}
+		if (array_key_exists('acceptTime', $array)) {
+			$status->acceptTime = new DateTime($array['acceptTime']);
+		}
+		if (array_key_exists('bkp', $array)) {
+			$status->bkp = $array['bkp'];
+		}
+		if (array_key_exists('pkp', $array)) {
+			$status->pkp = $array['pkp'];
+		}
+		if (array_key_exists('fik', $array)) {
+			$status->fik = $array['fik'];
+		}
+		if (array_key_exists('rejectTime', $array)) {
+			$status->rejectTime = new DateTime($array['rejectTime']);
+		}
+
+		if (array_key_exists('error', $array) and $array['error']) {
+			$status->error = new EETError($array['error']['code'], $array['error']['desc']);
+		}
+
+		if (array_key_exists('warning', $array) and is_array($array['warning'])) {
+			foreach ($array['warning'] as $warningData) {
+				$status->warning[] = new EETWarning($warningData['code'], $warningData['desc']);
+			}
+		}
+
+		return $status;
+
+	}
+
+	/**
+	 * @inheritdoc
+	 *
+	 * @return string
+	 */
+	public function getSignatureBase() {
+		$fields = array();
+
+		if ($this->eetStatus !== null) {
+			$fields[] = $this->eetStatus;
+		}
+		if ($this->data) {
+			$fields[] = $this->data->getSignatureBase();
+		}
+		if ($this->verificationMode !== null) {
+			$fields[] = $this->verificationMode ? 'true' : 'false';
+		}
+		if ($this->vatId) {
+			$fields[] = $this->vatId;
+		}
+		if ($this->receiptNumber) {
+			$fields[] = $this->receiptNumber;
+		}
+		if ($this->receiptTime) {
+			if (isset($this->rawData['receiptTime']) and $this->rawData['receiptTime']) {
+				$fields[] = $this->rawData['receiptTime'];
+			} else {
+				$fields[] = self::formatTime($this->receiptTime);
+			}
+		}
+		if ($this->evidenceMode !== null) {
+			$fields[] = $this->evidenceMode;
+		}
+		if ($this->uuid !== null) {
+			$fields[] = $this->uuid;
+		}
+		if ($this->sendTime) {
+			if (isset($this->rawData['sendTime']) and $this->rawData['sendTime']) {
+				$fields[] = $this->rawData['sendTime'];
+			} else {
+				$fields[] = self::formatTime($this->sendTime);
+			}
+		}
+		if ($this->acceptTime) {
+			if (isset($this->rawData['acceptTime']) and $this->rawData['acceptTime']) {
+				$fields[] = $this->rawData['acceptTime'];
+			} else {
+				$fields[] = self::formatTime($this->acceptTime);
+			}
+		}
+		if ($this->bkp) {
+			$fields[] = $this->bkp;
+		}
+		if ($this->pkp) {
+			$fields[] = $this->pkp;
+		}
+		if ($this->fik) {
+			$fields[] = $this->fik;
+		}
+		if ($this->rejectTime) {
+			if (isset($this->rawData['rejectTime']) and $this->rawData['rejectTime']) {
+				$fields[] = $this->rawData['rejectTime'];
+			} else {
+				$fields[] = self::formatTime($this->rejectTime);
+			}
+		}
+		if ($this->error) {
+			$fields[] = $this->error->getSignatureBase();
+		}
+		if ($this->warning) {
+			foreach ($this->warning as $w) {
+				$fields[] = $w->getSignatureBase();
+			}
+		}
+
+		return implode('|', $fields);
+	}
+
+	/**
+	 * Formats DateTime to format used in API
+	 *
+	 * @param DateTime $dt
+	 *
+	 * @return string
+	 */
+	static function formatTime(DateTime $dt) {
+		return $dt->format('c');
+	}
+
+}
+
+}
+
+
+// src/Extensions/EET/EETStatusExtension.php 
+
+namespace OndraKoupil\Csob\Extensions\EET {
+
+use OndraKoupil\Csob\Exception;
+
+use OndraKoupil\Csob\Extension;
+
+
+
+/**
+ * Represents extension for EET for payment/status method.
+ */
+class EETStatusExtension extends Extension {
+
+	/**
+	 * Data from "report" section of response
+	 *
+	 * @var EETReport
+	 */
+	protected $report;
+
+	/**
+	 * Data from "cancel" section of response
+	 *
+	 * @var EETReport[]
+	 */
+	protected $cancels;
+
+	/**
+	 * The constructor
+	 */
+	function __construct() {
+		parent::__construct('eetV3');
+	}
+
+
+	/**
+	 * Builds input data array
+	 *
+	 * @return array
+	 */
+	public function getInputData() {
+		return null;
+	}
+
+	/**
+	 * Do not call this directly.
+	 *
+	 * @param array $inputData
+	 * @throws Exception
+	 *
+	 * @return void
+	 */
+	public function setInputData($inputData) {
+		throw new Exception('You cannot call this method directly.');
+	}
+
+	/**
+	 * @inheritdoc
+	 *
+	 * @param array $data
+	 *
+	 * @return void
+	 */
+	public function setResponseData($data) {
+		$this->responseData = $data;
+		if (isset($data['report'])) {
+			$this->report = EETReport::fromArray($data['report']);
+		}
+		$this->cancels = array();
+		if (isset($data['cancel'])) {
+			foreach ($data['cancel'] as $cancel) {
+				$this->cancels[] = EETReport::fromArray($cancel);
+			}
+		}
+	}
+
+	/**
+	 * @inheritdoc
+	 *
+	 * @param array $dataArray
+	 *
+	 * @return string
+	 */
+	public function getResponseSignatureBase($dataArray) {
+
+		$base = array();
+		$base[] = $dataArray['extension'];
+		$base[] = $dataArray['dttm'];
+		if ($this->report) {
+			$base[] = $this->report->getSignatureBase();
+		}
+		if ($this->cancels) {
+			foreach ($this->cancels as $cancel) {
+				$base[] = $cancel->getSignatureBase();
+			}
+		}
+		return implode('|', $base);
+	}
+
+	/**
+	 * @return EETReport
+	 */
+	public function getReport() {
+		return $this->report;
+	}
+
+	/**
+	 * @return EETReport[]
+	 */
+	public function getCancels() {
+		return $this->cancels;
+	}
+
+	/**
+	 * Shortcut to get BKP from response's report
+	 *
+	 * @return string
+	 */
+	public function getBKP() {
+		if ($this->report) {
+			return $this->report->bkp;
+		}
+		return "";
+	}
+
+	/**
+	 * Shortcut to get PKP from response's report
+	 *
+	 * @return string
+	 */
+	public function getPKP() {
+		if ($this->report) {
+			return $this->report->pkp;
+		}
+		return "";
+	}
+
+	/**
+	 * Shortcut to get FIK from response's report
+	 *
+	 * @return string
+	 */
+	public function getFIK() {
+		if ($this->report) {
+			return $this->report->fik;
+		}
+		return "";
+	}
+
+	/**
+	 * Shortcut to get EET status from response's report
+	 *
+	 * @return number|string
+	 */
+	public function getEETStatus() {
+		if ($this->report) {
+			return $this->report->eetStatus;
+		}
+		return "";
+	}
+
+
+}
+
+}
+
+
+// src/Extensions/EET/EETWarning.php 
+
+namespace OndraKoupil\Csob\Extensions\EET {
+
+
+class EETWarning extends EETErrorMessage {
+
+}
+
+}
 
 
 // vendor/ondrakoupil/tools/src/Strings.php 
 
+namespace OndraKoupil\Tools {
 
 
 class Strings {
@@ -2305,10 +4206,12 @@ class Strings {
 
 }
 
+}
 
 
 // vendor/ondrakoupil/tools/src/Arrays.php 
 
+namespace OndraKoupil\Tools {
 
 
 class Arrays {
@@ -2838,10 +4741,16 @@ class Arrays {
     }
 }
 
+}
 
 
 // vendor/ondrakoupil/tools/src/Files.php 
 
+namespace OndraKoupil\Tools {
+
+use OndraKoupil\Tools\Exceptions\FileException;
+
+use OndraKoupil\Tools\Exceptions\FileAccessException;
 
 
 
@@ -3355,25 +5264,30 @@ class Files {
 
 }
 
+}
 
 
 // vendor/ondrakoupil/tools/src/Exceptions/FileException.php 
 
+namespace OndraKoupil\Tools {
 
 
 class FileException extends \RuntimeException {
 
 }
 
+}
 
 
 // vendor/ondrakoupil/tools/src/Exceptions/FileAccessException.php 
 
+namespace OndraKoupil\Tools {
 
 
 class FileAccessException extends \RuntimeException {
 
 }
 
+}
 
 

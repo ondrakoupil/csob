@@ -14,8 +14,22 @@ use \OndraKoupil\Tools\Arrays;
  */
 class Payment {
 
+	/**
+	 * Běžná platba
+	 */
 	const OPERATION_PAYMENT = "payment";
+
+	/**
+	 * Opakovaná platba
+	 *
+	 * @deprecated Deprecated since eAPI 1.7 - use one click payments
+	 */
 	const OPERATION_RECURRENT = "recurrentPayment";
+
+	/**
+	 * Platba na klik
+	 */
+	const OPERATION_ONE_CLICK = "oneclickPayment";
 
 	/**
 	 * @ignore
@@ -151,6 +165,27 @@ class Payment {
 	protected $foreignId;
 
 	/**
+	 * Lifetime of the transaction in seconds. Number from 300 to 1800.
+	 *
+	 * @var int
+	 */
+	public $ttlSec;
+
+	/**
+	 * Version of logo.
+	 *
+	 * @var int
+	 */
+	public $logoVersion;
+
+	/**
+	 * Color version
+	 *
+	 * @var int
+	 */
+	public $colorSchemeVersion;
+
+	/**
 	 * @var array
 	 * @ignore
 	 */
@@ -169,17 +204,22 @@ class Payment {
 		"description",
 		"merchantData",
 		"customerId",
-		"language"
+		"language",
+		"ttlSec",
+		//"logoVersion",
+		//"colorSchemeVersion"
 	);
+
+	// For unknown reason, logoVersion and colorSchemeVersion seems not to be a part of the signature base string
 
 
 	/**
 	 * @param string $orderNo
 	 * @param mixed $merchantData
 	 * @param string $customerId
-	 * @param bool|null $recurrentPayment
+	 * @param bool|null $oneClickPayment
 	 */
-	function __construct($orderNo, $merchantData = null, $customerId = null, $recurrentPayment = null) {
+	function __construct($orderNo = '', $merchantData = null, $customerId = null, $oneClickPayment = null) {
 		$this->orderNo = $orderNo;
 
 		if ($merchantData) {
@@ -190,8 +230,8 @@ class Payment {
 			$this->customerId = $customerId;
 		}
 
-		if ($recurrentPayment !== null) {
-			$this->setRecurrentPayment($recurrentPayment);
+		if ($oneClickPayment !== null) {
+			$this->setOneClickPayment($oneClickPayment);
 		}
 	}
 
@@ -303,11 +343,27 @@ class Payment {
 	 * Basically, this is a lazy method for setting $payOperation to OPERATION_RECURRENT.
 	 *
 	 * @param bool $recurrent
+	 * @deprecated Deprecated and replaced by setOneClickPayment
 	 *
 	 * @return \OndraKoupil\Csob\Payment
 	 */
 	function setRecurrentPayment($recurrent = true) {
 		$this->payOperation = $recurrent ? self::OPERATION_RECURRENT : self::OPERATION_PAYMENT;
+		trigger_error('setRecurrentPayment() is deprecated, use setOneClickPayment() instead.', E_USER_DEPRECATED);
+		return $this;
+	}
+
+	/**
+	 * Mark this payment as one-click payment template
+	 *
+	 * Basically, this is a lazy method for setting $payOperation to OPERATION_ONE_CLICK
+	 *
+	 * @param bool $oneClick
+	 *
+	 * @return $this
+	 */
+	function setOneClickPayment($oneClick = true) {
+		$this->payOperation = $oneClick ? self::OPERATION_ONE_CLICK : self::OPERATION_PAYMENT;
 		return $this;
 	}
 
@@ -340,6 +396,10 @@ class Payment {
 
 		if (!$this->language) {
 			$this->language = "CZ";
+		}
+		
+		if (!$this->ttlSec or !is_numeric($this->ttlSec)) {
+			$this->ttlSec = 1800;
 		}
 
 		if ($this->closePayment === null) {
@@ -382,13 +442,15 @@ class Payment {
 	 * Add signature and export to array. This method is called automatically
 	 * and you don't need to call is on your own.
 	 *
-	 * @param Config $config
+	 * @param Client $client
 	 * @return array
 	 *
 	 * @ignore
 	 */
-	function signAndExport(Config $config) {
+	function signAndExport(Client $client) {
 		$arr = array();
+
+		$config = $client->getConfig();
 
 		foreach($this->fieldsInOrder as $f) {
 			$val = $this->$f;
@@ -399,6 +461,8 @@ class Payment {
 		}
 
 		$stringToSign = $this->getSignatureString();
+
+		$client->writeToTraceLog('Signing payment request, base for the signature:' . "\n" . $stringToSign);
 
 		$signed = Crypto::signString($stringToSign, $config->privateKeyFile, $config->privateKeyPassword);
 		$arr["signature"] = $signed;

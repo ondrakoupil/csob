@@ -11,19 +11,17 @@ See [https://github.com/csob/paymentgateway][1] for further information about th
 
 ## News
 
-The library now supports ČSOB eAPI 1.5. Select whichever eAPI version you want to use
-by setting address in your config object. Default is now eAPI 1.5.
+The library now supports ČSOB eAPI 1.7. 
+Select whichever eAPI version you want to use
+by setting address in your config object. Use GatewayUrl class constants for your convenience.
 
 ```
-$config->url = "https://iapi.iplatebnibrana.csob.cz/api/v1.5";  // test, eAPI 1.5 - default
-$config->url = "https://iapi.iplatebnibrana.csob.cz/api/v1.0";  // test, eAPI 1.0
-$config->url = "https://api.platebnibrana.csob.cz/api/v1.5";    // production, eAPI 1.5
+$config->url = GatewayUrl::TEST_1_7;
+$config->url = GatewayUrl::PRODUCTION_LATEST;
 // etc.
 ```
 
-Versioning of this library will now respect versioning of ČSOB eAPI.
-This means I am skipping from 0.1.3 directly to 1.5,
-but it makes more sense now.
+Library now supports extensions and EET.
 
 ## Installation
 
@@ -229,23 +227,8 @@ if ($hasCards) {
 
 Since eAPI 1.5, you can make recurring payments. See the [wiki page][8] for details.
 
-- let customer authorize payment template by going through payment process as usual,
-  but before running `paymentInit()`, mark the payment as template
-  by calling `$payment->setRecurrentPayment(true)`
-- customer fills in card number, security codes etc.
-- save resulting PayID so that you can refer to this authorised payment later
-- call `paymentRecurrent()` with PayID of the original payment and new Payment
-  object. Payment gets processed silently on background.
-- new payment has its own PayID and can be manipulated as any other payment.
-
-You need PayID of the original payment and a new Payment object.
-Only $orderNo, $totalAmount (sum of cart items added by addToCart), $currency
-and $description of $newPayment are used, others are ignored.
-Note that if $totalAmount is set, then also $currency should be set. If not,
-CZK is used as default value.
-
-$orderNo is the only mandatory value. Other properties
-can be left null to use original values from payment template.
+Use paymentOneClickInit() and paymentOneClickStart() to implement recurring payments.
+Former paymentRecurrent is deprecated now as it has been deprecated in CSOB API as well.
 
 ## Logging
 
@@ -263,6 +246,16 @@ $client->setTraceLog(function($message) use ($myLogger) {
 	$myLogger->log($message);
 });
 ```
+
+## Extensions
+
+Extensions can be implemented via proper setup of Extension class, or by extended classes.
+See Extension class docs or czech readme for more information.
+
+## EET
+
+EET extensions are implemented in OndraKoupil\Csob\Extensions\EET namespace.
+See CSOB github wiki and czech readme for more details.
 
 
 ## Troubleshooting

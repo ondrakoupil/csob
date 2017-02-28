@@ -27,6 +27,7 @@ class PaymentTestCase extends TestCase {
 	function testCart() {
 
 		$config = require(__DIR__ . "/../dummy-config.php");
+		$client = new Client($config);
 
 		$payment = new Payment("100");
 
@@ -38,7 +39,7 @@ class PaymentTestCase extends TestCase {
 			$payment->addCartItem("Third item", 1, 2000);
 		}, '\OndraKoupil\Csob\Exception');
 
-		$exported = $payment->checkAndPrepare($config)->signAndExport($config);
+		$exported = $payment->checkAndPrepare($config)->signAndExport($client);
 
 		// Total sum is OK
 		Assert::same(40000, $exported["totalAmount"]);
@@ -62,13 +63,14 @@ class PaymentTestCase extends TestCase {
 	function testCartName() {
 
 		$config = require(__DIR__ . "/../dummy-config.php");
+		$client = new Client($config);
 
 		$payment = new Payment("100");
 
 		// on char 20 must be space
 		$payment->addCartItem("Item with very long name", 10, 30000, "Desc 1");
 
-		$exported = $payment->checkAndPrepare($config)->signAndExport($config);
+		$exported = $payment->checkAndPrepare($config)->signAndExport($client);
 
 		Assert::same("Item with very long", $exported["cart"][0]["name"]);
 
@@ -77,6 +79,7 @@ class PaymentTestCase extends TestCase {
 	function testSignature() {
 
 		$config = require(__DIR__ . "/../dummy-config.php");
+		$client = new Client($config);
 
 		$payment = new Payment("100");
 
@@ -85,18 +88,22 @@ class PaymentTestCase extends TestCase {
 		$payment->closePayment = false;
 
 		$signatureString = $payment->getSignatureString();
-		$expectedSignatureString = "|100||||0|EUR|false||||||test@example.com|";
+		$expectedSignatureString = "|100||||0|EUR|false||||||test@example.com||";
 		Assert::equal($expectedSignatureString, $signatureString);
 
 		$payment->addCartItem("test", 1, 1000);
+		$payment->ttlSec = 1000;
+		$payment->colorSchemeVersion = 2;
+		$payment->language = 'PL';
+		$payment->logoVersion = '3';
 
 		$payment->checkAndPrepare($config);
 
 		$signatureString = $payment->getSignatureString();
-		$expectedSignatureString = "aaa|100|".date(Client::DATE_FORMAT)."|payment|card|1000|EUR|false|eee|POST|test|1|1000||ddd, 100||test@example.com|CZ";
+		$expectedSignatureString = "aaa|100|".date(Client::DATE_FORMAT)."|payment|card|1000|EUR|false|eee|POST|test|1|1000||ddd, 100||test@example.com|PL|1000";
 		Assert::equal($expectedSignatureString, $signatureString);
 
-		$export = $payment->signAndExport($config);
+		$export = $payment->signAndExport($client);
 
 		Assert::truthy($export["signature"]);
 
@@ -136,11 +143,17 @@ class PaymentTestCase extends TestCase {
 	function testRecurrent() {
 		$payment = new Payment("ABC123");
 
-		$payment->setRecurrentPayment(true);
-		Assert::equal($payment->payOperation, Payment::OPERATION_RECURRENT);
+		Assert::error(function() use ($payment) {
+			$payment->setRecurrentPayment(true);
+		}, E_USER_DEPRECATED);
 
-		$payment->setRecurrentPayment(false);
-		Assert::equal($payment->payOperation, Payment::OPERATION_PAYMENT);
+	}
+
+	function testOneClick() {
+		$payment = new Payment("ABCDE12345");
+		$payment->setOneClickPayment(true);
+
+		Assert::same($payment::OPERATION_ONE_CLICK, $payment->payOperation);
 
 	}
 

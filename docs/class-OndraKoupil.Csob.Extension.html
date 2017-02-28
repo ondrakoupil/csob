@@ -1,0 +1,945 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+
+	<title>Class OndraKoupil\Csob\Extension | ČSOB payment gate PHP client</title>
+
+	<link rel="stylesheet" href="resources/style.css?ece90927a9d9c062449c24ff926274b49e781e42">
+
+</head>
+
+<body>
+<div id="left">
+	<div id="menu">
+		<a href="index.html" title="Overview"><span>Overview</span></a>
+
+
+		<div id="groups">
+				<h3>Namespaces</h3>
+			<ul>
+				<li class="active">
+					<a href="namespace-OndraKoupil.html">
+						OndraKoupil<span></span>
+					</a>
+
+						<ul>
+				<li class="active main">
+					<a href="namespace-OndraKoupil.Csob.html">
+						Csob<span></span>
+					</a>
+
+						<ul>
+				<li class="main">
+					<a href="namespace-OndraKoupil.Csob.Extensions.html">
+						Extensions<span></span>
+					</a>
+
+						<ul>
+				<li class="main">
+					<a href="namespace-OndraKoupil.Csob.Extensions.EET.html">
+						EET					</a>
+
+						</li>
+							</ul></li></ul></li></ul></li>
+			</ul>
+		</div>
+
+		<hr>
+
+
+		<div id="elements">
+			<h3>Classes</h3>
+			<ul>
+				<li><a href="class-OndraKoupil.Csob.Client.html">Client</a></li>
+				<li><a href="class-OndraKoupil.Csob.Config.html">Config</a></li>
+				<li><a href="class-OndraKoupil.Csob.Crypto.html">Crypto</a></li>
+				<li class="active"><a href="class-OndraKoupil.Csob.Extension.html">Extension</a></li>
+				<li><a href="class-OndraKoupil.Csob.GatewayUrl.html">GatewayUrl</a></li>
+				<li><a href="class-OndraKoupil.Csob.Payment.html">Payment</a></li>
+			</ul>
+
+
+
+			<h3>Exceptions</h3>
+			<ul>
+				<li><a href="class-OndraKoupil.Csob.CryptoException.html">CryptoException</a></li>
+				<li><a href="class-OndraKoupil.Csob.Exception.html">Exception</a></li>
+			</ul>
+
+
+		</div>
+	</div>
+</div>
+
+<div id="splitter"></div>
+
+<div id="right">
+<div id="rightInner">
+	<form id="search">
+		<input type="hidden" name="cx" value="">
+		<input type="hidden" name="ie" value="UTF-8">
+		<input type="text" name="q" class="text" placeholder="Search">
+	</form>
+
+	<div id="navigation">
+		<ul>
+			<li>
+				<a href="index.html" title="Overview"><span>Overview</span></a>
+			</li>
+			<li>
+				<a href="namespace-OndraKoupil.Csob.html" title="Summary of OndraKoupil\Csob"><span>Namespace</span></a>
+			</li>
+			<li class="active">
+<span>Class</span>			</li>
+		</ul>
+		<ul>
+		</ul>
+		<ul>
+		</ul>
+	</div>
+
+<div id="content" class="class">
+	<h1>Class Extension</h1>
+
+
+	<div class="description">
+	<p>Represents additional data to be sent with a request to the API
+and also defines how to verify the response.</p>
+
+<p>Each method call can have several extensions.</p>
+	</div>
+
+
+
+	<div>
+		<h4>Direct known subclasses</h4>
+			<a href="class-OndraKoupil.Csob.Extensions.EET.EETCloseExtension.html">OndraKoupil\Csob\Extensions\EET\EETCloseExtension</a>, 
+			<a href="class-OndraKoupil.Csob.Extensions.EET.EETInitExtension.html">OndraKoupil\Csob\Extensions\EET\EETInitExtension</a>, 
+			<a href="class-OndraKoupil.Csob.Extensions.EET.EETRefundExtension.html">OndraKoupil\Csob\Extensions\EET\EETRefundExtension</a>, 
+			<a href="class-OndraKoupil.Csob.Extensions.EET.EETStatusExtension.html">OndraKoupil\Csob\Extensions\EET\EETStatusExtension</a>
+	</div>
+
+
+
+
+
+
+	<div class="info">
+		
+		
+		<b>Namespace:</b> <a href="namespace-OndraKoupil.html">OndraKoupil</a>\<a href="namespace-OndraKoupil.Csob.html">Csob</a><br>
+		
+
+			<b>Located at</b> <a href="source-class-OndraKoupil.Csob.Extension.html#5-292" title="Go to source code">Extension.php</a>
+		<br>
+	</div>
+
+
+
+	<table class="summary methods" id="methods">
+	<caption>Methods summary</caption>
+	<tr data-order="__construct" id="___construct">
+
+		<td class="attributes"><code>
+			 public 
+
+			
+			
+			</code>
+		</td>
+
+		<td class="name"><div>
+		<a class="anchor" href="#___construct">#</a>
+		<code><a href="source-class-OndraKoupil.Csob.Extension.html#43-51" title="Go to source code">__construct</a>( <span>string <var>$extensionId</var></span> )</code>
+
+		<div class="description short">
+			
+		</div>
+
+		<div class="description detailed hidden">
+			
+
+
+				<h4>Parameters</h4>
+				<div class="list"><dl>
+					<dt><var>$extensionId</var></dt>
+					<dd></dd>
+				</dl></div>
+
+
+
+
+
+		</div>
+		</div></td>
+	</tr>
+	<tr data-order="getInputData" id="_getInputData">
+
+		<td class="attributes"><code>
+			 public 
+
+			array
+			
+			</code>
+		</td>
+
+		<td class="name"><div>
+		<a class="anchor" href="#_getInputData">#</a>
+		<code><a href="source-class-OndraKoupil.Csob.Extension.html#53-58" title="Go to source code">getInputData</a>( )</code>
+
+		<div class="description short">
+			
+		</div>
+
+		<div class="description detailed hidden">
+			
+
+
+
+				<h4>Returns</h4>
+				<div class="list">
+					array
+				</div>
+
+
+
+
+		</div>
+		</div></td>
+	</tr>
+	<tr data-order="setInputData" id="_setInputData">
+
+		<td class="attributes"><code>
+			 public 
+
+			<code><a href="class-OndraKoupil.Csob.Extension.html">OndraKoupil\Csob\Extension</a></code>
+			
+			</code>
+		</td>
+
+		<td class="name"><div>
+		<a class="anchor" href="#_setInputData">#</a>
+		<code><a href="source-class-OndraKoupil.Csob.Extension.html#60-83" title="Go to source code">setInputData</a>( <span>array <var>$inputData</var></span> )</code>
+
+		<div class="description short">
+			<p>Sets the data that are sent with your request to API.</p>
+		</div>
+
+		<div class="description detailed hidden">
+			<p>Sets the data that are sent with your request to API.</p>
+
+<p>Set this to falsey value to disable sending extension data with your request
+(this extension will affect only response).</p>
+
+<p>Order of keys is significant because of generating base for signature.
+Check CSOB wiki for correct order.</p>
+
+<p>If you need to insert "dttm" parameter, you can just set it to null, real valu ewill be added automatically.
+The same is for "extension" parameter, which can be filled with extensionId.</p>
+
+<p>If signature base is being generated incorrectly, reimplement getRequestSignatureBase()
+with a better one.</p>
+
+
+				<h4>Parameters</h4>
+				<div class="list"><dl>
+					<dt><var>$inputData</var></dt>
+					<dd></dd>
+				</dl></div>
+
+				<h4>Returns</h4>
+				<div class="list">
+					<code><a href="class-OndraKoupil.Csob.Extension.html">OndraKoupil\Csob\Extension</a></code>
+				</div>
+
+
+
+
+		</div>
+		</div></td>
+	</tr>
+	<tr data-order="getExpectedResponseKeysOrder" id="_getExpectedResponseKeysOrder">
+
+		<td class="attributes"><code>
+			 public 
+
+			array
+			
+			</code>
+		</td>
+
+		<td class="name"><div>
+		<a class="anchor" href="#_getExpectedResponseKeysOrder">#</a>
+		<code><a href="source-class-OndraKoupil.Csob.Extension.html#85-90" title="Go to source code">getExpectedResponseKeysOrder</a>( )</code>
+
+		<div class="description short">
+			
+		</div>
+
+		<div class="description detailed hidden">
+			
+
+
+
+				<h4>Returns</h4>
+				<div class="list">
+					array
+				</div>
+
+
+
+
+		</div>
+		</div></td>
+	</tr>
+	<tr data-order="setExpectedResponseKeysOrder" id="_setExpectedResponseKeysOrder">
+
+		<td class="attributes"><code>
+			 public 
+
+			<code><a href="class-OndraKoupil.Csob.Extension.html">OndraKoupil\Csob\Extension</a></code>
+			
+			</code>
+		</td>
+
+		<td class="name"><div>
+		<a class="anchor" href="#_setExpectedResponseKeysOrder">#</a>
+		<code><a href="source-class-OndraKoupil.Csob.Extension.html#92-111" title="Go to source code">setExpectedResponseKeysOrder</a>( <span>array <var>$expectedResponseKeysOrder</var></span> )</code>
+
+		<div class="description short">
+			<p>Use this method to hint in which order should the base string
+for verifying signature of response be generated.
+See Crypto::createSignatureBaseWithOrder() for options for specifying key paths.</p>
+		</div>
+
+		<div class="description detailed hidden">
+			<p>Use this method to hint in which order should the base string
+for verifying signature of response be generated.
+See Crypto::createSignatureBaseWithOrder() for options for specifying key paths.</p>
+
+<p>If response signatures are verifyed incorrectly because of wrong order of parts
+in base string, you can reimplement getResponseSignatureBase() method with a better one.</p>
+
+<p>Set to falsey value to disable parsing of the extension object in response,
+the extension will then affect only sending the request.</p>
+
+
+				<h4>Parameters</h4>
+				<div class="list"><dl>
+					<dt><var>$expectedResponseKeysOrder</var></dt>
+					<dd></dd>
+				</dl></div>
+
+				<h4>Returns</h4>
+				<div class="list">
+					<code><a href="class-OndraKoupil.Csob.Extension.html">OndraKoupil\Csob\Extension</a></code>
+				</div>
+
+
+
+
+		</div>
+		</div></td>
+	</tr>
+	<tr data-order="getExtensionId" id="_getExtensionId">
+
+		<td class="attributes"><code>
+			 public 
+
+			string
+			
+			</code>
+		</td>
+
+		<td class="name"><div>
+		<a class="anchor" href="#_getExtensionId">#</a>
+		<code><a href="source-class-OndraKoupil.Csob.Extension.html#113-118" title="Go to source code">getExtensionId</a>( )</code>
+
+		<div class="description short">
+			
+		</div>
+
+		<div class="description detailed hidden">
+			
+
+
+
+				<h4>Returns</h4>
+				<div class="list">
+					string
+				</div>
+
+
+
+
+		</div>
+		</div></td>
+	</tr>
+	<tr data-order="createRequestArray" id="_createRequestArray">
+
+		<td class="attributes"><code>
+			 public 
+
+			array
+			
+			</code>
+		</td>
+
+		<td class="name"><div>
+		<a class="anchor" href="#_createRequestArray">#</a>
+		<code><a href="source-class-OndraKoupil.Csob.Extension.html#120-174" title="Go to source code">createRequestArray</a>( <span><code><a href="class-OndraKoupil.Csob.Client.html">OndraKoupil\Csob\Client</a></code> <var>$client</var></span> )</code>
+
+		<div class="description short">
+			<p>Creates array for request.</p>
+		</div>
+
+		<div class="description detailed hidden">
+			<p>Creates array for request.</p>
+
+<p>If requests for your extension are signed incorrectly because of
+wrong order of parts of the base string, check that order of keys in
+your input data given to setInputData() is the same as in extension's documentation on CSOB wiki,
+or extend this class and reimplement getRequestSignatureBase() method.</p>
+
+
+				<h4>Parameters</h4>
+				<div class="list"><dl>
+					<dt><var>$client</var></dt>
+					<dd></dd>
+				</dl></div>
+
+				<h4>Returns</h4>
+				<div class="list">
+					array
+				</div>
+
+
+
+
+		</div>
+		</div></td>
+	</tr>
+	<tr data-order="getRequestSignatureBase" id="_getRequestSignatureBase">
+
+		<td class="attributes"><code>
+			 public 
+
+			string
+			
+			</code>
+		</td>
+
+		<td class="name"><div>
+		<a class="anchor" href="#_getRequestSignatureBase">#</a>
+		<code><a href="source-class-OndraKoupil.Csob.Extension.html#176-190" title="Go to source code">getRequestSignatureBase</a>( <span>array <var>$dataArray</var></span> )</code>
+
+		<div class="description short">
+			<p>Returns string that is used as basis for signature.</p>
+		</div>
+
+		<div class="description detailed hidden">
+			<p>Returns string that is used as basis for signature.</p>
+
+<p>Default implementation uses Crypto::createSignatureBaseFromArray.
+This means that order of keys is significant. If the calculated signature
+for the extension is incorrect, extend the class with your own and reimplement
+this method with a better one.</p>
+
+
+				<h4>Parameters</h4>
+				<div class="list"><dl>
+					<dt><var>$dataArray</var></dt>
+					<dd>Including dttm and extension ID</dd>
+				</dl></div>
+
+				<h4>Returns</h4>
+				<div class="list">
+					string
+				</div>
+
+
+
+
+		</div>
+		</div></td>
+	</tr>
+	<tr data-order="verifySignature" id="_verifySignature">
+
+		<td class="attributes"><code>
+			 public 
+
+			boolean
+			
+			</code>
+		</td>
+
+		<td class="name"><div>
+		<a class="anchor" href="#_verifySignature">#</a>
+		<code><a href="source-class-OndraKoupil.Csob.Extension.html#192-218" title="Go to source code">verifySignature</a>( <span>array <var>$receivedData</var></span>, <span><code><a href="class-OndraKoupil.Csob.Client.html">OndraKoupil\Csob\Client</a></code> <var>$client</var></span> )</code>
+
+		<div class="description short">
+			<p>Verifies signature.</p>
+		</div>
+
+		<div class="description detailed hidden">
+			<p>Verifies signature.</p>
+
+
+				<h4>Parameters</h4>
+				<div class="list"><dl>
+					<dt><var>$receivedData</var></dt>
+					<dd></dd>
+					<dt><var>$client</var></dt>
+					<dd></dd>
+				</dl></div>
+
+				<h4>Returns</h4>
+				<div class="list">
+					boolean
+				</div>
+
+
+
+
+		</div>
+		</div></td>
+	</tr>
+	<tr data-order="getResponseSignatureBase" id="_getResponseSignatureBase">
+
+		<td class="attributes"><code>
+			 public 
+
+			string
+			
+			</code>
+		</td>
+
+		<td class="name"><div>
+		<a class="anchor" href="#_getResponseSignatureBase">#</a>
+		<code><a href="source-class-OndraKoupil.Csob.Extension.html#220-239" title="Go to source code">getResponseSignatureBase</a>( <span>array <var>$responseWithoutSignature</var></span> )</code>
+
+		<div class="description short">
+			<p>Returns base string for verifying signature of response.</p>
+		</div>
+
+		<div class="description detailed hidden">
+			<p>Returns base string for verifying signature of response.</p>
+
+<p>If verifying signature fails because its base string has parts
+in incorrect order, check that the order of keys given to
+setExpectedResponseKeysOrder() is the same as in CSOB wiki,
+or reimplement this method with a better one.</p>
+
+
+				<h4>Parameters</h4>
+				<div class="list"><dl>
+					<dt><var>$responseWithoutSignature</var></dt>
+					<dd></dd>
+				</dl></div>
+
+				<h4>Returns</h4>
+				<div class="list">
+					string
+				</div>
+
+
+
+
+		</div>
+		</div></td>
+	</tr>
+	<tr data-order="getStrictSignatureVerification" id="_getStrictSignatureVerification">
+
+		<td class="attributes"><code>
+			 public 
+
+			boolean
+			
+			</code>
+		</td>
+
+		<td class="name"><div>
+		<a class="anchor" href="#_getStrictSignatureVerification">#</a>
+		<code><a href="source-class-OndraKoupil.Csob.Extension.html#241-246" title="Go to source code">getStrictSignatureVerification</a>( )</code>
+
+		<div class="description short">
+			
+		</div>
+
+		<div class="description detailed hidden">
+			
+
+
+
+				<h4>Returns</h4>
+				<div class="list">
+					boolean
+				</div>
+
+
+
+
+		</div>
+		</div></td>
+	</tr>
+	<tr data-order="setStrictSignatureVerification" id="_setStrictSignatureVerification">
+
+		<td class="attributes"><code>
+			 public 
+
+			<code><a href="class-OndraKoupil.Csob.Extension.html">OndraKoupil\Csob\Extension</a></code>
+			
+			</code>
+		</td>
+
+		<td class="name"><div>
+		<a class="anchor" href="#_setStrictSignatureVerification">#</a>
+		<code><a href="source-class-OndraKoupil.Csob.Extension.html#248-256" title="Go to source code">setStrictSignatureVerification</a>( <span>boolean <var>$strictSignatureVerification</var></span> )</code>
+
+		<div class="description short">
+			
+		</div>
+
+		<div class="description detailed hidden">
+			
+
+
+				<h4>Parameters</h4>
+				<div class="list"><dl>
+					<dt><var>$strictSignatureVerification</var></dt>
+					<dd></dd>
+				</dl></div>
+
+				<h4>Returns</h4>
+				<div class="list">
+					<code><a href="class-OndraKoupil.Csob.Extension.html">OndraKoupil\Csob\Extension</a></code>
+				</div>
+
+
+
+
+		</div>
+		</div></td>
+	</tr>
+	<tr data-order="isSignatureCorrect" id="_isSignatureCorrect">
+
+		<td class="attributes"><code>
+			 public 
+
+			boolean
+			
+			</code>
+		</td>
+
+		<td class="name"><div>
+		<a class="anchor" href="#_isSignatureCorrect">#</a>
+		<code><a href="source-class-OndraKoupil.Csob.Extension.html#258-263" title="Go to source code">isSignatureCorrect</a>( )</code>
+
+		<div class="description short">
+			
+		</div>
+
+		<div class="description detailed hidden">
+			
+
+
+
+				<h4>Returns</h4>
+				<div class="list">
+					boolean
+				</div>
+
+
+
+
+		</div>
+		</div></td>
+	</tr>
+	<tr data-order="setSignatureCorrect" id="_setSignatureCorrect">
+
+		<td class="attributes"><code>
+			 public 
+
+			
+			
+			</code>
+		</td>
+
+		<td class="name"><div>
+		<a class="anchor" href="#_setSignatureCorrect">#</a>
+		<code><a href="source-class-OndraKoupil.Csob.Extension.html#265-271" title="Go to source code">setSignatureCorrect</a>( <span>boolean <var>$signatureCorrect</var></span> )</code>
+
+		<div class="description short">
+			
+		</div>
+
+		<div class="description detailed hidden">
+			
+
+
+				<h4>Parameters</h4>
+				<div class="list"><dl>
+					<dt><var>$signatureCorrect</var></dt>
+					<dd></dd>
+				</dl></div>
+
+
+
+
+
+		</div>
+		</div></td>
+	</tr>
+	<tr data-order="getResponseData" id="_getResponseData">
+
+		<td class="attributes"><code>
+			 public 
+
+			mixed
+			
+			</code>
+		</td>
+
+		<td class="name"><div>
+		<a class="anchor" href="#_getResponseData">#</a>
+		<code><a href="source-class-OndraKoupil.Csob.Extension.html#273-278" title="Go to source code">getResponseData</a>( )</code>
+
+		<div class="description short">
+			
+		</div>
+
+		<div class="description detailed hidden">
+			
+
+
+
+				<h4>Returns</h4>
+				<div class="list">
+					mixed
+				</div>
+
+
+
+
+		</div>
+		</div></td>
+	</tr>
+	<tr data-order="setResponseData" id="_setResponseData">
+
+		<td class="attributes"><code>
+			 public 
+
+			
+			
+			</code>
+		</td>
+
+		<td class="name"><div>
+		<a class="anchor" href="#_setResponseData">#</a>
+		<code><a href="source-class-OndraKoupil.Csob.Extension.html#280-285" title="Go to source code">setResponseData</a>( <span>mixed <var>$responseData</var></span> )</code>
+
+		<div class="description short">
+			
+		</div>
+
+		<div class="description detailed hidden">
+			
+
+
+				<h4>Parameters</h4>
+				<div class="list"><dl>
+					<dt><var>$responseData</var></dt>
+					<dd></dd>
+				</dl></div>
+
+
+
+
+
+		</div>
+		</div></td>
+	</tr>
+	</table>
+
+
+
+
+
+
+
+
+
+
+
+
+	<table class="summary properties" id="properties">
+	<caption>Properties summary</caption>
+	<tr data-order="inputData" id="$inputData">
+		<td class="attributes"><code>
+			protected  
+			array
+		</code></td>
+
+		<td class="name">
+				<a href="source-class-OndraKoupil.Csob.Extension.html#13-16" title="Go to source code"><var>$inputData</var></a>
+
+			<div class="description short">
+				
+			</div>
+
+			<div class="description detailed hidden">
+				
+
+			</div>
+		</td>
+		<td class="value">
+			<div>
+				<a href="#$inputData" class="anchor">#</a>
+				<code></code>
+			</div>
+		</td>
+	</tr>
+	<tr data-order="responseData" id="$responseData">
+		<td class="attributes"><code>
+			protected  
+			array
+		</code></td>
+
+		<td class="name">
+				<a href="source-class-OndraKoupil.Csob.Extension.html#18-21" title="Go to source code"><var>$responseData</var></a>
+
+			<div class="description short">
+				
+			</div>
+
+			<div class="description detailed hidden">
+				
+
+			</div>
+		</td>
+		<td class="value">
+			<div>
+				<a href="#$responseData" class="anchor">#</a>
+				<code></code>
+			</div>
+		</td>
+	</tr>
+	<tr data-order="expectedResponseKeysOrder" id="$expectedResponseKeysOrder">
+		<td class="attributes"><code>
+			protected  
+			array
+		</code></td>
+
+		<td class="name">
+				<a href="source-class-OndraKoupil.Csob.Extension.html#23-26" title="Go to source code"><var>$expectedResponseKeysOrder</var></a>
+
+			<div class="description short">
+				
+			</div>
+
+			<div class="description detailed hidden">
+				
+
+			</div>
+		</td>
+		<td class="value">
+			<div>
+				<a href="#$expectedResponseKeysOrder" class="anchor">#</a>
+				<code></code>
+			</div>
+		</td>
+	</tr>
+	<tr data-order="extensionId" id="$extensionId">
+		<td class="attributes"><code>
+			protected  
+			string
+		</code></td>
+
+		<td class="name">
+				<a href="source-class-OndraKoupil.Csob.Extension.html#28-31" title="Go to source code"><var>$extensionId</var></a>
+
+			<div class="description short">
+				
+			</div>
+
+			<div class="description detailed hidden">
+				
+
+			</div>
+		</td>
+		<td class="value">
+			<div>
+				<a href="#$extensionId" class="anchor">#</a>
+				<code></code>
+			</div>
+		</td>
+	</tr>
+	<tr data-order="strictSignatureVerification" id="$strictSignatureVerification">
+		<td class="attributes"><code>
+			protected  
+			boolean
+		</code></td>
+
+		<td class="name">
+				<a href="source-class-OndraKoupil.Csob.Extension.html#33-36" title="Go to source code"><var>$strictSignatureVerification</var></a>
+
+			<div class="description short">
+				
+			</div>
+
+			<div class="description detailed hidden">
+				
+
+			</div>
+		</td>
+		<td class="value">
+			<div>
+				<a href="#$strictSignatureVerification" class="anchor">#</a>
+				<code><span class="php-keyword1">true</span></code>
+			</div>
+		</td>
+	</tr>
+	<tr data-order="signatureCorrect" id="$signatureCorrect">
+		<td class="attributes"><code>
+			protected  
+			boolean
+		</code></td>
+
+		<td class="name">
+				<a href="source-class-OndraKoupil.Csob.Extension.html#38-41" title="Go to source code"><var>$signatureCorrect</var></a>
+
+			<div class="description short">
+				
+			</div>
+
+			<div class="description detailed hidden">
+				
+
+			</div>
+		</td>
+		<td class="value">
+			<div>
+				<a href="#$signatureCorrect" class="anchor">#</a>
+				<code><span class="php-keyword1">false</span></code>
+			</div>
+		</td>
+	</tr>
+	</table>
+
+
+
+
+
+
+</div>
+
+	<div id="footer">
+		ČSOB payment gate PHP client API documentation generated by <a href="http://apigen.org">ApiGen</a>
+	</div>
+</div>
+</div>
+<script src="resources/combined.js"></script>
+<script src="elementlist.js"></script>
+</body>
+</html>

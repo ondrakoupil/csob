@@ -26,10 +26,22 @@
 						<ul>
 				<li class="active main">
 					<a href="namespace-OndraKoupil.Csob.html">
-						Csob					</a>
+						Csob<span></span>
+					</a>
+
+						<ul>
+				<li class="main">
+					<a href="namespace-OndraKoupil.Csob.Extensions.html">
+						Extensions<span></span>
+					</a>
+
+						<ul>
+				<li class="main">
+					<a href="namespace-OndraKoupil.Csob.Extensions.EET.html">
+						EET					</a>
 
 						</li>
-							</ul></li>
+							</ul></li></ul></li></ul></li>
 			</ul>
 		</div>
 
@@ -42,6 +54,8 @@
 				<li><a href="class-OndraKoupil.Csob.Client.html">Client</a></li>
 				<li><a href="class-OndraKoupil.Csob.Config.html">Config</a></li>
 				<li class="active"><a href="class-OndraKoupil.Csob.Crypto.html">Crypto</a></li>
+				<li><a href="class-OndraKoupil.Csob.Extension.html">Extension</a></li>
+				<li><a href="class-OndraKoupil.Csob.GatewayUrl.html">GatewayUrl</a></li>
 				<li><a href="class-OndraKoupil.Csob.Payment.html">Payment</a></li>
 			</ul>
 
@@ -109,7 +123,7 @@
 
 				<b>See:</b>
 				https://github.com/csob/paymentgateway/blob/master/eshop-integration/eAPI/v1/php/example/crypto.php<br>
-			<b>Located at</b> <a href="source-class-OndraKoupil.Csob.Crypto.html#5-90" title="Go to source code">Crypto.php</a>
+			<b>Located at</b> <a href="source-class-OndraKoupil.Csob.Crypto.html#5-212" title="Go to source code">Crypto.php</a>
 		<br>
 	</div>
 
@@ -207,6 +221,140 @@ or from their package on GitHub)</p></dd>
 				<div class="list">
 					<code><a href="class-OndraKoupil.Csob.CryptoException.html">OndraKoupil\Csob\CryptoException</a></code><br>When some cryptographic operation fails and key file path is not valid
 				</div>
+
+
+
+		</div>
+		</div></td>
+	</tr>
+	<tr data-order="createSignatureBaseFromArray" id="_createSignatureBaseFromArray">
+
+		<td class="attributes"><code>
+			 public static
+
+			string|array
+			
+			</code>
+		</td>
+
+		<td class="name"><div>
+		<a class="anchor" href="#_createSignatureBaseFromArray">#</a>
+		<code><a href="source-class-OndraKoupil.Csob.Crypto.html#90-104" title="Go to source code">createSignatureBaseFromArray</a>( <span>array <var>$array</var></span>, <span>boolean <var>$returnAsArray</var> = <span class="php-keyword1">false</span></span> )</code>
+
+		<div class="description short">
+			<p>Vytvoří z array (i víceúrovňového) string pro výpočet podpisu.</p>
+		</div>
+
+		<div class="description detailed hidden">
+			<p>Vytvoří z array (i víceúrovňového) string pro výpočet podpisu.</p>
+
+
+				<h4>Parameters</h4>
+				<div class="list"><dl>
+					<dt><var>$array</var></dt>
+					<dd></dd>
+					<dt><var>$returnAsArray</var></dt>
+					<dd></dd>
+				</dl></div>
+
+				<h4>Returns</h4>
+				<div class="list">
+					string|array
+				</div>
+
+
+
+
+		</div>
+		</div></td>
+	</tr>
+	<tr data-order="createSignatureBaseRecursion" id="_createSignatureBaseRecursion">
+
+		<td class="attributes"><code>
+			 protected static
+
+			
+			
+			</code>
+		</td>
+
+		<td class="name"><div>
+		<a class="anchor" href="#_createSignatureBaseRecursion">#</a>
+		<code><a href="source-class-OndraKoupil.Csob.Crypto.html#106-122" title="Go to source code">createSignatureBaseRecursion</a>( <span> <var>$array</var></span>, <span> <var>$depthCheck</var> = <span class="php-num">0</span></span> )</code>
+
+		<div class="description short">
+			
+		</div>
+
+		<div class="description detailed hidden">
+			
+
+
+
+
+
+
+
+		</div>
+		</div></td>
+	</tr>
+	<tr data-order="createSignatureBaseWithOrder" id="_createSignatureBaseWithOrder">
+
+		<td class="attributes"><code>
+			 public static
+
+			array
+			
+			</code>
+		</td>
+
+		<td class="name"><div>
+		<a class="anchor" href="#_createSignatureBaseWithOrder">#</a>
+		<code><a href="source-class-OndraKoupil.Csob.Crypto.html#124-210" title="Go to source code">createSignatureBaseWithOrder</a>( <span>array <var>$data</var></span>, <span>array <var>$order</var></span>, <span>boolean <var>$returnAsArray</var> = <span class="php-keyword1">false</span></span> )</code>
+
+		<div class="description short">
+			<p>Generická implementace linearizace pole s dopředu zadaným požadovaným pořadím.</p>
+		</div>
+
+		<div class="description detailed hidden">
+			<p>Generická implementace linearizace pole s dopředu zadaným požadovaným pořadím.</p>
+
+<p>V $order by mělo být požadované pořadí položek formou stringových "keypath".
+Keypath je název klíče v poli $data, pokud je víceúrovňové, klíče jsou spojeny tečkou.</p>
+
+<p>Pokud keypath začíná znakem otazník, považuje se za nepovinnou a není-li taková
+položka nalezena, z výsledku se vynechá. V opačném případě se vloží prázdný řetězec.</p>
+
+<p>Pokud keypath odkazuje na další array, to se vloží postupně položka po položce.</p>
+
+<p>Příklad:</p>
+
+<pre><span class="php-var">$data</span> = <span class="php-keyword1">array</span>( <span class="php-quote">'foo'</span> =&gt; <span class="php-quote">'bar'</span>, <span class="php-quote">'arr'</span> =&gt; <span class="php-keyword1">array</span>( <span class="php-quote">'a'</span> =&gt; <span class="php-quote">'A'</span>, <span class="php-quote">'b'</span> =&gt; <span class="php-quote">'B'</span> )
+);
+
+<span class="php-var">$order</span> = <span class="php-keyword1">array</span>( <span class="php-quote">'foo'</span>, <span class="php-quote">'arr.a'</span>, <span class="php-quote">'somethingRequired'</span>, <span class="php-quote">'?somethingOptional'</span>, <span class="php-quote">'foo'</span>, <span class="php-quote">'arr.x'</span>, <span class="php-quote">'foo'</span>, <span class="php-quote">'arr'</span>
+);
+
+<span class="php-var">$result</span> = Crypto::createSignatureBaseWithOrder(<span class="php-var">$data</span>, <span class="php-var">$order</span>, <span class="php-keyword1">false</span>);
+
+<span class="php-var">$result</span> == <span class="php-keyword1">array</span>(<span class="php-quote">'bar'</span>, <span class="php-quote">'A'</span>, <span class="php-quote">''</span>, <span class="php-quote">'bar'</span>, <span class="php-quote">''</span>, <span class="php-quote">'bar'</span>, <span class="php-quote">'A'</span>, <span class="php-quote">'B'</span>);</pre>
+
+
+				<h4>Parameters</h4>
+				<div class="list"><dl>
+					<dt><var>$data</var></dt>
+					<dd>Pole s daty</dd>
+					<dt><var>$order</var></dt>
+					<dd>Požadované pořadí položek.</dd>
+					<dt><var>$returnAsArray</var></dt>
+					<dd></dd>
+				</dl></div>
+
+				<h4>Returns</h4>
+				<div class="list">
+					array
+				</div>
+
 
 
 

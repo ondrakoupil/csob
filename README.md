@@ -15,19 +15,21 @@ Testovací platební karty jsou na [wiki zde][7]
 
 ## Novinky
 
-Knihovna nyní podporuje ČSOB eAPI 1.5, která přidává podporu pro částečné vrácení prostředků
-a opakované platby. Jakou verzi eAPI chcete používat lze zvolit nastavením příslušné adresy
-v objektu Config. Jako výchozí adresa je testovací platební brána s eAPI 1.5.
+- Knihovna nyní podporuje ČSOB eAPI 1.7, přidává [extensions](#extension), podporu pro [EET](#eet), one click platby a platební tlačítko ČSOB.
+- `paymentRecurrent()` je nyní deprecated, protože i API tuto metodu již nepodporuje. Nahrazeno `paymentOneClickInit()` a `paymentOneClickStart()`.
+- Knihovna umožňuje posílat [custom requesty](#custom-request) na ostatní metody API, které nemají v knihovně vlastní metodu (hlavně masterpass metody) pomocí `customRequest()`
+- Extensions je možné používat genericky pomocí třídy Extension, pro EET je vše předpřipraveno
+formou oddědených tříd. 
+- Postupně doplním i předpřipravené třidy pro ostatní extensions. 
+
+Jako výchozí adresa je testovací platební brána aktuální verze (nyní tedy 1.7).
+
+Nově jsou dostupné konstanty třídy GatewayUrl, které obsahují URL jednotlivých verzí API.
 
 ```
-$config->url = "https://iapi.iplatebnibrana.csob.cz/api/v1.5";  // testovací brána s eAPI 1.5 - default
-$config->url = "https://iapi.iplatebnibrana.csob.cz/api/v1.0";  // testovací brána s eAPI 1.0
-$config->url = "https://api.platebnibrana.csob.cz/api/v1.5";    // ostrá brána s eAPI 1.5
-// atd.
+$config->url = GatewayUrl::TEST_1_7;
+$config->url = GatewayUrl::PRODUCTION_LATEST;
 ```
-
-Verzování knihovny bude nyní odpovídat verzování eAPI, přeskakuji
-tedy z 0.1.3 rovnou na 1.5, ale bude v tom alespoň pořádek.
 
 ## Instalace
 
@@ -52,14 +54,12 @@ Knihovna se skládá z tříd:
 - Config - nastavení parametrů komunikace s bránou, klíčů, Merchant ID atd. a různých výchozích hodnot
 - Payment - představuje jednu platbu
 - Crypto - zajišťuje podepisování a ověřování podpisů
+- Extension - třída představující rozšíření. Lze používat buď přímo třídu Extension, anebo jednotlivé odděděné specializované třídy.
 
 Všechny třídy jsou v namespace `OndraKoupil\Csob`, je tedy třeba je na začátku souboru uvést pomocí
 `use`, anebo vždy používat celé jméno třídy včetně namespace. Zde uvedené příklady předpokládají,
-že jste už použili `use`:
+že jste už použili `use`.
 
-```php
-use OndraKoupil\Csob\Client, OndraKoupil\Csob\Config, OndraKoupil\Csob\Payment;
-```
 
 ### Nastavení
 
@@ -80,13 +80,13 @@ $config = new Config(
 	// URL adresa API - výchozí je adresa testovacího (integračního) prostředí,
 	// až budete připraveni přepnout se na ostré rozhraní, sem zadáte
 	// adresu ostrého API.
-	"https://iapi.iplatebnibrana.csob.cz/api/v1"
+	GatewayUrl::TEST_LATEST
 );
 
 $client = new Client($config);
 ```
 
-Pozor - používá se zde VÁŠ soukromý klíč a veřejný klíč BANKY.
+**Pozor - používá se zde VÁŠ soukromý klíč a veřejný klíč BANKY.**
 
 Config umožňuje nastavit i nějaké další parametry a různé výchozí hodnoty.
 
@@ -240,22 +240,14 @@ Počínaje API 1.5 lze provádět opakované platby. Jak přesně to funguje se 
 
 - necháte zákazníka autorizovat platební šablonu tak, že provedete normálně
   celý platební proces jako obvykle, ale objektu Payment před voláním `paymentInit()`
-  nastavíte `$payOperation` na `Payment::OPERATION_RECURRENT`,
-  nejlépe zavoláním `$payment->setRecurrentPayment(true)`
+  nastavíte `$payOperation` na `Payment::OPERATION_ONE_CLICK`,
+  nejlépe zavoláním `$payment->setOneClickPayment(true)`
 - zákazník pak zadá číslo karty, kód a provede 3D ověření jako u běžné platby
 - vy si uložíte PayID, abyste se na tuto autorizovanou transakci mohli odkazovat
-- pak můžete kdykoliv zavolat metodu `paymentRecurrent()` s PayID původní transakce
-  a s novým Payment objektem. Platba proběhne potichu a zákazník nic nemusí dělat.
+- pak můžete kdykoliv zavolat metodu `paymentOneClickInit()` s PayID původní transakce
+  a s novým Payment objektem. Tím se založí nová platba. Následným zavoláním `paymentOneClickStart()`
+  se platba provede.
 - nová platba dostane své vlastní PayID a lze s ní pracovat jako s jakoukoliv jinou platbou
-
-Při volání `paymentRecurrent()` se zadáváte nový Payment objekt, nicméně se bere v potaz pouze
-$orderNo, $totalAmount, $currency a $description. Ostatní proměnné jsou ignorovány.
-$totalAmount vznikne součtem položek přidávaných přes `addToCart()`.
-Pokud je nastaven $totalAmount, pak je vhodné určit i $currency - výchozí je CZK, nezávisle
-na hodnotě z původní šablony platby.
-
-$orderNo je jediná proměnná, která musí být nastavena (musí být jedinečná napříč všemi
-transakcemi). Ostatní lze vynechat, brána pak použije hodnoty z původní šablony platby.
 
 ## Logování
 
@@ -274,6 +266,136 @@ $client->setTraceLog(function($message) use ($myLogger) {
 });
 ```
 
+## Custom request
+Pokud potřebujete poslat požadavek na API metodu, která není v této knihovně speciálně implementovaná 
+(zatím např. metody masterpass), lze využít customRequest() metodu. Je potřeba jen pohlídat,
+ v jakém pořadí jsou zadána vstupní data a v jakém pořadí jsou data v odpovědi skládána
+ do řetězce pro ověření podpisu odpovědi.
+ 
+```php
+$client->customRequest(
+
+    // URL, jenom konec za společnou adresou API, např. "payment/init"
+    $methodUrl,                              
+    
+    // Array se vstupními daty. Pořadí položek v array je důležité.
+    // Na vhodná místa lze vložit prázdné dttm a merchantId, doplní se automaticky.
+    $inputPayload,                          
+    
+    // Array s názvy políček v odpovědi v požadovaném pořadí dle dokumentace.
+    // U vnořených objektů a polí lze pracovat s tečkou.
+    // Například: array('payId', 'dttm', 'resultCode', 'resultMessage', 'redirect.method', 'redirect.url')
+    $expectedOutputFields = array(), 
+    
+    // Volitelně nějaké extensions
+    $extensions = array(), 
+    
+    $method = "POST",     
+    
+    // Zalogovat vždy podrobně celou návratovou hodnotu z API?
+    $logOutput = false,     
+    
+    // Pokud z nějakého důvodu selhává ověření podpisu, lze ho takto úplně deaktivovat.
+    // Nicméně pak je nutné ručně takovou situaci ošetřit.
+    $ignoreInvalidReturnSignature = false
+)
+```
+
+## Extension
+
+Rozšíření jsou implementována pomocí třídy Extension a volitelně odděděných tříd (momentálně jen pro EET).
+Objekty této třídy pak lze přikládat do každé volané metody. Do požadavků se pak budou přidávat dodatečná data,
+a u odpovědí se budou automaticky validovat podpisy odpovědí.
+
+Každé rozšíření má své extension ID (definované v dokumentaci od banky).
+
+Pokud má rozšíření přidat nějaká další data do **požadavku**, je třeba zavolat `setInputData()` a předat
+ dodatečná data do požadavku jako array. Pořadí prvků v array je důležité, podle něj se sestaví
+ signature řetězec a podpis. Vždy se podívejte do dokumentace, v jakém pořadí mají parametry být, a
+ to dodržujte. Políčka `dttm` a `extension` můžete klidně nechat prázdné (false nebo null), hodnota se doplní automaticky,
+ ale je nutné je do array na patřičné místo dát.
+ 
+Alternativně můžete třídu oddědit a implementovat si po svém metodu `getRequestSignatureBase()`,
+která by měla vracet řetězec sloužící jako základ pro podpis.
+ 
+Pokud rozšíření přidává rozšíření nějaká data do **odpovědi** z API, tak se k těmto datům dostanete pomocí 
+metody `getResponseData()`. 
+
+Je možné nastavit ověření podpisu odpovědi pomocí `setExpectedResponseKeysOrder()`. Této metodě předáte array s názvy políček
+ z odpovědi v tom pořadí, v jakém mají být v podepsaném řetězci. Alternativně můžete oddědit Extension do vlastní třídy
+ a implementovat metodu `verifySignature()` po svém.  
+  
+Pokud se nedaří ověřit podpis odpovědi, můžete pomocí `setStrictSignatureVerification(false)` vypnout ověřování podpisu 
+pro dané rozšíření. Po zavolání API metody je pak možné se přes `isSignatureCorrect()` doptat, zda byl podpis v pořádku,
+ a pokud nebyl, nějak to řešit po svém.
+ 
+ 
+## EET
+   
+Protože extension pro EET je o dost složitější, jsou připraveny již specializované třídy pro jednotlivé API metody:
+ 
+ - EETInitExtension pro payment/init a payment/oneclick/init
+ - EETCloseExtension pro payment/close
+ - EETRefundExtension pro payment/refund
+ - EETStatusExtension pro payment/status
+ 
+Při inicializaci platby přes payment/init je třeba při vytváření extension objektu předat
+ objekt třídy `EETData`. Jeho public proměnné naplňte potřebnými hodnotami (tři jsou povinné
+ a je třeba je vyplnit už v konstruktoru). Význam jednotlivých proměnných je podrobněji popsán na 
+ [Wiki ČSOB v tomto článku][9]. Také si můžete pomocí `$verificationMode` zvolit, 
+ zda se do EET má poslat jen v ověřovacím (testovacím) režimu.
+ 
+ Pozor, ceny v `EETData` jsou v korunách, narozdíl od cen v `Payment` třídě, kde jsou v haléřích.
+  
+Potvrzení nebo refundování platby (close a refund) je již možné udělat bez parametru, v tom případě
+se použijí data předaná v init metodě. 
+ 
+Pro zjištění stavu platby je extension `EETStatusExtension`, které se posílá spolu s payment/status.
+Po zavolání `paymentStatus()` můžete z extension objektu přečíst výsledky pomocí `getReport()`
+a případně `getCancels()`. Ty vrací objekt nebo objekty třídy EETReport s podrobnostmi.
+Jsou k dispozici i zkratky `getFIK()`, `getEETStatus()`, `getBPK()` a `getPKP()`, přes které
+ získáte z odpovědi ty nejčastěji používaná data.
+ 
+Nezapomeňte, že pro používání EET rozšíření je nutné mít tuto službu povolenou v bance. 
+   
+Příklad (pomíjím namespaces):
+
+```php
+// $client mám vytvořený podle postupu v předchozích bodech
+
+// Vytvoříme si payment, klasicky
+$payment = new Payment(12345);
+$payment->addCartItem('Jedna položka', 1, 50000); 
+$payment->addCartItem('Druhá s nižší DPH', 1, 50000); 
+
+// Vytvoříme data pro EET. Jen parametry v konstruktoru jsou povinné.
+$eetData = new EETData(123, 'abc123', 1000);
+$eetData->priceStandardVat = 413.22;
+$eetData->vatStandard = 86.78;
+$eetData->priceFirstReducedVat = 454.55;
+$eetData->vatFirstReduced = 45.45;
+
+// Vytvoříme extension pro payment/init v ověřovacím režimu
+$extensionInit = new EETInitExtension($eetData, true);
+
+// Zavoláme payment/init a odešleme prohlížeč na bránu
+$client->paymentInit($payment, $extensionInit);
+$url = $client->getPaymentProcessUrl($payment);
+
+// Nyní bychom měli přesměrovat prohlížeč na $url, nechat
+// zákazníka zadat platbu, přijmout vrácená data atd.
+// To nyní jakoby přeskakuji.
+
+$extensionStatus = new EETStatusExtension();
+$status = $client->paymentStatus($payment, true, $extensionStatus);
+
+echo "<p>Stav platby je: $status</p>";
+echo "<p>Stav odeslání do EET: " . $extensionStatus->getEETStatus() . "</p>";
+echo "<p>FIK: " . $extensionStatus->getFIK() . "</p>";
+
+// Mnoho dalších dat najdete v $extensionStatus->getReport()
+```
+
 
 ## Problémy?
 Pokud jste narazili na bug, něco nefunguje nebo máte návrh na zlepšení, přidejte issue
@@ -290,4 +412,5 @@ nebo mě bez obav [kontaktujte][5] napřímo :-)
 [6]: https://platebnibrana.csob.cz/
 [7]: https://github.com/csob/paymentgateway/wiki/Testovac%C3%AD-karty
 [8]: https://github.com/csob/paymentgateway/wiki/Opakovan%C3%A1-platba
+[9]: https://github.com/csob/paymentgateway/wiki/Specifikace-API-roz%C5%A1%C3%AD%C5%99en%C3%AD-pro-EET
 [issue43]: https://github.com/csob/paymentgateway/issues/43

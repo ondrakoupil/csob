@@ -12,8 +12,10 @@ class Config {
 	 * Change that when you are ready to go to live environment.
 	 *
 	 * @var string
+	 *
+	 * @see GatewayUrl
 	 */
-	public $url = "https://iapi.iplatebnibrana.csob.cz/api/v1.5";
+	public $url = GatewayUrl::TEST_LATEST;
 
 	/**
 	 * Path to file where bank's public key is saved.
@@ -85,7 +87,7 @@ class Config {
 	 * Should payments be created with closePayment = true by default?
 	 * See Wiki on ČSOB's github for more information.
 	 *
-	 * @var type
+	 * @var boolean
 	 */
 	public $closePayment = true;
 
@@ -93,6 +95,8 @@ class Config {
 	 * Create config with all mandatory values.
 	 *
 	 * See equally named properties of this class for more info.
+	 *
+	 * To specify $bankApiUrl, you can use constants of GatewayUrl class.
 	 *
 	 * @param string $merchantId
 	 * @param string $privateKeyFile

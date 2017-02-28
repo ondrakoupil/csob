@@ -20,7 +20,8 @@ use \OndraKoupil\Tools\Arrays;
  *    "Path to your private key file",
  *    "Path to bank's public key file",
  *    "Your e-shop name",
- *    "Some URL to return customers to"
+ *    "Some URL to return customers to",
+ *    GatewayUrl::TEST_LATEST
  * );
  *
  * $client = new Client($config);
@@ -157,15 +158,15 @@ class Client {
 	 * After successful call, the $payment object will be updated by given PayID.
 	 *
 	 * @param Payment $payment Create and fill this object manually with real data.
+	 * @param Extension[]|Extension $extensions Added extensions
+	 *
 	 * @return array Array with results of the call. You don't need to use
 	 * any of this, PayID will be set to $payment automatically.
-	 *
-	 * @throws Exception When something fails.
 	 */
-	function paymentInit(Payment $payment) {
+	function paymentInit(Payment $payment, $extensions = array()) {
 
 		$payment->checkAndPrepare($this->config);
-		$array = $payment->signAndExport($this->config);
+		$array = $payment->signAndExport($this);
 
 		$this->writeToLog("payment/init started for payment with orderNo " . $payment->orderNo);
 
@@ -174,7 +175,11 @@ class Client {
 				"payment/init",
 				$array,
 				"POST",
-				array("payId", "dttm", "resultCode", "resultMessage", "paymentStatus", "authCode")
+				array("payId", "dttm", "resultCode", "resultMessage", "paymentStatus", "?authCode"),
+				null,
+				false,
+				false,
+				$extensions
 			);
 
 		} catch (Exception $e) {
@@ -270,7 +275,7 @@ class Client {
 	 * Basically, they are:
 	 *
 	 * - 1 = new; after paymentInit() but before customer starts filling in his
-	 *	 card number and authorising the transaction
+	 *     card number and authorising the transaction
 	 * - 2 = in progress; during customer's stay at payment gateway
 	 * - 4 = after successful authorisation but before it is approved by you by
 	 *   calling paymentClose. This state is skipped if you use
@@ -292,9 +297,11 @@ class Client {
 	 * @param bool $returnStatusOnly Leave on true if you want to return only
 	 * status code. Set to false if you want more information as array.
 	 *
+	 * @param Extension[]|Extension $extensions
+	 *
 	 * @return array|number Number if $returnStatusOnly was true, array otherwise.
 	 */
-	function paymentStatus($payment, $returnStatusOnly = true) {
+	function paymentStatus($payment, $returnStatusOnly = true, $extensions = array()) {
 		$payId = $this->getPayId($payment);
 
 		$this->writeToLog("payment/status started for payment $payId");
@@ -312,8 +319,11 @@ class Client {
 				"payment/status",
 				$payload,
 				"GET",
-				array("payId", "dttm", "resultCode", "resultMessage", "paymentStatus", "authCode"),
-				array("merchantId", "payId", "dttm", "signature")
+				array("payId", "dttm", "resultCode", "resultMessage", "paymentStatus", "?authCode"),
+				array("merchantId", "payId", "dttm", "signature"),
+				false,
+				false,
+				$extensions
 			);
 
 		} catch (Exception $e) {
@@ -350,13 +360,15 @@ class Client {
 	 *
 	 * @param bool $ignoreWrongPaymentStatusError
 	 *
+	 * @param Extension[]|Extension $extensions
+	 *
 	 * @return array|null Array with results of call or null if payment is not
 	 * in correct state
 	 *
 	 *
 	 * @throws Exception
 	 */
-	function paymentReverse($payment, $ignoreWrongPaymentStatusError = false) {
+	function paymentReverse($payment, $ignoreWrongPaymentStatusError = false, $extensions = array()) {
 		$payId = $this->getPayId($payment);
 
 		$payload = array(
@@ -376,8 +388,11 @@ class Client {
 					"payment/reverse",
 					$payload,
 					"PUT",
-					array("payId", "dttm", "resultCode", "resultMessage", "paymentStatus", "authCode"),
-					array("merchantId", "payId", "dttm", "signature")
+					array("payId", "dttm", "resultCode", "resultMessage", "paymentStatus", "?authCode"),
+					array("merchantId", "payId", "dttm", "signature"),
+					false,
+					false,
+					$extensions
 				);
 
 			} catch (Exception $e) {
@@ -425,6 +440,7 @@ class Client {
 	 * @param int $amount Amount of finance to close (if different from originally authorized amount).
 	 * Use hundreths of basic currency unit.
 	 *
+	 * @param Extension[]|Extension $extensions
 	 *
 	 * @return array|null Array with results of call or null if payment is not
 	 * in correct state
@@ -432,7 +448,7 @@ class Client {
 	 *
 	 * @throws Exception
 	 */
-	function paymentClose($payment, $ignoreWrongPaymentStatusError = false, $amount = null) {
+	function paymentClose($payment, $ignoreWrongPaymentStatusError = false, $amount = null, $extensions = array()) {
 		$payId = $this->getPayId($payment);
 
 		$payload = array(
@@ -456,8 +472,11 @@ class Client {
 					"payment/close",
 					$payload,
 					"PUT",
-					array("payId", "dttm", "resultCode", "resultMessage", "paymentStatus", "authCode"),
-					array("merchantId", "payId", "dttm", "totalAmount", "signature")
+					array("payId", "dttm", "resultCode", "resultMessage", "paymentStatus", "?authCode"),
+					array("merchantId", "payId", "dttm", "totalAmount", "signature"),
+					false,
+					false,
+					$extensions
 				);
 
 			} catch (Exception $e) {
@@ -510,13 +529,12 @@ class Client {
 	 * can be passed, so that the payment will be refunded partially.
 	 * Null means full refund.
 	 *
+	 * @param Extension[]|Extension $extensions
+	 *
 	 * @return array|null Array with results of call or null if payment is not
 	 * in correct state
-	 *
-	 *
-	 * @throws Exception
 	 */
-	function paymentRefund($payment, $ignoreWrongPaymentStatusError = false, $amount = null) {
+	function paymentRefund($payment, $ignoreWrongPaymentStatusError = false, $amount = null, $extensions = array()) {
 		$payId = $this->getPayId($payment);
 
 		$payload = array(
@@ -552,7 +570,10 @@ class Client {
 					$payload,
 					"PUT",
 					array("payId", "dttm", "resultCode", "resultMessage", "paymentStatus"),
-					array("merchantId", "payId", "dttm", "amount", "signature")
+					array("merchantId", "payId", "dttm", "amount", "signature"),
+					false,
+					false,
+					$extensions
 				);
 
 			} catch (Exception $e) {
@@ -602,9 +623,14 @@ class Client {
 	 * @return array Data with new values
 	 * @throws Exception
 	 *
+	 * @deprecated Deprecated since eAPI 1.7, please use paymentOneClick() instead.
+	 *
 	 * @see Payment::setRecurrentPayment()
+	 * @see paymentOneClickInit()
 	 */
 	function paymentRecurrent($origPayment, Payment $newPayment) {
+		trigger_error('paymentRecurrent() is deprecated now, please use paymentOneClick() instead.', E_USER_DEPRECATED);
+
 		$origPayId = $this->getPayId($origPayment);
 
 		$newOrderNo = $newPayment->orderNo;
@@ -647,7 +673,7 @@ class Client {
 				"payment/recurrent",
 				$payload,
 				"POST",
-				array("payId", "dttm", "resultCode", "resultMessage", "paymentStatus", "authCode"),
+				array("payId", "dttm", "resultCode", "resultMessage", "paymentStatus", "?authCode"),
 				array("merchantId", "origPayId", "orderNo", "dttm", "totalAmount", "currency", "description", "signature")
 			);
 
@@ -664,6 +690,292 @@ class Client {
 
 
 	}
+
+	/**
+	 * Performs a payment/oneclick/init API call.
+	 *
+	 * Use this method to redo a payment that has already been marked as
+	 * a template for recurring payments and approved by customer
+	 * - see Payment::setOneClickPayment()
+	 *
+	 * You need PayID of the original payment and a new Payment object.
+	 * Only $orderNo, $totalAmount (sum of cart items added by addToCart), $currency
+	 * and $description of $newPayment are used, others are ignored.
+	 *
+	 * Note that if $totalAmount is set, then also $currency must be set. If not,
+	 * CZK is used as default value.
+	 *
+	 * $orderNo is the only mandatory value in $newPayment. Other properties
+	 * can be left null to use original values from $origPayment.
+	 *
+	 * After successful call, received PayID will be set in $newPayment object.
+	 * Then, pass this object to paymentOneClickStart method.
+	 *
+	 * This method is a successor of now deprecated paymentRecurrent() method.
+	 *
+	 * @param Payment|string $origPayment Either string PayID or a Payment object
+	 * @param Payment $newPayment
+	 * @param Extension[]|Extension $extensions
+	 * @return array Data with new values
+	 * @throws Exception
+	 *
+	 * @see Payment::setOneClickPayment()
+	 * @see paumentOneClickStart()
+	 */
+	function paymentOneClickInit($origPayment, Payment $newPayment, $extensions = array()) {
+		$origPayId = $this->getPayId($origPayment);
+
+		$newOrderNo = $newPayment->orderNo;
+
+		if (!$newOrderNo or !preg_match('~^\d{1,10}$~', $newOrderNo)) {
+			throw new Exception("Given Payment object must have an \$orderNo property, numeric, max. 10 chars length.");
+		}
+
+		$newPaymentCart = $newPayment->getCart();
+		if ($newPaymentCart) {
+			$totalAmount = array_sum(Arrays::transform($newPaymentCart, true, "amount"));
+		} else {
+			$totalAmount = 0;
+		}
+
+		$newDescription = Strings::shorten($newPayment->description, 240, "...");
+
+		$payload = array(
+			"merchantId" => $this->config->merchantId,
+			"origPayId" => $origPayId,
+			"orderNo" => $newOrderNo,
+			"dttm" => $this->getDTTM(),
+		);
+
+		if ($totalAmount > 0) {
+			$payload["totalAmount"] = $totalAmount;
+			$payload["currency"] = $newPayment->currency ?: "CZK"; // Currency is mandatory since 2016-01-10
+		}
+
+		if ($newDescription) {
+			$payload["description"] = $newDescription;
+		}
+
+		$this->writeToLog("payment/oneclick/init started using orig payment $origPayId");
+
+		try {
+			$payload["signature"] = $this->signRequest($payload);
+
+			$ret = $this->sendRequest(
+				"payment/oneclick/init",
+				$payload,
+				"POST",
+				array("payId", "dttm", "resultCode", "resultMessage", "?paymentStatus", "?authCode"),
+				array("merchantId", "origPayId", "orderNo", "dttm", "totalAmount", "currency", "description", "signature"),
+				false,
+				false,
+				$extensions
+			);
+
+		} catch (Exception $e) {
+			$this->writeToLog("Fail, got exception: " . $e->getCode().", " . $e->getMessage());
+			throw $e;
+		}
+
+		$this->writeToLog("payment/oneclick/init OK, new payment got payId " . $ret["payId"]);
+
+		$newPayment->setPayId($ret["payId"]);
+
+		return $ret;
+	}
+
+	/**
+	 * Performs a payment/oneclick/start API call.
+	 *
+	 * Use this method to confirm a recurring one click payment
+	 * that was previously initiated using paymentOneClickInit() method.
+	 *
+	 * @param Payment $newPayment
+	 * @param Extension[]|Extension $extensions
+	 *
+	 * @return array|string
+	 */
+	function paymentOneClickStart(Payment $newPayment, $extensions = array()) {
+
+		$newPayId = $newPayment->getPayId();
+		if (!$newPayId) {
+			throw new Exception('Given Payment object does not have a PayId. Please provide a Payment object that was returned from paymentOneClickInit() method.');
+		}
+
+		$payload = array(
+			"merchantId" => $this->config->merchantId,
+			"payId" => $newPayId,
+			"dttm" => $this->getDTTM(),
+		);
+
+		$this->writeToLog("payment/oneclick/start started with PayId $newPayId");
+
+		try {
+			$payload["signature"] = $this->signRequest($payload);
+
+			$ret = $this->sendRequest(
+				"payment/oneclick/start",
+				$payload,
+				"POST",
+				array("payId", "dttm", "resultCode", "resultMessage", "?paymentStatus"),
+				array("merchantId", "payId", "dttm", "signature"),
+				false,
+				false,
+				$extensions
+			);
+
+		} catch (Exception $e) {
+			$this->writeToLog("Fail, got exception: " . $e->getCode().", " . $e->getMessage());
+			throw $e;
+		}
+
+		$this->writeToLog("payment/oneclick/start OK");
+
+		return $ret;
+	}
+
+	/**
+	 * Performs a payment/button API call.
+	 *
+	 * You need a Payment object that was already processed via paymentInit() method
+	 * (or was injected with a payId that you received from other source).
+	 *
+	 * In response, you'll receive an array with [redirect], which should be
+	 * another array with [method] and [url] items. Redirect your user to that address
+	 * to complete the payment.
+	 *
+	 * @param Payment $payment
+	 * @param string $brand "csob" or "era"
+	 * @param Extension[]|Extension $extensions
+	 *
+	 * @return array|string
+	 */
+	function paymentButton(Payment $payment, $brand = "csob", $extensions = array()) {
+
+		$payId = $payment->getPayId();
+		if (!$payId) {
+			throw new Exception('Given Payment object does not have a PayId. Please provide a Payment object that was returned from paymentInit() method.');
+		}
+
+		$payload = array(
+			"merchantId" => $this->config->merchantId,
+			"payId" => $payId,
+			"brand" => $brand,
+			"dttm" => $this->getDTTM(),
+		);
+
+		$this->writeToLog("payment/button started with PayId $payId");
+
+		try {
+			$payload["signature"] = $this->signRequest($payload);
+
+			$ret = $this->sendRequest(
+				"payment/button",
+				$payload,
+				"POST",
+				array("payId", "dttm", "resultCode", "resultMessage", "redirect"),
+				array("merchantId", "payId", "brand", "dttm", "signature"),
+				false,
+				false,
+				$extensions
+			);
+
+		} catch (Exception $e) {
+			$this->writeToLog("Fail, got exception: " . $e->getCode().", " . $e->getMessage());
+			throw $e;
+		}
+
+		$this->writeToLog("payment/button OK");
+
+		return $ret;
+
+
+	}
+
+	/**
+	 * Sends an arbitrary request to bank's API with any parameters.
+	 *
+	 * Use this method to call various masterpass/* API methods or any methods of
+	 * API versions that may come in future and are not implemented in this library yet.
+	 *
+	 * $inputPayload is an associative array with data in order in which they should be signed.
+	 * You can leave *dttm* and *merchantId* empty or null, their values will be filled automatically,
+	 * however you can't omit them completely, since they are required in the signature.
+	 * Signature field will be added automatically.
+	 *
+	 * $expectedOutputFields should be ordinary array of field names in order they appear in the response.
+	 * Their order in the array is important to verify response signature. You can leave this empty, the
+	 * base string will be created on order as the keys appear in the response. However, it can't be guaranteed
+	 * it is the correct order. If you want it to be more reliable, I recommend to define it.
+	 *
+	 * Example - testing post connection:
+	 *
+	 * ```php
+	 * $client->customRequest(
+	 *   'echo',
+	 *   array(
+	 *     'merchantId' => null,
+	 *     'dttm' => null
+	 *   )
+	 * );
+	 * ```
+	 *
+	 * @param string $methodUrl API method name, without leading slash, ie. "payment/init"
+	 * @param array $inputPayload Input payload in form of associative array. Order of items is significant.
+	 * @param array $expectedOutputFields Expected field names of response in order in which they should be returned.
+	 * @param Extension[]|Extension $extensions
+	 * @param string $method HTTP method
+	 * @param bool $logOutput Should be the complete output logged into debug log?
+	 * @param bool $ignoreInvalidReturnSignature If set to true, then in case of invalid signature of returned data,
+	 * no exception will be thrown and method will return received data as usual. Then, you should handle the situation by yourself.
+	 * Do not use this option on regular basis, it is intended only as workaround for cases when returned data or its signature is more complex
+	 * and its verification fails for some reason.
+	 *
+	 * @return array|string
+	 */
+	function customRequest($methodUrl, $inputPayload, $expectedOutputFields = array(), $extensions = array(), $method = "POST", $logOutput = false, $ignoreInvalidReturnSignature = false) {
+
+		if (array_key_exists('dttm', $inputPayload) and !$inputPayload['dttm']) {
+			$inputPayload['dttm'] = $this->getDTTM();
+		}
+
+		if (array_key_exists('merchantId', $inputPayload) and !$inputPayload['merchantId']) {
+			$inputPayload['merchantId'] = $this->config->merchantId;
+		}
+
+		$signature = $this->signRequest($inputPayload);
+		$inputPayload['signature'] = $signature;
+
+		$this->writeToLog("custom request to $methodUrl - start");
+
+		try {
+
+			$ret = $this->sendRequest(
+				$methodUrl,
+				$inputPayload,
+				$method,
+				$expectedOutputFields,
+				array_keys($inputPayload),
+				false,
+				$ignoreInvalidReturnSignature,
+				$extensions
+			);
+
+		} catch (Exception $e) {
+			$this->writeToLog("Fail, got exception: " . $e->getCode().", " . $e->getMessage());
+			throw $e;
+		}
+
+		$this->writeToLog("custom request to $methodUrl - OK");
+
+		if ($logOutput) {
+			$this->writeToTraceLog(print_r($ret, true));
+		}
+
+		return $ret;
+
+	}
+
 
 
 	/**
@@ -719,13 +1031,12 @@ class Client {
 	 * @param string|array|Payment $customerId Customer ID, Payment object or array
 	 * as returned from paymentInit
 	 * @param bool $returnIfHasCardsOnly
+	 *
 	 * @return bool|int If $returnIfHasCardsOnly is set to true, method returns
 	 * boolean indicating whether given customerID has any saved cards. If it is
 	 * set to false, then method returns one of CUSTOMER_*** constants which can
 	 * be used to distinguish more precisely whether customer just hasn't saved
 	 * any cards or was not found at all.
-	 *
-	 * @throws Exception
 	 */
 	function customerInfo($customerId, $returnIfHasCardsOnly = true) {
 		$customerId = $this->getCustomerId($customerId);
@@ -805,9 +1116,9 @@ class Client {
 			"resultCode",
 			"resultMessage",
 			"paymentStatus",
-			"authCode",
+			"?authCode",
 			"merchantData",
-			"signature"
+			// "signature"
 		);
 
 		if (!$input) {
@@ -898,6 +1209,8 @@ class Client {
 
 	/**
 	 * @ignore
+	 *
+	 * @param string $message
 	 */
 	function writeToLog($message) {
 		if ($this->logFile) {
@@ -919,6 +1232,8 @@ class Client {
 
 	/**
 	 * @ignore
+	 *
+	 * @param string $message
 	 */
 	function writeToTraceLog($message) {
 		if ($this->traceLogFile) {
@@ -989,7 +1304,7 @@ class Client {
 	 * @return string
 	 * @ignore
 	 */
-	protected function getDTTM() {
+	public function getDTTM() {
 		return date(self::DATE_FORMAT);
 	}
 
@@ -1000,7 +1315,7 @@ class Client {
 	 * @ignore
 	 */
 	protected function signRequest($arrayToSign) {
-		$stringToSign = implode("|", $arrayToSign);
+		$stringToSign = Crypto::createSignatureBaseFromArray($arrayToSign);
 		$keyFile = $this->config->privateKeyFile;
 		$signature = Crypto::signString(
 			$stringToSign,
@@ -1022,11 +1337,24 @@ class Client {
 	 * @param array $responseFieldsOrder
 	 * @param array $requestFieldsOrder
 	 * @param bool $returnUrlOnly
-	 * @return string|array
-	 * @throws Exception
+	 * @param bool $allowInvalidReturnSignature Set to true if you want to ignore the fact
+	 * that the signature of returned data was incorrect, so that you can receive the returned data anyway
+	 * and handle the situation by yourself. If false, an exception will be thrown instead of returning the received data.
+	 * @param Extension[]|Extension $extensions
+	 *
+	 * @return array|string
 	 * @ignore
 	 */
-	protected function sendRequest($apiMethod, $payload, $usePostMethod = true, $responseFieldsOrder = null, $requestFieldsOrder = null, $returnUrlOnly = false) {
+	protected function sendRequest(
+		$apiMethod,
+		$payload,
+		$usePostMethod = true,
+		$responseFieldsOrder = null,
+		$requestFieldsOrder = null,
+		$returnUrlOnly = false,
+		$allowInvalidReturnSignature = false,
+		$extensions = array()
+	) {
 		$url = $this->getApiMethodUrl($apiMethod);
 
 		$method = $usePostMethod;
@@ -1049,6 +1377,24 @@ class Client {
 
 		if ($method === true) {
 			$method = "POST";
+		}
+
+		if ($extensions) {
+			$extensions = Arrays::arrayize($extensions);
+		}
+
+		if ($extensions) {
+			$payload["extensions"] = array();
+			/** @var Extension $extension */
+			foreach ($extensions as $extension) {
+				if (!($extension instanceof Extension)) {
+					throw new Exception('Given argument is not Extension object.');
+				}
+				$addedData = $extension->createRequestArray($this);
+				if ($addedData) {
+					$payload["extensions"][] = $addedData;
+				}
+			}
 		}
 
 		if ($returnUrlOnly) {
@@ -1104,11 +1450,6 @@ class Client {
 			throw new Exception("API did not return a response containing resultCode.");
 		}
 
-		if ($decoded["resultCode"] != "0") {
-			$this->writeToTraceLog("Failed: resultCode ".$decoded["resultCode"].", message ".$decoded["resultMessage"]);
-			throw new Exception("API returned an error: resultCode \"" . $decoded["resultCode"] . "\", resultMessage: ".$decoded["resultMessage"], $decoded["resultCode"]);
-		}
-
 		if (!isset($decoded["signature"]) or !$decoded["signature"]) {
 			$this->writeToTraceLog("Failed: missing response signature");
 			throw new Exception("Result does not contain signature.");
@@ -1124,8 +1465,45 @@ class Client {
 		}
 
 		if (!$verificationResult) {
-			$this->writeToTraceLog("Failed: signature is incorrect.");
-			throw new Exception("Result signature is incorrect. Please make sure that bank's public key in file specified in config is correct and up-to-date.");
+
+			if (!$allowInvalidReturnSignature) {
+				$this->writeToTraceLog("Failed: signature is incorrect.");
+				throw new Exception("Result signature is incorrect. Please make sure that bank's public key in file specified in config is correct and up-to-date.");
+			} else {
+				$this->writeToTraceLog("Signature is incorrect, but method was called with \$allowInvalidReturnSignature = true, so we'll ignore it.");
+			}
+		}
+
+		if ($decoded["resultCode"] != "0") {
+			$this->writeToTraceLog("Failed: resultCode ".$decoded["resultCode"].", message ".$decoded["resultMessage"]);
+			throw new Exception("API returned an error: resultCode \"" . $decoded["resultCode"] . "\", resultMessage: ".$decoded["resultMessage"], $decoded["resultCode"]);
+		}
+
+		if ($extensions) {
+			$extensionsById = array();
+			foreach ($extensions as $extension) {
+				$extensionsById[$extension->getExtensionId()] = $extension;
+			}
+			$extensionsDataDecoded = isset($decoded["extensions"]) ? $decoded["extensions"] : array();
+			foreach ($extensionsDataDecoded as $extensionData) {
+				$extensionId = $extensionData['extension'];
+				if (isset($extensionsById[$extensionId])) {
+					/** @var Extension $extensionObject */
+					$extensionObject = $extensionsById[$extensionId];
+					$extensionObject->setResponseData($extensionData);
+					$signatureResult = $extensionObject->verifySignature($extensionData, $this);
+					if (!$signatureResult) {
+						$this->writeToTraceLog("Signature of extension $extensionId is incorrect.");
+						if ($extension->getStrictSignatureVerification()) {
+							throw new Exception("Result signature of extension $extensionId is incorrect. Please make sure that bank's public key in file specified in config is correct and up-to-date.");
+						} else {
+							$extension->setSignatureCorrect(false);
+						}
+					} else {
+						$extension->setSignatureCorrect(true);
+					}
+				}
+			}
 		}
 
 		$this->writeToTraceLog("OK");
@@ -1157,20 +1535,15 @@ class Client {
 		}
 
 		if ($responseFieldsOrder) {
-			$sortedResponse = array();
-			foreach($responseFieldsOrder as $f) {
-				if (isset($responseWithoutSignature[$f])) {
-					$sortedResponse[] = $responseWithoutSignature[$f];
-				}
-			}
-			$responseWithoutSignature = $sortedResponse;
+			$string = Crypto::createSignatureBaseWithOrder($responseWithoutSignature, $responseFieldsOrder, false);
+		} else {
+			$string = Crypto::createSignatureBaseFromArray($responseWithoutSignature, false);
 		}
-
-		$string = implode("|", $responseWithoutSignature);
 
 		$this->writeToTraceLog("String for verifying signature: \"" . $string . "\", using key " . $this->config->bankPublicKeyFile);
 
 		return Crypto::verifySignature($string, $signature, $this->config->bankPublicKeyFile);
 	}
+
 
 }

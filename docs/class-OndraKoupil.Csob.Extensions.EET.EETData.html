@@ -1,0 +1,848 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+
+	<title>Class OndraKoupil\Csob\Extensions\EET\EETData | ČSOB payment gate PHP client</title>
+
+	<link rel="stylesheet" href="resources/style.css?ece90927a9d9c062449c24ff926274b49e781e42">
+
+</head>
+
+<body>
+<div id="left">
+	<div id="menu">
+		<a href="index.html" title="Overview"><span>Overview</span></a>
+
+
+		<div id="groups">
+				<h3>Namespaces</h3>
+			<ul>
+				<li class="active">
+					<a href="namespace-OndraKoupil.html">
+						OndraKoupil<span></span>
+					</a>
+
+						<ul>
+				<li class="active main">
+					<a href="namespace-OndraKoupil.Csob.html">
+						Csob<span></span>
+					</a>
+
+						<ul>
+				<li class="active main">
+					<a href="namespace-OndraKoupil.Csob.Extensions.html">
+						Extensions<span></span>
+					</a>
+
+						<ul>
+				<li class="active main">
+					<a href="namespace-OndraKoupil.Csob.Extensions.EET.html">
+						EET					</a>
+
+						</li>
+							</ul></li></ul></li></ul></li>
+			</ul>
+		</div>
+
+		<hr>
+
+
+		<div id="elements">
+			<h3>Classes</h3>
+			<ul>
+				<li><a href="class-OndraKoupil.Csob.Extensions.EET.EETCloseExtension.html">EETCloseExtension</a></li>
+				<li class="active"><a href="class-OndraKoupil.Csob.Extensions.EET.EETData.html">EETData</a></li>
+				<li><a href="class-OndraKoupil.Csob.Extensions.EET.EETError.html">EETError</a></li>
+				<li><a href="class-OndraKoupil.Csob.Extensions.EET.EETErrorMessage.html">EETErrorMessage</a></li>
+				<li><a href="class-OndraKoupil.Csob.Extensions.EET.EETInitExtension.html">EETInitExtension</a></li>
+				<li><a href="class-OndraKoupil.Csob.Extensions.EET.EETRefundExtension.html">EETRefundExtension</a></li>
+				<li><a href="class-OndraKoupil.Csob.Extensions.EET.EETReport.html">EETReport</a></li>
+				<li><a href="class-OndraKoupil.Csob.Extensions.EET.EETStatusExtension.html">EETStatusExtension</a></li>
+				<li><a href="class-OndraKoupil.Csob.Extensions.EET.EETWarning.html">EETWarning</a></li>
+			</ul>
+
+
+
+
+
+		</div>
+	</div>
+</div>
+
+<div id="splitter"></div>
+
+<div id="right">
+<div id="rightInner">
+	<form id="search">
+		<input type="hidden" name="cx" value="">
+		<input type="hidden" name="ie" value="UTF-8">
+		<input type="text" name="q" class="text" placeholder="Search">
+	</form>
+
+	<div id="navigation">
+		<ul>
+			<li>
+				<a href="index.html" title="Overview"><span>Overview</span></a>
+			</li>
+			<li>
+				<a href="namespace-OndraKoupil.Csob.Extensions.EET.html" title="Summary of OndraKoupil\Csob\Extensions\EET"><span>Namespace</span></a>
+			</li>
+			<li class="active">
+<span>Class</span>			</li>
+		</ul>
+		<ul>
+		</ul>
+		<ul>
+		</ul>
+	</div>
+
+<div id="content" class="class">
+	<h1>Class EETData</h1>
+
+
+	<div class="description">
+	<p>Data set for the EET extension.</p>
+
+<p>You need to create this object when calling paymentInit.</p>
+
+<p>Then, you will receive this object in responses of other methods.</p>
+
+<p>When creating the object, remember that $totalPrice is in CZK, not halers (as is in Payment object)</p>
+
+<p>See https://github.com/csob/paymentgateway/wiki/Specifikace-API-roz%C5%A1%C3%AD%C5%99en%C3%AD-pro-EET
+for details on meaning of each property.</p>
+	</div>
+
+
+
+
+
+
+
+
+
+	<div class="info">
+		
+		
+		<b>Namespace:</b> <a href="namespace-OndraKoupil.html">OndraKoupil</a>\<a href="namespace-OndraKoupil.Csob.html">Csob</a>\<a href="namespace-OndraKoupil.Csob.Extensions.html">Extensions</a>\<a href="namespace-OndraKoupil.Csob.Extensions.EET.html">EET</a><br>
+		
+
+			<b>Located at</b> <a href="source-class-OndraKoupil.Csob.Extensions.EET.EETData.html#5-245" title="Go to source code">Extensions/EET/EETData.php</a>
+		<br>
+	</div>
+
+
+
+	<table class="summary methods" id="methods">
+	<caption>Methods summary</caption>
+	<tr data-order="__construct" id="___construct">
+
+		<td class="attributes"><code>
+			 public 
+
+			
+			
+			</code>
+		</td>
+
+		<td class="name"><div>
+		<a class="anchor" href="#___construct">#</a>
+		<code><a href="source-class-OndraKoupil.Csob.Extensions.EET.EETData.html#111-122" title="Go to source code">__construct</a>( <span>number <var>$premiseId</var> = <span class="php-keyword1">null</span></span>, <span>string <var>$cashRegisterId</var> = <span class="php-keyword1">null</span></span>, <span>number <var>$totalPrice</var> = <span class="php-keyword1">null</span></span> )</code>
+
+		<div class="description short">
+			<p>Constructor allows to set three mandatory properties</p>
+		</div>
+
+		<div class="description detailed hidden">
+			<p>Constructor allows to set three mandatory properties</p>
+
+
+				<h4>Parameters</h4>
+				<div class="list"><dl>
+					<dt><var>$premiseId</var></dt>
+					<dd></dd>
+					<dt><var>$cashRegisterId</var></dt>
+					<dd></dd>
+					<dt><var>$totalPrice</var></dt>
+					<dd></dd>
+				</dl></div>
+
+
+
+
+
+		</div>
+		</div></td>
+	</tr>
+	<tr data-order="asArray" id="_asArray">
+
+		<td class="attributes"><code>
+			 public 
+
+			array
+			
+			</code>
+		</td>
+
+		<td class="name"><div>
+		<a class="anchor" href="#_asArray">#</a>
+		<code><a href="source-class-OndraKoupil.Csob.Extensions.EET.EETData.html#124-178" title="Go to source code">asArray</a>( )</code>
+
+		<div class="description short">
+			<p>Export as array</p>
+		</div>
+
+		<div class="description detailed hidden">
+			<p>Export as array</p>
+
+
+
+				<h4>Returns</h4>
+				<div class="list">
+					array
+				</div>
+
+
+
+
+		</div>
+		</div></td>
+	</tr>
+	<tr data-order="formatPriceValue" id="_formatPriceValue">
+
+		<td class="attributes"><code>
+			 public static
+
+			number
+			
+			</code>
+		</td>
+
+		<td class="name"><div>
+		<a class="anchor" href="#_formatPriceValue">#</a>
+		<code><a href="source-class-OndraKoupil.Csob.Extensions.EET.EETData.html#181-190" title="Go to source code">formatPriceValue</a>( <span>number <var>$price</var></span> )</code>
+
+		<div class="description short">
+			<p>Format a numeric price for use in EET extension</p>
+		</div>
+
+		<div class="description detailed hidden">
+			<p>Format a numeric price for use in EET extension</p>
+
+
+				<h4>Parameters</h4>
+				<div class="list"><dl>
+					<dt><var>$price</var></dt>
+					<dd></dd>
+				</dl></div>
+
+				<h4>Returns</h4>
+				<div class="list">
+					number
+				</div>
+
+
+
+
+		</div>
+		</div></td>
+	</tr>
+	<tr data-order="fromArray" id="_fromArray">
+
+		<td class="attributes"><code>
+			 public static
+
+			<code><a href="class-OndraKoupil.Csob.Extensions.EET.EETData.html">OndraKoupil\Csob\Extensions\EET\EETData</a></code>
+			
+			</code>
+		</td>
+
+		<td class="name"><div>
+		<a class="anchor" href="#_fromArray">#</a>
+		<code><a href="source-class-OndraKoupil.Csob.Extensions.EET.EETData.html#211-232" title="Go to source code">fromArray</a>( <span> <var>$array</var></span> )</code>
+
+		<div class="description short">
+			<p>Creates EETData object from array received from API</p>
+		</div>
+
+		<div class="description detailed hidden">
+			<p>Creates EETData object from array received from API</p>
+
+
+				<h4>Parameters</h4>
+				<div class="list"><dl>
+					<dt><var>$array</var></dt>
+					<dd></dd>
+				</dl></div>
+
+				<h4>Returns</h4>
+				<div class="list">
+					<code><a href="class-OndraKoupil.Csob.Extensions.EET.EETData.html">OndraKoupil\Csob\Extensions\EET\EETData</a></code>
+				</div>
+
+
+
+
+		</div>
+		</div></td>
+	</tr>
+	<tr data-order="getSignatureBase" id="_getSignatureBase">
+
+		<td class="attributes"><code>
+			 public 
+
+			string
+			
+			</code>
+		</td>
+
+		<td class="name"><div>
+		<a class="anchor" href="#_getSignatureBase">#</a>
+		<code><a href="source-class-OndraKoupil.Csob.Extensions.EET.EETData.html#234-242" title="Go to source code">getSignatureBase</a>( )</code>
+
+		<div class="description short">
+			<p>Return part of the string required for building the signature string.</p>
+		</div>
+
+		<div class="description detailed hidden">
+			<p>Return part of the string required for building the signature string.</p>
+
+
+
+				<h4>Returns</h4>
+				<div class="list">
+					string
+				</div>
+
+
+
+
+		</div>
+		</div></td>
+	</tr>
+	</table>
+
+
+
+
+
+
+
+
+
+
+
+
+	<table class="summary properties" id="properties">
+	<caption>Properties summary</caption>
+	<tr data-order="premiseId" id="$premiseId">
+		<td class="attributes"><code>
+			public  
+			number
+		</code></td>
+
+		<td class="name">
+				<a href="source-class-OndraKoupil.Csob.Extensions.EET.EETData.html#21-24" title="Go to source code"><var>$premiseId</var></a>
+
+			<div class="description short">
+				<p>Označení provozovny</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Označení provozovny</p>
+
+			</div>
+		</td>
+		<td class="value">
+			<div>
+				<a href="#$premiseId" class="anchor">#</a>
+				<code></code>
+			</div>
+		</td>
+	</tr>
+	<tr data-order="cashRegisterId" id="$cashRegisterId">
+		<td class="attributes"><code>
+			public  
+			string
+		</code></td>
+
+		<td class="name">
+				<a href="source-class-OndraKoupil.Csob.Extensions.EET.EETData.html#26-29" title="Go to source code"><var>$cashRegisterId</var></a>
+
+			<div class="description short">
+				<p>Označení pokladního zařízení poplatníka</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Označení pokladního zařízení poplatníka</p>
+
+			</div>
+		</td>
+		<td class="value">
+			<div>
+				<a href="#$cashRegisterId" class="anchor">#</a>
+				<code></code>
+			</div>
+		</td>
+	</tr>
+	<tr data-order="totalPrice" id="$totalPrice">
+		<td class="attributes"><code>
+			public  
+			number
+		</code></td>
+
+		<td class="name">
+				<a href="source-class-OndraKoupil.Csob.Extensions.EET.EETData.html#31-34" title="Go to source code"><var>$totalPrice</var></a>
+
+			<div class="description short">
+				<p>Celková částka tržby, v případě nahlášení platby (volání v rámci payment/init, payment/oneclick/init a payment/close) musí být kladné číslo, v případě odhlášení platby (volání v rámci payment/refund) musí být záporné číslo.</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Celková částka tržby, v případě nahlášení platby (volání v rámci payment/init, payment/oneclick/init a payment/close) musí být kladné číslo, v případě odhlášení platby (volání v rámci payment/refund) musí být záporné číslo.</p>
+
+			</div>
+		</td>
+		<td class="value">
+			<div>
+				<a href="#$totalPrice" class="anchor">#</a>
+				<code></code>
+			</div>
+		</td>
+	</tr>
+	<tr data-order="delegatedVatId" id="$delegatedVatId">
+		<td class="attributes"><code>
+			public  
+			string
+		</code></td>
+
+		<td class="name">
+				<a href="source-class-OndraKoupil.Csob.Extensions.EET.EETData.html#36-39" title="Go to source code"><var>$delegatedVatId</var></a>
+
+			<div class="description short">
+				<p>DIČ pověřujícího poplatníka</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>DIČ pověřujícího poplatníka</p>
+
+			</div>
+		</td>
+		<td class="value">
+			<div>
+				<a href="#$delegatedVatId" class="anchor">#</a>
+				<code></code>
+			</div>
+		</td>
+	</tr>
+	<tr data-order="priceZeroVat" id="$priceZeroVat">
+		<td class="attributes"><code>
+			public  
+			number
+		</code></td>
+
+		<td class="name">
+				<a href="source-class-OndraKoupil.Csob.Extensions.EET.EETData.html#41-44" title="Go to source code"><var>$priceZeroVat</var></a>
+
+			<div class="description short">
+				<p>Celková částka plnění osvobozených od DPH, ostatních plnění</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Celková částka plnění osvobozených od DPH, ostatních plnění</p>
+
+			</div>
+		</td>
+		<td class="value">
+			<div>
+				<a href="#$priceZeroVat" class="anchor">#</a>
+				<code></code>
+			</div>
+		</td>
+	</tr>
+	<tr data-order="priceStandardVat" id="$priceStandardVat">
+		<td class="attributes"><code>
+			public  
+			number
+		</code></td>
+
+		<td class="name">
+				<a href="source-class-OndraKoupil.Csob.Extensions.EET.EETData.html#46-49" title="Go to source code"><var>$priceStandardVat</var></a>
+
+			<div class="description short">
+				<p>Celkový základ daně se základní sazbou DPH</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Celkový základ daně se základní sazbou DPH</p>
+
+			</div>
+		</td>
+		<td class="value">
+			<div>
+				<a href="#$priceStandardVat" class="anchor">#</a>
+				<code></code>
+			</div>
+		</td>
+	</tr>
+	<tr data-order="vatStandard" id="$vatStandard">
+		<td class="attributes"><code>
+			public  
+			number
+		</code></td>
+
+		<td class="name">
+				<a href="source-class-OndraKoupil.Csob.Extensions.EET.EETData.html#51-54" title="Go to source code"><var>$vatStandard</var></a>
+
+			<div class="description short">
+				<p>Celková DPH se základní sazbou</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Celková DPH se základní sazbou</p>
+
+			</div>
+		</td>
+		<td class="value">
+			<div>
+				<a href="#$vatStandard" class="anchor">#</a>
+				<code></code>
+			</div>
+		</td>
+	</tr>
+	<tr data-order="priceFirstReducedVat" id="$priceFirstReducedVat">
+		<td class="attributes"><code>
+			public  
+			number
+		</code></td>
+
+		<td class="name">
+				<a href="source-class-OndraKoupil.Csob.Extensions.EET.EETData.html#56-59" title="Go to source code"><var>$priceFirstReducedVat</var></a>
+
+			<div class="description short">
+				<p>Celkový základ daně s první sníženou sazbou DPH</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Celkový základ daně s první sníženou sazbou DPH</p>
+
+			</div>
+		</td>
+		<td class="value">
+			<div>
+				<a href="#$priceFirstReducedVat" class="anchor">#</a>
+				<code></code>
+			</div>
+		</td>
+	</tr>
+	<tr data-order="vatFirstReduced" id="$vatFirstReduced">
+		<td class="attributes"><code>
+			public  
+			number
+		</code></td>
+
+		<td class="name">
+				<a href="source-class-OndraKoupil.Csob.Extensions.EET.EETData.html#61-64" title="Go to source code"><var>$vatFirstReduced</var></a>
+
+			<div class="description short">
+				<p>Celková DPH s první sníženou sazbou</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Celková DPH s první sníženou sazbou</p>
+
+			</div>
+		</td>
+		<td class="value">
+			<div>
+				<a href="#$vatFirstReduced" class="anchor">#</a>
+				<code></code>
+			</div>
+		</td>
+	</tr>
+	<tr data-order="priceSecondReducedVat" id="$priceSecondReducedVat">
+		<td class="attributes"><code>
+			public  
+			number
+		</code></td>
+
+		<td class="name">
+				<a href="source-class-OndraKoupil.Csob.Extensions.EET.EETData.html#66-69" title="Go to source code"><var>$priceSecondReducedVat</var></a>
+
+			<div class="description short">
+				<p>Celkový základ daně s druhou sníženou sazbou DPH</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Celkový základ daně s druhou sníženou sazbou DPH</p>
+
+			</div>
+		</td>
+		<td class="value">
+			<div>
+				<a href="#$priceSecondReducedVat" class="anchor">#</a>
+				<code></code>
+			</div>
+		</td>
+	</tr>
+	<tr data-order="vatSecondReduced" id="$vatSecondReduced">
+		<td class="attributes"><code>
+			public  
+			number
+		</code></td>
+
+		<td class="name">
+				<a href="source-class-OndraKoupil.Csob.Extensions.EET.EETData.html#71-74" title="Go to source code"><var>$vatSecondReduced</var></a>
+
+			<div class="description short">
+				<p>Celková DPH s druhou sníženou sazbou</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Celková DPH s druhou sníženou sazbou</p>
+
+			</div>
+		</td>
+		<td class="value">
+			<div>
+				<a href="#$vatSecondReduced" class="anchor">#</a>
+				<code></code>
+			</div>
+		</td>
+	</tr>
+	<tr data-order="priceTravelService" id="$priceTravelService">
+		<td class="attributes"><code>
+			public  
+			number
+		</code></td>
+
+		<td class="name">
+				<a href="source-class-OndraKoupil.Csob.Extensions.EET.EETData.html#76-79" title="Go to source code"><var>$priceTravelService</var></a>
+
+			<div class="description short">
+				<p>Celková částka v režimu DPH pro cestovní službu</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Celková částka v režimu DPH pro cestovní službu</p>
+
+			</div>
+		</td>
+		<td class="value">
+			<div>
+				<a href="#$priceTravelService" class="anchor">#</a>
+				<code></code>
+			</div>
+		</td>
+	</tr>
+	<tr data-order="priceUsedGoodsStandardVat" id="$priceUsedGoodsStandardVat">
+		<td class="attributes"><code>
+			public  
+			number
+		</code></td>
+
+		<td class="name">
+				<a href="source-class-OndraKoupil.Csob.Extensions.EET.EETData.html#81-84" title="Go to source code"><var>$priceUsedGoodsStandardVat</var></a>
+
+			<div class="description short">
+				<p>Celková částka v režimu DPH pro prodej použitého zboží se základní sazbou</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Celková částka v režimu DPH pro prodej použitého zboží se základní sazbou</p>
+
+			</div>
+		</td>
+		<td class="value">
+			<div>
+				<a href="#$priceUsedGoodsStandardVat" class="anchor">#</a>
+				<code></code>
+			</div>
+		</td>
+	</tr>
+	<tr data-order="priceUsedGoodsFirstReduced" id="$priceUsedGoodsFirstReduced">
+		<td class="attributes"><code>
+			public  
+			number
+		</code></td>
+
+		<td class="name">
+				<a href="source-class-OndraKoupil.Csob.Extensions.EET.EETData.html#86-89" title="Go to source code"><var>$priceUsedGoodsFirstReduced</var></a>
+
+			<div class="description short">
+				<p>Celková částka v režimu DPH pro prodej použitého zboží s první sníženou sazbou</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Celková částka v režimu DPH pro prodej použitého zboží s první sníženou sazbou</p>
+
+			</div>
+		</td>
+		<td class="value">
+			<div>
+				<a href="#$priceUsedGoodsFirstReduced" class="anchor">#</a>
+				<code></code>
+			</div>
+		</td>
+	</tr>
+	<tr data-order="priceUsedGoodsSecondReduced" id="$priceUsedGoodsSecondReduced">
+		<td class="attributes"><code>
+			public  
+			number
+		</code></td>
+
+		<td class="name">
+				<a href="source-class-OndraKoupil.Csob.Extensions.EET.EETData.html#91-94" title="Go to source code"><var>$priceUsedGoodsSecondReduced</var></a>
+
+			<div class="description short">
+				<p>Celková částka v režimu DPH pro prodej použitého zboží s druhou sníženou sazbou</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Celková částka v režimu DPH pro prodej použitého zboží s druhou sníženou sazbou</p>
+
+			</div>
+		</td>
+		<td class="value">
+			<div>
+				<a href="#$priceUsedGoodsSecondReduced" class="anchor">#</a>
+				<code></code>
+			</div>
+		</td>
+	</tr>
+	<tr data-order="priceSubsequentSettlement" id="$priceSubsequentSettlement">
+		<td class="attributes"><code>
+			public  
+			number
+		</code></td>
+
+		<td class="name">
+				<a href="source-class-OndraKoupil.Csob.Extensions.EET.EETData.html#96-99" title="Go to source code"><var>$priceSubsequentSettlement</var></a>
+
+			<div class="description short">
+				<p>Celková částka plateb určená k následnému čerpání nebo zúčtování</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Celková částka plateb určená k následnému čerpání nebo zúčtování</p>
+
+			</div>
+		</td>
+		<td class="value">
+			<div>
+				<a href="#$priceSubsequentSettlement" class="anchor">#</a>
+				<code></code>
+			</div>
+		</td>
+	</tr>
+	<tr data-order="priceUsedSubsequentSettlement" id="$priceUsedSubsequentSettlement">
+		<td class="attributes"><code>
+			public  
+			number
+		</code></td>
+
+		<td class="name">
+				<a href="source-class-OndraKoupil.Csob.Extensions.EET.EETData.html#101-104" title="Go to source code"><var>$priceUsedSubsequentSettlement</var></a>
+
+			<div class="description short">
+				<p>Celková částka plateb, které jsou následným čerpáním nebo zúčtováním platby</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Celková částka plateb, které jsou následným čerpáním nebo zúčtováním platby</p>
+
+			</div>
+		</td>
+		<td class="value">
+			<div>
+				<a href="#$priceUsedSubsequentSettlement" class="anchor">#</a>
+				<code></code>
+			</div>
+		</td>
+	</tr>
+	<tr data-order="rawData" id="$rawData">
+		<td class="attributes"><code>
+			public  
+			array
+		</code></td>
+
+		<td class="name">
+				<a href="source-class-OndraKoupil.Csob.Extensions.EET.EETData.html#106-109" title="Go to source code"><var>$rawData</var></a>
+
+			<div class="description short">
+				<p>Contains raw data as were received from API. Only for responses.</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Contains raw data as were received from API. Only for responses.</p>
+
+			</div>
+		</td>
+		<td class="value">
+			<div>
+				<a href="#$rawData" class="anchor">#</a>
+				<code></code>
+			</div>
+		</td>
+	</tr>
+	<tr data-order="keyNames" id="$keyNames">
+		<td class="attributes"><code>
+			protected static 
+			array
+		</code></td>
+
+		<td class="name">
+				<a href="source-class-OndraKoupil.Csob.Extensions.EET.EETData.html#192-209" title="Go to source code"><var>$keyNames</var></a>
+
+			<div class="description short">
+				
+			</div>
+
+			<div class="description detailed hidden">
+				
+
+			</div>
+		</td>
+		<td class="value">
+			<div>
+				<a href="#$keyNames" class="anchor">#</a>
+				<code><span class="php-keyword1">array</span>(
+    <span class="php-quote">'premiseId'</span>,
+    <span class="php-quote">'cashRegisterId'</span>,
+    <span class="php-quote">'totalPrice'</span>,
+    <span class="php-quote">'delegatedVatId'</span>,
+    <span class="php-quote">'priceStandardVat'</span>,
+    <span class="php-quote">'vatStandard'</span>,
+    <span class="php-quote">'priceFirstReducedVat'</span>,
+    <span class="php-quote">'vatFirstReduced'</span>,
+    <span class="php-quote">'priceSecondReducedVat'</span>,
+    <span class="php-quote">'vatSecondReduced'</span>,
+    <span class="php-quote">'priceTravelService'</span>,
+    <span class="php-quote">'priceUsedGoodsStandardVat'</span>,
+    <span class="php-quote">'priceUsedGoodsFirstReduced'</span>,
+    <span class="php-quote">'priceUsedGoodsSecondReduced'</span>,
+    <span class="php-quote">'priceSubsequentSettlement'</span>,
+    <span class="php-quote">'priceUsedSubsequentSettlement'</span>,
+)</code>
+			</div>
+		</td>
+	</tr>
+	</table>
+
+
+
+
+
+
+</div>
+
+	<div id="footer">
+		ČSOB payment gate PHP client API documentation generated by <a href="http://apigen.org">ApiGen</a>
+	</div>
+</div>
+</div>
+<script src="resources/combined.js"></script>
+<script src="elementlist.js"></script>
+</body>
+</html>
