@@ -329,6 +329,33 @@ Pokud se nedaří ověřit podpis odpovědi, můžete pomocí `setStrictSignatur
 pro dané rozšíření. Po zavolání API metody je pak možné se přes `isSignatureCorrect()` doptat, zda byl podpis v pořádku,
  a pokud nebyl, nějak to řešit po svém.
  
+Pro jedno volání metody je možné předat více rozšíření, stačí do patřičného parametru metody Client objektu předat array objektů Extension, ne jen jediný objekt.
+  
+### DatesExtension
+Pokud máte aktivované rozšíření trxDates, je v metodě paymentStatus() možné předat objekt třídy DatesExtension.
+Po zavolání metody se pak z DatesExtension dají přečíst požadovaná data jako DateTime objekty.
+
+```php
+$extension = new DatesExtension();
+$status = $client->paymentStatus($payment, true, $extension);
+echo $extension->getCreatedDate()->format("j. n. Y");
+```
+
+Dostupné jsou metody `getCreatedDate()`, `getSettlementDate()` a `getAuthDate()`, které vracejí DateTime anebo null,
+pokud dané datum v odpovědi nebylo vůbec uvedené. Také pozor, settlementDate je s přesností pouze na dny, ne na sekundy. 
+
+### CardNumberExtension
+Pokud máte aktivované rozšíření maskClnRP, je v metodě paymentStatus() možné předat objekt třídy CardNumberExtension.
+Po zavolání metody se pak z CardNumberExtension dá přečíst maskované číslo karty a její expirace. 
+Nezapomeňte ale na to, že toto rozšíření je dostupné pouze pro "one click" platby.
+
+```php
+$extension = new CardNumberExtension();
+$status = $client->paymentStatus($payment, true, $extension);
+echo $extension->getMaskedCln() . ' ' . $extension->getExpiration();
+``` 
+ 
+Dostupné metody jsou `getMaskedCln()`, `getLongMaskedCln()` a `getExpiration()`
  
 ## EET
    

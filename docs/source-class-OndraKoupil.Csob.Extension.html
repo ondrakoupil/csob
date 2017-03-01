@@ -56,6 +56,8 @@
 				<li><a href="class-OndraKoupil.Csob.Config.html">OndraKoupil\Csob\Config</a></li>
 				<li><a href="class-OndraKoupil.Csob.Crypto.html">OndraKoupil\Csob\Crypto</a></li>
 				<li><a href="class-OndraKoupil.Csob.Extension.html">OndraKoupil\Csob\Extension</a></li>
+				<li><a href="class-OndraKoupil.Csob.Extensions.CardNumberExtension.html">OndraKoupil\Csob\Extensions\CardNumberExtension</a></li>
+				<li><a href="class-OndraKoupil.Csob.Extensions.DatesExtension.html">OndraKoupil\Csob\Extensions\DatesExtension</a></li>
 				<li><a href="class-OndraKoupil.Csob.Extensions.EET.EETCloseExtension.html">OndraKoupil\Csob\Extensions\EET\EETCloseExtension</a></li>
 				<li><a href="class-OndraKoupil.Csob.Extensions.EET.EETData.html">OndraKoupil\Csob\Extensions\EET\EETData</a></li>
 				<li><a href="class-OndraKoupil.Csob.Extensions.EET.EETError.html">OndraKoupil\Csob\Extensions\EET\EETError</a></li>
@@ -340,67 +342,68 @@
 </span></span><span id="230" class="l"><a href="#230">230: </a><span class="php-comment">     * @return string
 </span></span><span id="231" class="l"><a href="#231">231: </a><span class="php-comment">     */</span>
 </span><span id="232" class="l"><a href="#232">232: </a>    <span class="php-keyword1">public</span> <span class="php-keyword1">function</span> getResponseSignatureBase(<span class="php-var">$responseWithoutSignature</span>) {
-</span><span id="233" class="l"><a href="#233">233: </a>        <span class="php-keyword1">if</span> (<span class="php-var">$this</span>-&gt;expectedResponseKeysOrder) {
-</span><span id="234" class="l"><a href="#234">234: </a>            <span class="php-var">$baseString</span> = Crypto::createSignatureBaseWithOrder(<span class="php-var">$responseWithoutSignature</span>, <span class="php-var">$this</span>-&gt;expectedResponseKeysOrder, <span class="php-keyword1">false</span>);
-</span><span id="235" class="l"><a href="#235">235: </a>        } <span class="php-keyword1">else</span> {
-</span><span id="236" class="l"><a href="#236">236: </a>            <span class="php-var">$baseString</span> = Crypto::createSignatureBaseFromArray(<span class="php-var">$responseWithoutSignature</span>, <span class="php-keyword1">false</span>);
-</span><span id="237" class="l"><a href="#237">237: </a>        }
-</span><span id="238" class="l"><a href="#238">238: </a>        <span class="php-keyword1">return</span> <span class="php-var">$baseString</span>;
-</span><span id="239" class="l"><a href="#239">239: </a>    }
-</span><span id="240" class="l"><a href="#240">240: </a>
-</span><span id="241" class="l"><a href="#241">241: </a>    <span class="php-comment">/**
-</span></span><span id="242" class="l"><a href="#242">242: </a><span class="php-comment">     * @return bool
-</span></span><span id="243" class="l"><a href="#243">243: </a><span class="php-comment">     */</span>
-</span><span id="244" class="l"><a href="#244">244: </a>    <span class="php-keyword1">public</span> <span class="php-keyword1">function</span> getStrictSignatureVerification() {
-</span><span id="245" class="l"><a href="#245">245: </a>        <span class="php-keyword1">return</span> <span class="php-var">$this</span>-&gt;strictSignatureVerification;
-</span><span id="246" class="l"><a href="#246">246: </a>    }
-</span><span id="247" class="l"><a href="#247">247: </a>
-</span><span id="248" class="l"><a href="#248">248: </a>    <span class="php-comment">/**
-</span></span><span id="249" class="l"><a href="#249">249: </a><span class="php-comment">     * @param bool $strictSignatureVerification
-</span></span><span id="250" class="l"><a href="#250">250: </a><span class="php-comment">     *
-</span></span><span id="251" class="l"><a href="#251">251: </a><span class="php-comment">     * @return self
-</span></span><span id="252" class="l"><a href="#252">252: </a><span class="php-comment">     */</span>
-</span><span id="253" class="l"><a href="#253">253: </a>    <span class="php-keyword1">public</span> <span class="php-keyword1">function</span> setStrictSignatureVerification(<span class="php-var">$strictSignatureVerification</span>) {
-</span><span id="254" class="l"><a href="#254">254: </a>        <span class="php-var">$this</span>-&gt;strictSignatureVerification = <span class="php-var">$strictSignatureVerification</span>;
-</span><span id="255" class="l"><a href="#255">255: </a>        <span class="php-keyword1">return</span> <span class="php-var">$this</span>;
-</span><span id="256" class="l"><a href="#256">256: </a>    }
-</span><span id="257" class="l"><a href="#257">257: </a>
-</span><span id="258" class="l"><a href="#258">258: </a>    <span class="php-comment">/**
-</span></span><span id="259" class="l"><a href="#259">259: </a><span class="php-comment">     * @return bool
-</span></span><span id="260" class="l"><a href="#260">260: </a><span class="php-comment">     */</span>
-</span><span id="261" class="l"><a href="#261">261: </a>    <span class="php-keyword1">public</span> <span class="php-keyword1">function</span> isSignatureCorrect() {
-</span><span id="262" class="l"><a href="#262">262: </a>        <span class="php-keyword1">return</span> <span class="php-var">$this</span>-&gt;signatureCorrect;
-</span><span id="263" class="l"><a href="#263">263: </a>    }
-</span><span id="264" class="l"><a href="#264">264: </a>
-</span><span id="265" class="l"><a href="#265">265: </a>    <span class="php-comment">/**
-</span></span><span id="266" class="l"><a href="#266">266: </a><span class="php-comment">     * @param bool $signatureCorrect
-</span></span><span id="267" class="l"><a href="#267">267: </a><span class="php-comment">     */</span>
-</span><span id="268" class="l"><a href="#268">268: </a>    <span class="php-keyword1">public</span> <span class="php-keyword1">function</span> setSignatureCorrect(<span class="php-var">$signatureCorrect</span>) {
-</span><span id="269" class="l"><a href="#269">269: </a>        <span class="php-var">$this</span>-&gt;signatureCorrect = <span class="php-var">$signatureCorrect</span>;
-</span><span id="270" class="l"><a href="#270">270: </a>        <span class="php-keyword1">return</span> <span class="php-var">$this</span>;
-</span><span id="271" class="l"><a href="#271">271: </a>    }
-</span><span id="272" class="l"><a href="#272">272: </a>
-</span><span id="273" class="l"><a href="#273">273: </a>    <span class="php-comment">/**
-</span></span><span id="274" class="l"><a href="#274">274: </a><span class="php-comment">     * @return mixed
-</span></span><span id="275" class="l"><a href="#275">275: </a><span class="php-comment">     */</span>
-</span><span id="276" class="l"><a href="#276">276: </a>    <span class="php-keyword1">public</span> <span class="php-keyword1">function</span> getResponseData() {
-</span><span id="277" class="l"><a href="#277">277: </a>        <span class="php-keyword1">return</span> <span class="php-var">$this</span>-&gt;responseData;
-</span><span id="278" class="l"><a href="#278">278: </a>    }
-</span><span id="279" class="l"><a href="#279">279: </a>
-</span><span id="280" class="l"><a href="#280">280: </a>    <span class="php-comment">/**
-</span></span><span id="281" class="l"><a href="#281">281: </a><span class="php-comment">     * @param mixed $responseData
-</span></span><span id="282" class="l"><a href="#282">282: </a><span class="php-comment">     */</span>
-</span><span id="283" class="l"><a href="#283">283: </a>    <span class="php-keyword1">public</span> <span class="php-keyword1">function</span> setResponseData(<span class="php-var">$responseData</span>) {
-</span><span id="284" class="l"><a href="#284">284: </a>        <span class="php-var">$this</span>-&gt;responseData = <span class="php-var">$responseData</span>;
-</span><span id="285" class="l"><a href="#285">285: </a>    }
-</span><span id="286" class="l"><a href="#286">286: </a>
+</span><span id="233" class="l"><a href="#233">233: </a>        <span class="php-var">$keys</span> = <span class="php-var">$this</span>-&gt;getExpectedResponseKeysOrder();
+</span><span id="234" class="l"><a href="#234">234: </a>        <span class="php-keyword1">if</span> (<span class="php-var">$keys</span>) {
+</span><span id="235" class="l"><a href="#235">235: </a>            <span class="php-var">$baseString</span> = Crypto::createSignatureBaseWithOrder(<span class="php-var">$responseWithoutSignature</span>, <span class="php-var">$keys</span>, <span class="php-keyword1">false</span>);
+</span><span id="236" class="l"><a href="#236">236: </a>        } <span class="php-keyword1">else</span> {
+</span><span id="237" class="l"><a href="#237">237: </a>            <span class="php-var">$baseString</span> = Crypto::createSignatureBaseFromArray(<span class="php-var">$responseWithoutSignature</span>, <span class="php-keyword1">false</span>);
+</span><span id="238" class="l"><a href="#238">238: </a>        }
+</span><span id="239" class="l"><a href="#239">239: </a>        <span class="php-keyword1">return</span> <span class="php-var">$baseString</span>;
+</span><span id="240" class="l"><a href="#240">240: </a>    }
+</span><span id="241" class="l"><a href="#241">241: </a>
+</span><span id="242" class="l"><a href="#242">242: </a>    <span class="php-comment">/**
+</span></span><span id="243" class="l"><a href="#243">243: </a><span class="php-comment">     * @return bool
+</span></span><span id="244" class="l"><a href="#244">244: </a><span class="php-comment">     */</span>
+</span><span id="245" class="l"><a href="#245">245: </a>    <span class="php-keyword1">public</span> <span class="php-keyword1">function</span> getStrictSignatureVerification() {
+</span><span id="246" class="l"><a href="#246">246: </a>        <span class="php-keyword1">return</span> <span class="php-var">$this</span>-&gt;strictSignatureVerification;
+</span><span id="247" class="l"><a href="#247">247: </a>    }
+</span><span id="248" class="l"><a href="#248">248: </a>
+</span><span id="249" class="l"><a href="#249">249: </a>    <span class="php-comment">/**
+</span></span><span id="250" class="l"><a href="#250">250: </a><span class="php-comment">     * @param bool $strictSignatureVerification
+</span></span><span id="251" class="l"><a href="#251">251: </a><span class="php-comment">     *
+</span></span><span id="252" class="l"><a href="#252">252: </a><span class="php-comment">     * @return self
+</span></span><span id="253" class="l"><a href="#253">253: </a><span class="php-comment">     */</span>
+</span><span id="254" class="l"><a href="#254">254: </a>    <span class="php-keyword1">public</span> <span class="php-keyword1">function</span> setStrictSignatureVerification(<span class="php-var">$strictSignatureVerification</span>) {
+</span><span id="255" class="l"><a href="#255">255: </a>        <span class="php-var">$this</span>-&gt;strictSignatureVerification = <span class="php-var">$strictSignatureVerification</span>;
+</span><span id="256" class="l"><a href="#256">256: </a>        <span class="php-keyword1">return</span> <span class="php-var">$this</span>;
+</span><span id="257" class="l"><a href="#257">257: </a>    }
+</span><span id="258" class="l"><a href="#258">258: </a>
+</span><span id="259" class="l"><a href="#259">259: </a>    <span class="php-comment">/**
+</span></span><span id="260" class="l"><a href="#260">260: </a><span class="php-comment">     * @return bool
+</span></span><span id="261" class="l"><a href="#261">261: </a><span class="php-comment">     */</span>
+</span><span id="262" class="l"><a href="#262">262: </a>    <span class="php-keyword1">public</span> <span class="php-keyword1">function</span> isSignatureCorrect() {
+</span><span id="263" class="l"><a href="#263">263: </a>        <span class="php-keyword1">return</span> <span class="php-var">$this</span>-&gt;signatureCorrect;
+</span><span id="264" class="l"><a href="#264">264: </a>    }
+</span><span id="265" class="l"><a href="#265">265: </a>
+</span><span id="266" class="l"><a href="#266">266: </a>    <span class="php-comment">/**
+</span></span><span id="267" class="l"><a href="#267">267: </a><span class="php-comment">     * @param bool $signatureCorrect
+</span></span><span id="268" class="l"><a href="#268">268: </a><span class="php-comment">     */</span>
+</span><span id="269" class="l"><a href="#269">269: </a>    <span class="php-keyword1">public</span> <span class="php-keyword1">function</span> setSignatureCorrect(<span class="php-var">$signatureCorrect</span>) {
+</span><span id="270" class="l"><a href="#270">270: </a>        <span class="php-var">$this</span>-&gt;signatureCorrect = <span class="php-var">$signatureCorrect</span>;
+</span><span id="271" class="l"><a href="#271">271: </a>        <span class="php-keyword1">return</span> <span class="php-var">$this</span>;
+</span><span id="272" class="l"><a href="#272">272: </a>    }
+</span><span id="273" class="l"><a href="#273">273: </a>
+</span><span id="274" class="l"><a href="#274">274: </a>    <span class="php-comment">/**
+</span></span><span id="275" class="l"><a href="#275">275: </a><span class="php-comment">     * @return mixed
+</span></span><span id="276" class="l"><a href="#276">276: </a><span class="php-comment">     */</span>
+</span><span id="277" class="l"><a href="#277">277: </a>    <span class="php-keyword1">public</span> <span class="php-keyword1">function</span> getResponseData() {
+</span><span id="278" class="l"><a href="#278">278: </a>        <span class="php-keyword1">return</span> <span class="php-var">$this</span>-&gt;responseData;
+</span><span id="279" class="l"><a href="#279">279: </a>    }
+</span><span id="280" class="l"><a href="#280">280: </a>
+</span><span id="281" class="l"><a href="#281">281: </a>    <span class="php-comment">/**
+</span></span><span id="282" class="l"><a href="#282">282: </a><span class="php-comment">     * @param mixed $responseData
+</span></span><span id="283" class="l"><a href="#283">283: </a><span class="php-comment">     */</span>
+</span><span id="284" class="l"><a href="#284">284: </a>    <span class="php-keyword1">public</span> <span class="php-keyword1">function</span> setResponseData(<span class="php-var">$responseData</span>) {
+</span><span id="285" class="l"><a href="#285">285: </a>        <span class="php-var">$this</span>-&gt;responseData = <span class="php-var">$responseData</span>;
+</span><span id="286" class="l"><a href="#286">286: </a>    }
 </span><span id="287" class="l"><a href="#287">287: </a>
 </span><span id="288" class="l"><a href="#288">288: </a>
 </span><span id="289" class="l"><a href="#289">289: </a>
 </span><span id="290" class="l"><a href="#290">290: </a>
 </span><span id="291" class="l"><a href="#291">291: </a>
-</span><span id="292" class="l"><a href="#292">292: </a>}
-</span><span id="293" class="l"><a href="#293">293: </a></span></code></pre>
+</span><span id="292" class="l"><a href="#292">292: </a>
+</span><span id="293" class="l"><a href="#293">293: </a>}
+</span><span id="294" class="l"><a href="#294">294: </a></span></code></pre>
 
 	<div id="footer">
 		ČSOB payment gate PHP client API documentation generated by <a href="http://apigen.org">ApiGen</a>
@@ -408,6 +411,6 @@
 </div>
 </div>
 <script src="resources/combined.js?12a677fab113380728f688528408b980f31f07e7"></script>
-<script src="elementlist.js?014073a665c73c51f998fbdd911302c594281383"></script>
+<script src="elementlist.js?c50a1b21d491f7974f91c53b65bb4818dc1ce2b5"></script>
 </body>
 </html>

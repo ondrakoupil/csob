@@ -230,8 +230,9 @@ class Extension {
 	 * @return string
 	 */
 	public function getResponseSignatureBase($responseWithoutSignature) {
-		if ($this->expectedResponseKeysOrder) {
-			$baseString = Crypto::createSignatureBaseWithOrder($responseWithoutSignature, $this->expectedResponseKeysOrder, false);
+		$keys = $this->getExpectedResponseKeysOrder();
+		if ($keys) {
+			$baseString = Crypto::createSignatureBaseWithOrder($responseWithoutSignature, $keys, false);
 		} else {
 			$baseString = Crypto::createSignatureBaseFromArray($responseWithoutSignature, false);
 		}
