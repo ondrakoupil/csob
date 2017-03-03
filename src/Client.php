@@ -1148,7 +1148,7 @@ class Client {
 			$input["merchantData"] = $merch;
 		}
 
-		$mess = "Returning customer: payId ".$input["payId"].", authCode ".$input["authCode"].", payment status ".$input["paymentStatus"];
+		$mess = "Returning customer: payId ".$input["payId"].", authCode " . (isset($input["authCode"]) ? $input["authCode"] : '(not set)') . ", payment status ".$input["paymentStatus"];
 		if ($input["merchantData"]) {
 			$mess .= ", merchantData ".$input["merchantData"];
 		}
