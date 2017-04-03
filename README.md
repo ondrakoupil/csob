@@ -13,6 +13,9 @@ Podrobnosti o API platební brány, o generování klíčů a
 o jednotlivých krocích zpracováná platby najdete na [https://github.com/csob/paymentgateway][1].
 Testovací platební karty jsou na [wiki zde][7]
 
+Pozor pozor! Často na to někdo naráží, že to raději vypíchnu tady nahoře.
+**Používá se zde VÁŠ soukromý klíč a [veřejný klíč BANKY][3].** Ne obráceně. Ne váš veřejný klíč.
+
 ## Novinky
 
 - Knihovna nyní podporuje ČSOB eAPI 1.7, přidává [extensions](#extension), podporu pro [EET](#eet), one click platby a platební tlačítko ČSOB.
@@ -45,7 +48,8 @@ Pokud nepoužíváte Composer, stačí někam nakopírovat soubor `dist/csob-cli
 Kromě této knihovny se bude hodit:
 
 - Merchant ID - anonymní ID lze vygenerovat na stránce [keygenu][2], anebo použijte to ID, které přidělí banka
-- Klíče pro podepisování a verifikaci podpisů - opět získáte v [keygenu][2]
+- Klíče pro podepisování a verifikaci podpisů - opět získáte v [keygenu][2]. Při implementaci použijete jen svůj privátní klíč. Ten veřejný
+  odešlete přes keygen bance a pak na něj můžete klidně zapomenout. 
 - Veřejný klíč banky - lze stáhnout z [Githubu ČSOB][3]. Pozor, liší se pro testovací a ostrou bránu.
 
 Knihovna se skládá z tříd:
@@ -79,14 +83,14 @@ $config = new Config(
 
 	// URL adresa API - výchozí je adresa testovacího (integračního) prostředí,
 	// až budete připraveni přepnout se na ostré rozhraní, sem zadáte
-	// adresu ostrého API.
+	// adresu ostrého API. Nezapomeňte také na ostrý veřejný klíč banky.
 	GatewayUrl::TEST_LATEST
 );
 
 $client = new Client($config);
 ```
 
-**Pozor - používá se zde VÁŠ soukromý klíč a veřejný klíč BANKY.**
+**Pozor - používá se zde VÁŠ soukromý klíč a veřejný klíč BANKY.** A také nezapomeňte, že testovací a ostré API má odlišný veřejný klíč.
 
 Config umožňuje nastavit i nějaké další parametry a různé výchozí hodnoty.
 
@@ -433,7 +437,7 @@ nebo mě bez obav [kontaktujte][5] napřímo :-)
 
 [1]: https://github.com/csob/paymentgateway
 [2]: https://iplatebnibrana.csob.cz/keygen/
-[3]: https://github.com/csob/paymentgateway/tree/master/eshop-integration/keys
+[3]: https://github.com/csob/paymentgateway/tree/master/keys
 [4]: https://github.com/csob/paymentgateway/wiki/eAPI-v1-CZ#user-content-%C5%BDivotn%C3%AD-cyklus-transakce-
 [5]: https://github.com/ondrakoupil
 [6]: https://platebnibrana.csob.cz/

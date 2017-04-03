@@ -23,6 +23,10 @@ $config->url = GatewayUrl::PRODUCTION_LATEST;
 
 Library now supports extensions and EET.
 
+Heads up! People are often mistaken with this, so I am putting this here:
+**Use YOUR private key and [BANK's public key][3].** Not vice versa. Not your public key.
+
+
 ## Installation
 
 The easy way - use composer:
@@ -266,7 +270,7 @@ Feel free to [contact me][5] if you have any questions or suggestions.
 
 [1]: https://github.com/csob/paymentgateway
 [2]: https://iplatebnibrana.csob.cz/keygen/
-[3]: https://github.com/csob/paymentgateway/tree/master/eshop-integration/keys
+[3]: https://github.com/csob/paymentgateway/tree/master/keys
 [4]: https://github.com/csob/paymentgateway/wiki/eAPI-v1-CZ#user-content-%C5%BDivotn%C3%AD-cyklus-transakce-
 [5]: https://github.com/ondrakoupil
 [6]: https://platebnibrana.csob.cz/
