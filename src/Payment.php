@@ -265,7 +265,7 @@ class Payment {
 		}
 
 		$name = trim(Strings::shorten($name, 20, "", true, true));
-		$description = trim(Strings::shorten($description, 40, ""));
+		$description = trim(Strings::shorten($description, 40, "", true, true));
 
 		$this->cart[] = array(
 			"name" => $name,

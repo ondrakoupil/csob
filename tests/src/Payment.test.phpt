@@ -32,7 +32,7 @@ class PaymentTestCase extends TestCase {
 		$payment = new Payment("100");
 
 		$payment->addCartItem("Item 1", 10, 30000, "Desc 1");
-		$payment->addCartItem("Item 2 with a really long name that needs to be trimmed", 1, 10000);
+		$payment->addCartItem("Item 2 with a really long name that needs to be trimmed", 1, 10000, "A description of a cart item that is long and needs to be trimmed");
 
 		// No more than two items can be in cart
 		Assert::exception(function() use ($payment) {
@@ -51,6 +51,7 @@ class PaymentTestCase extends TestCase {
 		Assert::same("Item 1", $exported["cart"][0]["name"]);
 		Assert::same("Desc 1", $exported["cart"][0]["description"]);
 		Assert::same("Item 2 with a really", $exported["cart"][1]["name"]);
+		Assert::same("A description of a cart item that is lon", $exported["cart"][1]["description"]);
 
 		// At least one item must be in the cart
 		$payment = new Payment("200");
