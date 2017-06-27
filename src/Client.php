@@ -175,7 +175,7 @@ class Client {
 				"payment/init",
 				$array,
 				"POST",
-				array("payId", "dttm", "resultCode", "resultMessage", "paymentStatus", "?authCode"),
+				array("payId", "dttm", "resultCode", "resultMessage", "?paymentStatus", "?authCode"),
 				null,
 				false,
 				false,
