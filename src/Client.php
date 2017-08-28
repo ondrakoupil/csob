@@ -1412,7 +1412,16 @@ class Client {
 			\curl_setopt($ch, CURLOPT_POSTFIELDS, $encodedPayload);
 		}
 
-		\curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+		if (!$this->config->sslCertificatePath) {
+			\curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+		} else {
+			if (is_dir($this->config->sslCertificatePath)) {
+				\curl_setopt($ch, CURLOPT_CAPATH, $this->config->sslCertificatePath);
+			} else {
+				\curl_setopt($ch, CURLOPT_CAINFO, $this->config->sslCertificatePath);
+			}
+		}
+
 		\curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 		\curl_setopt($ch, CURLOPT_HTTPHEADER, array(
 			'Content-Type: application/json',

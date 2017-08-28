@@ -1418,7 +1418,16 @@ class Client {
 			\curl_setopt($ch, CURLOPT_POSTFIELDS, $encodedPayload);
 		}
 
-		\curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+		if (!$this->config->sslCertificatePath) {
+			\curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+		} else {
+			if (is_dir($this->config->sslCertificatePath)) {
+				\curl_setopt($ch, CURLOPT_CAPATH, $this->config->sslCertificatePath);
+			} else {
+				\curl_setopt($ch, CURLOPT_CAINFO, $this->config->sslCertificatePath);
+			}
+		}
+
 		\curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 		\curl_setopt($ch, CURLOPT_HTTPHEADER, array(
 			'Content-Type: application/json',
@@ -1652,6 +1661,18 @@ class Config {
 	public $closePayment = true;
 
 	/**
+	 * Path to a CA certificate chain or a directory containing certificates to verify
+	 * bank's certificate when initiating a HTTPS connection.
+	 *
+	 * Leave null to disable certificate validation.
+	 *
+	 * @see CURLOPT_SSL_VERIFYPEER, CURLOPT_CAINFO, CURLOPT_CAPATH
+	 *
+	 * @var string
+	 */
+	public $sslCertificatePath = null;
+
+	/**
 	 * Create config with all mandatory values.
 	 *
 	 * See equally named properties of this class for more info.
@@ -1665,8 +1686,9 @@ class Config {
 	 * @param string $returnUrl
 	 * @param string $bankApiUrl
 	 * @param string $privateKeyPassword
+	 * @param string $sslCertificatePath
 	 */
-	function __construct($merchantId, $privateKeyFile, $bankPublicKeyFile, $shopName, $returnUrl = null, $bankApiUrl = null, $privateKeyPassword = null) {
+	function __construct($merchantId, $privateKeyFile, $bankPublicKeyFile, $shopName, $returnUrl = null, $bankApiUrl = null, $privateKeyPassword = null, $sslCertificatePath = null) {
 		if ($bankApiUrl) {
 			$this->url = $bankApiUrl;
 		}
@@ -1680,6 +1702,7 @@ class Config {
 
 		$this->returnUrl = $returnUrl;
 		$this->shopName = $shopName;
+		$this->sslCertificatePath = $sslCertificatePath;
 	}
 
 

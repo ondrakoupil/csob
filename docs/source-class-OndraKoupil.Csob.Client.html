@@ -1524,142 +1524,151 @@
 </span><span id="1412" class="l"><a href="#1412">1412: </a>            \<span class="php-keyword2">curl_setopt</span>(<span class="php-var">$ch</span>, CURLOPT_POSTFIELDS, <span class="php-var">$encodedPayload</span>);
 </span><span id="1413" class="l"><a href="#1413">1413: </a>        }
 </span><span id="1414" class="l"><a href="#1414">1414: </a>
-</span><span id="1415" class="l"><a href="#1415">1415: </a>        \<span class="php-keyword2">curl_setopt</span>(<span class="php-var">$ch</span>, CURLOPT_SSL_VERIFYPEER, <span class="php-keyword1">false</span>);
-</span><span id="1416" class="l"><a href="#1416">1416: </a>        \<span class="php-keyword2">curl_setopt</span>(<span class="php-var">$ch</span>, CURLOPT_RETURNTRANSFER, <span class="php-keyword1">true</span>);
-</span><span id="1417" class="l"><a href="#1417">1417: </a>        \<span class="php-keyword2">curl_setopt</span>(<span class="php-var">$ch</span>, CURLOPT_HTTPHEADER, <span class="php-keyword1">array</span>(
-</span><span id="1418" class="l"><a href="#1418">1418: </a>            <span class="php-quote">'Content-Type: application/json'</span>,
-</span><span id="1419" class="l"><a href="#1419">1419: </a>            <span class="php-quote">'Accept: application/json;charset=UTF-8'</span>
-</span><span id="1420" class="l"><a href="#1420">1420: </a>        ));
-</span><span id="1421" class="l"><a href="#1421">1421: </a>
-</span><span id="1422" class="l"><a href="#1422">1422: </a>        <span class="php-var">$result</span> = \<span class="php-keyword2">curl_exec</span>(<span class="php-var">$ch</span>);
-</span><span id="1423" class="l"><a href="#1423">1423: </a>
-</span><span id="1424" class="l"><a href="#1424">1424: </a>        <span class="php-keyword1">if</span> (\<span class="php-keyword2">curl_errno</span>(<span class="php-var">$ch</span>)) {
-</span><span id="1425" class="l"><a href="#1425">1425: </a>            <span class="php-var">$this</span>-&gt;writeToTraceLog(<span class="php-quote">&quot;CURL failed: &quot;</span> . \<span class="php-keyword2">curl_errno</span>(<span class="php-var">$ch</span>) . <span class="php-quote">&quot; &quot;</span> . \<span class="php-keyword2">curl_error</span>(<span class="php-var">$ch</span>));
-</span><span id="1426" class="l"><a href="#1426">1426: </a>            <span class="php-keyword1">throw</span> <span class="php-keyword1">new</span> Exception(<span class="php-quote">&quot;Failed sending data to API: &quot;</span>.\<span class="php-keyword2">curl_errno</span>(<span class="php-var">$ch</span>).<span class="php-quote">&quot; &quot;</span>.\<span class="php-keyword2">curl_error</span>(<span class="php-var">$ch</span>));
-</span><span id="1427" class="l"><a href="#1427">1427: </a>        }
-</span><span id="1428" class="l"><a href="#1428">1428: </a>
-</span><span id="1429" class="l"><a href="#1429">1429: </a>        <span class="php-var">$this</span>-&gt;writeToTraceLog(<span class="php-quote">&quot;API response: </span><span class="php-var">$result</span><span class="php-quote">&quot;</span>);
+</span><span id="1415" class="l"><a href="#1415">1415: </a>        <span class="php-keyword1">if</span> (!<span class="php-var">$this</span>-&gt;config-&gt;sslCertificatePath) {
+</span><span id="1416" class="l"><a href="#1416">1416: </a>            \<span class="php-keyword2">curl_setopt</span>(<span class="php-var">$ch</span>, CURLOPT_SSL_VERIFYPEER, <span class="php-keyword1">false</span>);
+</span><span id="1417" class="l"><a href="#1417">1417: </a>        } <span class="php-keyword1">else</span> {
+</span><span id="1418" class="l"><a href="#1418">1418: </a>            <span class="php-keyword1">if</span> (<span class="php-keyword2">is_dir</span>(<span class="php-var">$this</span>-&gt;config-&gt;sslCertificatePath)) {
+</span><span id="1419" class="l"><a href="#1419">1419: </a>                \<span class="php-keyword2">curl_setopt</span>(<span class="php-var">$ch</span>, CURLOPT_CAPATH, <span class="php-var">$this</span>-&gt;config-&gt;sslCertificatePath);
+</span><span id="1420" class="l"><a href="#1420">1420: </a>            } <span class="php-keyword1">else</span> {
+</span><span id="1421" class="l"><a href="#1421">1421: </a>                \<span class="php-keyword2">curl_setopt</span>(<span class="php-var">$ch</span>, CURLOPT_CAINFO, <span class="php-var">$this</span>-&gt;config-&gt;sslCertificatePath);
+</span><span id="1422" class="l"><a href="#1422">1422: </a>            }
+</span><span id="1423" class="l"><a href="#1423">1423: </a>        }
+</span><span id="1424" class="l"><a href="#1424">1424: </a>
+</span><span id="1425" class="l"><a href="#1425">1425: </a>        \<span class="php-keyword2">curl_setopt</span>(<span class="php-var">$ch</span>, CURLOPT_RETURNTRANSFER, <span class="php-keyword1">true</span>);
+</span><span id="1426" class="l"><a href="#1426">1426: </a>        \<span class="php-keyword2">curl_setopt</span>(<span class="php-var">$ch</span>, CURLOPT_HTTPHEADER, <span class="php-keyword1">array</span>(
+</span><span id="1427" class="l"><a href="#1427">1427: </a>            <span class="php-quote">'Content-Type: application/json'</span>,
+</span><span id="1428" class="l"><a href="#1428">1428: </a>            <span class="php-quote">'Accept: application/json;charset=UTF-8'</span>
+</span><span id="1429" class="l"><a href="#1429">1429: </a>        ));
 </span><span id="1430" class="l"><a href="#1430">1430: </a>
-</span><span id="1431" class="l"><a href="#1431">1431: </a>        <span class="php-var">$httpCode</span> = \<span class="php-keyword2">curl_getinfo</span>(<span class="php-var">$ch</span>, CURLINFO_HTTP_CODE);
-</span><span id="1432" class="l"><a href="#1432">1432: </a>        <span class="php-keyword1">if</span> (<span class="php-var">$httpCode</span> != <span class="php-num">200</span>) {
-</span><span id="1433" class="l"><a href="#1433">1433: </a>            <span class="php-var">$this</span>-&gt;writeToTraceLog(<span class="php-quote">&quot;Failed: returned HTTP code </span><span class="php-var">$httpCode</span><span class="php-quote">&quot;</span>);
-</span><span id="1434" class="l"><a href="#1434">1434: </a>            <span class="php-keyword1">throw</span> <span class="php-keyword1">new</span> Exception(
-</span><span id="1435" class="l"><a href="#1435">1435: </a>                <span class="php-quote">&quot;API returned HTTP code </span><span class="php-var">$httpCode</span><span class="php-quote">, which is not code 200.&quot;</span>
-</span><span id="1436" class="l"><a href="#1436">1436: </a>                . (<span class="php-var">$httpCode</span> == <span class="php-num">400</span> ? <span class="php-quote">&quot; Probably wrong signature, check crypto keys.&quot;</span> : <span class="php-quote">&quot;&quot;</span>)
-</span><span id="1437" class="l"><a href="#1437">1437: </a>            );
-</span><span id="1438" class="l"><a href="#1438">1438: </a>        }
+</span><span id="1431" class="l"><a href="#1431">1431: </a>        <span class="php-var">$result</span> = \<span class="php-keyword2">curl_exec</span>(<span class="php-var">$ch</span>);
+</span><span id="1432" class="l"><a href="#1432">1432: </a>
+</span><span id="1433" class="l"><a href="#1433">1433: </a>        <span class="php-keyword1">if</span> (\<span class="php-keyword2">curl_errno</span>(<span class="php-var">$ch</span>)) {
+</span><span id="1434" class="l"><a href="#1434">1434: </a>            <span class="php-var">$this</span>-&gt;writeToTraceLog(<span class="php-quote">&quot;CURL failed: &quot;</span> . \<span class="php-keyword2">curl_errno</span>(<span class="php-var">$ch</span>) . <span class="php-quote">&quot; &quot;</span> . \<span class="php-keyword2">curl_error</span>(<span class="php-var">$ch</span>));
+</span><span id="1435" class="l"><a href="#1435">1435: </a>            <span class="php-keyword1">throw</span> <span class="php-keyword1">new</span> Exception(<span class="php-quote">&quot;Failed sending data to API: &quot;</span>.\<span class="php-keyword2">curl_errno</span>(<span class="php-var">$ch</span>).<span class="php-quote">&quot; &quot;</span>.\<span class="php-keyword2">curl_error</span>(<span class="php-var">$ch</span>));
+</span><span id="1436" class="l"><a href="#1436">1436: </a>        }
+</span><span id="1437" class="l"><a href="#1437">1437: </a>
+</span><span id="1438" class="l"><a href="#1438">1438: </a>        <span class="php-var">$this</span>-&gt;writeToTraceLog(<span class="php-quote">&quot;API response: </span><span class="php-var">$result</span><span class="php-quote">&quot;</span>);
 </span><span id="1439" class="l"><a href="#1439">1439: </a>
-</span><span id="1440" class="l"><a href="#1440">1440: </a>        \<span class="php-keyword2">curl_close</span>(<span class="php-var">$ch</span>);
-</span><span id="1441" class="l"><a href="#1441">1441: </a>
-</span><span id="1442" class="l"><a href="#1442">1442: </a>        <span class="php-var">$decoded</span> = @<span class="php-keyword2">json_decode</span>(<span class="php-var">$result</span>, <span class="php-keyword1">true</span>);
-</span><span id="1443" class="l"><a href="#1443">1443: </a>        <span class="php-keyword1">if</span> (<span class="php-var">$decoded</span> === <span class="php-keyword1">null</span>) {
-</span><span id="1444" class="l"><a href="#1444">1444: </a>            <span class="php-var">$this</span>-&gt;writeToTraceLog(<span class="php-quote">&quot;Failed: returned value is not parsable JSON&quot;</span>);
-</span><span id="1445" class="l"><a href="#1445">1445: </a>            <span class="php-keyword1">throw</span> <span class="php-keyword1">new</span> Exception(<span class="php-quote">&quot;API did not return a parseable JSON string: \&quot;&quot;</span>.<span class="php-var">$result</span>.<span class="php-quote">&quot;\&quot;&quot;</span>);
-</span><span id="1446" class="l"><a href="#1446">1446: </a>        }
-</span><span id="1447" class="l"><a href="#1447">1447: </a>
-</span><span id="1448" class="l"><a href="#1448">1448: </a>        <span class="php-keyword1">if</span> (!<span class="php-keyword1">isset</span>(<span class="php-var">$decoded</span>[<span class="php-quote">&quot;resultCode&quot;</span>])) {
-</span><span id="1449" class="l"><a href="#1449">1449: </a>            <span class="php-var">$this</span>-&gt;writeToTraceLog(<span class="php-quote">&quot;Failed: API did not return response with resultCode&quot;</span>);
-</span><span id="1450" class="l"><a href="#1450">1450: </a>            <span class="php-keyword1">throw</span> <span class="php-keyword1">new</span> Exception(<span class="php-quote">&quot;API did not return a response containing resultCode.&quot;</span>);
-</span><span id="1451" class="l"><a href="#1451">1451: </a>        }
-</span><span id="1452" class="l"><a href="#1452">1452: </a>
-</span><span id="1453" class="l"><a href="#1453">1453: </a>        <span class="php-keyword1">if</span> (!<span class="php-keyword1">isset</span>(<span class="php-var">$decoded</span>[<span class="php-quote">&quot;signature&quot;</span>]) <span class="php-keyword1">or</span> !<span class="php-var">$decoded</span>[<span class="php-quote">&quot;signature&quot;</span>]) {
-</span><span id="1454" class="l"><a href="#1454">1454: </a>            <span class="php-var">$this</span>-&gt;writeToTraceLog(<span class="php-quote">&quot;Failed: missing response signature&quot;</span>);
-</span><span id="1455" class="l"><a href="#1455">1455: </a>            <span class="php-keyword1">throw</span> <span class="php-keyword1">new</span> Exception(<span class="php-quote">&quot;Result does not contain signature.&quot;</span>);
-</span><span id="1456" class="l"><a href="#1456">1456: </a>        }
-</span><span id="1457" class="l"><a href="#1457">1457: </a>
-</span><span id="1458" class="l"><a href="#1458">1458: </a>        <span class="php-var">$signature</span> = <span class="php-var">$decoded</span>[<span class="php-quote">&quot;signature&quot;</span>];
-</span><span id="1459" class="l"><a href="#1459">1459: </a>
-</span><span id="1460" class="l"><a href="#1460">1460: </a>        <span class="php-keyword1">try</span> {
-</span><span id="1461" class="l"><a href="#1461">1461: </a>            <span class="php-var">$verificationResult</span> = <span class="php-var">$this</span>-&gt;verifyResponseSignature(<span class="php-var">$decoded</span>, <span class="php-var">$signature</span>, <span class="php-var">$responseFieldsOrder</span>);
-</span><span id="1462" class="l"><a href="#1462">1462: </a>        } <span class="php-keyword1">catch</span> (Exception <span class="php-var">$e</span>) {
-</span><span id="1463" class="l"><a href="#1463">1463: </a>            <span class="php-var">$this</span>-&gt;writeToTraceLog(<span class="php-quote">&quot;Failed: error occured when verifying signature.&quot;</span>);
-</span><span id="1464" class="l"><a href="#1464">1464: </a>            <span class="php-keyword1">throw</span> <span class="php-var">$e</span>;
+</span><span id="1440" class="l"><a href="#1440">1440: </a>        <span class="php-var">$httpCode</span> = \<span class="php-keyword2">curl_getinfo</span>(<span class="php-var">$ch</span>, CURLINFO_HTTP_CODE);
+</span><span id="1441" class="l"><a href="#1441">1441: </a>        <span class="php-keyword1">if</span> (<span class="php-var">$httpCode</span> != <span class="php-num">200</span>) {
+</span><span id="1442" class="l"><a href="#1442">1442: </a>            <span class="php-var">$this</span>-&gt;writeToTraceLog(<span class="php-quote">&quot;Failed: returned HTTP code </span><span class="php-var">$httpCode</span><span class="php-quote">&quot;</span>);
+</span><span id="1443" class="l"><a href="#1443">1443: </a>            <span class="php-keyword1">throw</span> <span class="php-keyword1">new</span> Exception(
+</span><span id="1444" class="l"><a href="#1444">1444: </a>                <span class="php-quote">&quot;API returned HTTP code </span><span class="php-var">$httpCode</span><span class="php-quote">, which is not code 200.&quot;</span>
+</span><span id="1445" class="l"><a href="#1445">1445: </a>                . (<span class="php-var">$httpCode</span> == <span class="php-num">400</span> ? <span class="php-quote">&quot; Probably wrong signature, check crypto keys.&quot;</span> : <span class="php-quote">&quot;&quot;</span>)
+</span><span id="1446" class="l"><a href="#1446">1446: </a>            );
+</span><span id="1447" class="l"><a href="#1447">1447: </a>        }
+</span><span id="1448" class="l"><a href="#1448">1448: </a>
+</span><span id="1449" class="l"><a href="#1449">1449: </a>        \<span class="php-keyword2">curl_close</span>(<span class="php-var">$ch</span>);
+</span><span id="1450" class="l"><a href="#1450">1450: </a>
+</span><span id="1451" class="l"><a href="#1451">1451: </a>        <span class="php-var">$decoded</span> = @<span class="php-keyword2">json_decode</span>(<span class="php-var">$result</span>, <span class="php-keyword1">true</span>);
+</span><span id="1452" class="l"><a href="#1452">1452: </a>        <span class="php-keyword1">if</span> (<span class="php-var">$decoded</span> === <span class="php-keyword1">null</span>) {
+</span><span id="1453" class="l"><a href="#1453">1453: </a>            <span class="php-var">$this</span>-&gt;writeToTraceLog(<span class="php-quote">&quot;Failed: returned value is not parsable JSON&quot;</span>);
+</span><span id="1454" class="l"><a href="#1454">1454: </a>            <span class="php-keyword1">throw</span> <span class="php-keyword1">new</span> Exception(<span class="php-quote">&quot;API did not return a parseable JSON string: \&quot;&quot;</span>.<span class="php-var">$result</span>.<span class="php-quote">&quot;\&quot;&quot;</span>);
+</span><span id="1455" class="l"><a href="#1455">1455: </a>        }
+</span><span id="1456" class="l"><a href="#1456">1456: </a>
+</span><span id="1457" class="l"><a href="#1457">1457: </a>        <span class="php-keyword1">if</span> (!<span class="php-keyword1">isset</span>(<span class="php-var">$decoded</span>[<span class="php-quote">&quot;resultCode&quot;</span>])) {
+</span><span id="1458" class="l"><a href="#1458">1458: </a>            <span class="php-var">$this</span>-&gt;writeToTraceLog(<span class="php-quote">&quot;Failed: API did not return response with resultCode&quot;</span>);
+</span><span id="1459" class="l"><a href="#1459">1459: </a>            <span class="php-keyword1">throw</span> <span class="php-keyword1">new</span> Exception(<span class="php-quote">&quot;API did not return a response containing resultCode.&quot;</span>);
+</span><span id="1460" class="l"><a href="#1460">1460: </a>        }
+</span><span id="1461" class="l"><a href="#1461">1461: </a>
+</span><span id="1462" class="l"><a href="#1462">1462: </a>        <span class="php-keyword1">if</span> (!<span class="php-keyword1">isset</span>(<span class="php-var">$decoded</span>[<span class="php-quote">&quot;signature&quot;</span>]) <span class="php-keyword1">or</span> !<span class="php-var">$decoded</span>[<span class="php-quote">&quot;signature&quot;</span>]) {
+</span><span id="1463" class="l"><a href="#1463">1463: </a>            <span class="php-var">$this</span>-&gt;writeToTraceLog(<span class="php-quote">&quot;Failed: missing response signature&quot;</span>);
+</span><span id="1464" class="l"><a href="#1464">1464: </a>            <span class="php-keyword1">throw</span> <span class="php-keyword1">new</span> Exception(<span class="php-quote">&quot;Result does not contain signature.&quot;</span>);
 </span><span id="1465" class="l"><a href="#1465">1465: </a>        }
 </span><span id="1466" class="l"><a href="#1466">1466: </a>
-</span><span id="1467" class="l"><a href="#1467">1467: </a>        <span class="php-keyword1">if</span> (!<span class="php-var">$verificationResult</span>) {
+</span><span id="1467" class="l"><a href="#1467">1467: </a>        <span class="php-var">$signature</span> = <span class="php-var">$decoded</span>[<span class="php-quote">&quot;signature&quot;</span>];
 </span><span id="1468" class="l"><a href="#1468">1468: </a>
-</span><span id="1469" class="l"><a href="#1469">1469: </a>            <span class="php-keyword1">if</span> (!<span class="php-var">$allowInvalidReturnSignature</span>) {
-</span><span id="1470" class="l"><a href="#1470">1470: </a>                <span class="php-var">$this</span>-&gt;writeToTraceLog(<span class="php-quote">&quot;Failed: signature is incorrect.&quot;</span>);
-</span><span id="1471" class="l"><a href="#1471">1471: </a>                <span class="php-keyword1">throw</span> <span class="php-keyword1">new</span> Exception(<span class="php-quote">&quot;Result signature is incorrect. Please make sure that bank's public key in file specified in config is correct and up-to-date.&quot;</span>);
-</span><span id="1472" class="l"><a href="#1472">1472: </a>            } <span class="php-keyword1">else</span> {
-</span><span id="1473" class="l"><a href="#1473">1473: </a>                <span class="php-var">$this</span>-&gt;writeToTraceLog(<span class="php-quote">&quot;Signature is incorrect, but method was called with \</span><span class="php-var">$allowInvalidReturnSignature</span><span class="php-quote"> = true, so we'll ignore it.&quot;</span>);
-</span><span id="1474" class="l"><a href="#1474">1474: </a>            }
-</span><span id="1475" class="l"><a href="#1475">1475: </a>        }
-</span><span id="1476" class="l"><a href="#1476">1476: </a>
-</span><span id="1477" class="l"><a href="#1477">1477: </a>        <span class="php-keyword1">if</span> (<span class="php-var">$decoded</span>[<span class="php-quote">&quot;resultCode&quot;</span>] != <span class="php-quote">&quot;0&quot;</span>) {
-</span><span id="1478" class="l"><a href="#1478">1478: </a>            <span class="php-var">$this</span>-&gt;writeToTraceLog(<span class="php-quote">&quot;Failed: resultCode &quot;</span>.<span class="php-var">$decoded</span>[<span class="php-quote">&quot;resultCode&quot;</span>].<span class="php-quote">&quot;, message &quot;</span>.<span class="php-var">$decoded</span>[<span class="php-quote">&quot;resultMessage&quot;</span>]);
-</span><span id="1479" class="l"><a href="#1479">1479: </a>            <span class="php-keyword1">throw</span> <span class="php-keyword1">new</span> Exception(<span class="php-quote">&quot;API returned an error: resultCode \&quot;&quot;</span> . <span class="php-var">$decoded</span>[<span class="php-quote">&quot;resultCode&quot;</span>] . <span class="php-quote">&quot;\&quot;, resultMessage: &quot;</span>.<span class="php-var">$decoded</span>[<span class="php-quote">&quot;resultMessage&quot;</span>], <span class="php-var">$decoded</span>[<span class="php-quote">&quot;resultCode&quot;</span>]);
-</span><span id="1480" class="l"><a href="#1480">1480: </a>        }
-</span><span id="1481" class="l"><a href="#1481">1481: </a>
-</span><span id="1482" class="l"><a href="#1482">1482: </a>        <span class="php-keyword1">if</span> (<span class="php-var">$extensions</span>) {
-</span><span id="1483" class="l"><a href="#1483">1483: </a>            <span class="php-var">$extensionsById</span> = <span class="php-keyword1">array</span>();
-</span><span id="1484" class="l"><a href="#1484">1484: </a>            <span class="php-keyword1">foreach</span> (<span class="php-var">$extensions</span> <span class="php-keyword1">as</span> <span class="php-var">$extension</span>) {
-</span><span id="1485" class="l"><a href="#1485">1485: </a>                <span class="php-var">$extensionsById</span>[<span class="php-var">$extension</span>-&gt;getExtensionId()] = <span class="php-var">$extension</span>;
-</span><span id="1486" class="l"><a href="#1486">1486: </a>            }
-</span><span id="1487" class="l"><a href="#1487">1487: </a>            <span class="php-var">$extensionsDataDecoded</span> = <span class="php-keyword1">isset</span>(<span class="php-var">$decoded</span>[<span class="php-quote">&quot;extensions&quot;</span>]) ? <span class="php-var">$decoded</span>[<span class="php-quote">&quot;extensions&quot;</span>] : <span class="php-keyword1">array</span>();
-</span><span id="1488" class="l"><a href="#1488">1488: </a>            <span class="php-keyword1">foreach</span> (<span class="php-var">$extensionsDataDecoded</span> <span class="php-keyword1">as</span> <span class="php-var">$extensionData</span>) {
-</span><span id="1489" class="l"><a href="#1489">1489: </a>                <span class="php-var">$extensionId</span> = <span class="php-var">$extensionData</span>[<span class="php-quote">'extension'</span>];
-</span><span id="1490" class="l"><a href="#1490">1490: </a>                <span class="php-keyword1">if</span> (<span class="php-keyword1">isset</span>(<span class="php-var">$extensionsById</span>[<span class="php-var">$extensionId</span>])) {
-</span><span id="1491" class="l"><a href="#1491">1491: </a>                    <span class="php-comment">/** @var Extension $extensionObject */</span>
-</span><span id="1492" class="l"><a href="#1492">1492: </a>                    <span class="php-var">$extensionObject</span> = <span class="php-var">$extensionsById</span>[<span class="php-var">$extensionId</span>];
-</span><span id="1493" class="l"><a href="#1493">1493: </a>                    <span class="php-var">$extensionObject</span>-&gt;setResponseData(<span class="php-var">$extensionData</span>);
-</span><span id="1494" class="l"><a href="#1494">1494: </a>                    <span class="php-var">$signatureResult</span> = <span class="php-var">$extensionObject</span>-&gt;verifySignature(<span class="php-var">$extensionData</span>, <span class="php-var">$this</span>);
-</span><span id="1495" class="l"><a href="#1495">1495: </a>                    <span class="php-keyword1">if</span> (!<span class="php-var">$signatureResult</span>) {
-</span><span id="1496" class="l"><a href="#1496">1496: </a>                        <span class="php-var">$this</span>-&gt;writeToTraceLog(<span class="php-quote">&quot;Signature of extension </span><span class="php-var">$extensionId</span><span class="php-quote"> is incorrect.&quot;</span>);
-</span><span id="1497" class="l"><a href="#1497">1497: </a>                        <span class="php-keyword1">if</span> (<span class="php-var">$extension</span>-&gt;getStrictSignatureVerification()) {
-</span><span id="1498" class="l"><a href="#1498">1498: </a>                            <span class="php-keyword1">throw</span> <span class="php-keyword1">new</span> Exception(<span class="php-quote">&quot;Result signature of extension </span><span class="php-var">$extensionId</span><span class="php-quote"> is incorrect. Please make sure that bank's public key in file specified in config is correct and up-to-date.&quot;</span>);
-</span><span id="1499" class="l"><a href="#1499">1499: </a>                        } <span class="php-keyword1">else</span> {
-</span><span id="1500" class="l"><a href="#1500">1500: </a>                            <span class="php-var">$extension</span>-&gt;setSignatureCorrect(<span class="php-keyword1">false</span>);
-</span><span id="1501" class="l"><a href="#1501">1501: </a>                        }
-</span><span id="1502" class="l"><a href="#1502">1502: </a>                    } <span class="php-keyword1">else</span> {
-</span><span id="1503" class="l"><a href="#1503">1503: </a>                        <span class="php-var">$extension</span>-&gt;setSignatureCorrect(<span class="php-keyword1">true</span>);
-</span><span id="1504" class="l"><a href="#1504">1504: </a>                    }
-</span><span id="1505" class="l"><a href="#1505">1505: </a>                }
-</span><span id="1506" class="l"><a href="#1506">1506: </a>            }
-</span><span id="1507" class="l"><a href="#1507">1507: </a>        }
-</span><span id="1508" class="l"><a href="#1508">1508: </a>
-</span><span id="1509" class="l"><a href="#1509">1509: </a>        <span class="php-var">$this</span>-&gt;writeToTraceLog(<span class="php-quote">&quot;OK&quot;</span>);
-</span><span id="1510" class="l"><a href="#1510">1510: </a>
-</span><span id="1511" class="l"><a href="#1511">1511: </a>        <span class="php-keyword1">return</span> <span class="php-var">$decoded</span>;
-</span><span id="1512" class="l"><a href="#1512">1512: </a>    }
-</span><span id="1513" class="l"><a href="#1513">1513: </a>
-</span><span id="1514" class="l"><a href="#1514">1514: </a>    <span class="php-comment">/**
-</span></span><span id="1515" class="l"><a href="#1515">1515: </a><span class="php-comment">     * Gets the URL of API method
-</span></span><span id="1516" class="l"><a href="#1516">1516: </a><span class="php-comment">     * @param string $apiMethod
-</span></span><span id="1517" class="l"><a href="#1517">1517: </a><span class="php-comment">     * @return string
-</span></span><span id="1518" class="l"><a href="#1518">1518: </a><span class="php-comment">     */</span>
-</span><span id="1519" class="l"><a href="#1519">1519: </a>    <span class="php-keyword1">function</span> getApiMethodUrl(<span class="php-var">$apiMethod</span>) {
-</span><span id="1520" class="l"><a href="#1520">1520: </a>        <span class="php-keyword1">return</span> <span class="php-var">$this</span>-&gt;config-&gt;url . <span class="php-quote">&quot;/&quot;</span> . <span class="php-var">$apiMethod</span>;
+</span><span id="1469" class="l"><a href="#1469">1469: </a>        <span class="php-keyword1">try</span> {
+</span><span id="1470" class="l"><a href="#1470">1470: </a>            <span class="php-var">$verificationResult</span> = <span class="php-var">$this</span>-&gt;verifyResponseSignature(<span class="php-var">$decoded</span>, <span class="php-var">$signature</span>, <span class="php-var">$responseFieldsOrder</span>);
+</span><span id="1471" class="l"><a href="#1471">1471: </a>        } <span class="php-keyword1">catch</span> (Exception <span class="php-var">$e</span>) {
+</span><span id="1472" class="l"><a href="#1472">1472: </a>            <span class="php-var">$this</span>-&gt;writeToTraceLog(<span class="php-quote">&quot;Failed: error occured when verifying signature.&quot;</span>);
+</span><span id="1473" class="l"><a href="#1473">1473: </a>            <span class="php-keyword1">throw</span> <span class="php-var">$e</span>;
+</span><span id="1474" class="l"><a href="#1474">1474: </a>        }
+</span><span id="1475" class="l"><a href="#1475">1475: </a>
+</span><span id="1476" class="l"><a href="#1476">1476: </a>        <span class="php-keyword1">if</span> (!<span class="php-var">$verificationResult</span>) {
+</span><span id="1477" class="l"><a href="#1477">1477: </a>
+</span><span id="1478" class="l"><a href="#1478">1478: </a>            <span class="php-keyword1">if</span> (!<span class="php-var">$allowInvalidReturnSignature</span>) {
+</span><span id="1479" class="l"><a href="#1479">1479: </a>                <span class="php-var">$this</span>-&gt;writeToTraceLog(<span class="php-quote">&quot;Failed: signature is incorrect.&quot;</span>);
+</span><span id="1480" class="l"><a href="#1480">1480: </a>                <span class="php-keyword1">throw</span> <span class="php-keyword1">new</span> Exception(<span class="php-quote">&quot;Result signature is incorrect. Please make sure that bank's public key in file specified in config is correct and up-to-date.&quot;</span>);
+</span><span id="1481" class="l"><a href="#1481">1481: </a>            } <span class="php-keyword1">else</span> {
+</span><span id="1482" class="l"><a href="#1482">1482: </a>                <span class="php-var">$this</span>-&gt;writeToTraceLog(<span class="php-quote">&quot;Signature is incorrect, but method was called with \</span><span class="php-var">$allowInvalidReturnSignature</span><span class="php-quote"> = true, so we'll ignore it.&quot;</span>);
+</span><span id="1483" class="l"><a href="#1483">1483: </a>            }
+</span><span id="1484" class="l"><a href="#1484">1484: </a>        }
+</span><span id="1485" class="l"><a href="#1485">1485: </a>
+</span><span id="1486" class="l"><a href="#1486">1486: </a>        <span class="php-keyword1">if</span> (<span class="php-var">$decoded</span>[<span class="php-quote">&quot;resultCode&quot;</span>] != <span class="php-quote">&quot;0&quot;</span>) {
+</span><span id="1487" class="l"><a href="#1487">1487: </a>            <span class="php-var">$this</span>-&gt;writeToTraceLog(<span class="php-quote">&quot;Failed: resultCode &quot;</span>.<span class="php-var">$decoded</span>[<span class="php-quote">&quot;resultCode&quot;</span>].<span class="php-quote">&quot;, message &quot;</span>.<span class="php-var">$decoded</span>[<span class="php-quote">&quot;resultMessage&quot;</span>]);
+</span><span id="1488" class="l"><a href="#1488">1488: </a>            <span class="php-keyword1">throw</span> <span class="php-keyword1">new</span> Exception(<span class="php-quote">&quot;API returned an error: resultCode \&quot;&quot;</span> . <span class="php-var">$decoded</span>[<span class="php-quote">&quot;resultCode&quot;</span>] . <span class="php-quote">&quot;\&quot;, resultMessage: &quot;</span>.<span class="php-var">$decoded</span>[<span class="php-quote">&quot;resultMessage&quot;</span>], <span class="php-var">$decoded</span>[<span class="php-quote">&quot;resultCode&quot;</span>]);
+</span><span id="1489" class="l"><a href="#1489">1489: </a>        }
+</span><span id="1490" class="l"><a href="#1490">1490: </a>
+</span><span id="1491" class="l"><a href="#1491">1491: </a>        <span class="php-keyword1">if</span> (<span class="php-var">$extensions</span>) {
+</span><span id="1492" class="l"><a href="#1492">1492: </a>            <span class="php-var">$extensionsById</span> = <span class="php-keyword1">array</span>();
+</span><span id="1493" class="l"><a href="#1493">1493: </a>            <span class="php-keyword1">foreach</span> (<span class="php-var">$extensions</span> <span class="php-keyword1">as</span> <span class="php-var">$extension</span>) {
+</span><span id="1494" class="l"><a href="#1494">1494: </a>                <span class="php-var">$extensionsById</span>[<span class="php-var">$extension</span>-&gt;getExtensionId()] = <span class="php-var">$extension</span>;
+</span><span id="1495" class="l"><a href="#1495">1495: </a>            }
+</span><span id="1496" class="l"><a href="#1496">1496: </a>            <span class="php-var">$extensionsDataDecoded</span> = <span class="php-keyword1">isset</span>(<span class="php-var">$decoded</span>[<span class="php-quote">&quot;extensions&quot;</span>]) ? <span class="php-var">$decoded</span>[<span class="php-quote">&quot;extensions&quot;</span>] : <span class="php-keyword1">array</span>();
+</span><span id="1497" class="l"><a href="#1497">1497: </a>            <span class="php-keyword1">foreach</span> (<span class="php-var">$extensionsDataDecoded</span> <span class="php-keyword1">as</span> <span class="php-var">$extensionData</span>) {
+</span><span id="1498" class="l"><a href="#1498">1498: </a>                <span class="php-var">$extensionId</span> = <span class="php-var">$extensionData</span>[<span class="php-quote">'extension'</span>];
+</span><span id="1499" class="l"><a href="#1499">1499: </a>                <span class="php-keyword1">if</span> (<span class="php-keyword1">isset</span>(<span class="php-var">$extensionsById</span>[<span class="php-var">$extensionId</span>])) {
+</span><span id="1500" class="l"><a href="#1500">1500: </a>                    <span class="php-comment">/** @var Extension $extensionObject */</span>
+</span><span id="1501" class="l"><a href="#1501">1501: </a>                    <span class="php-var">$extensionObject</span> = <span class="php-var">$extensionsById</span>[<span class="php-var">$extensionId</span>];
+</span><span id="1502" class="l"><a href="#1502">1502: </a>                    <span class="php-var">$extensionObject</span>-&gt;setResponseData(<span class="php-var">$extensionData</span>);
+</span><span id="1503" class="l"><a href="#1503">1503: </a>                    <span class="php-var">$signatureResult</span> = <span class="php-var">$extensionObject</span>-&gt;verifySignature(<span class="php-var">$extensionData</span>, <span class="php-var">$this</span>);
+</span><span id="1504" class="l"><a href="#1504">1504: </a>                    <span class="php-keyword1">if</span> (!<span class="php-var">$signatureResult</span>) {
+</span><span id="1505" class="l"><a href="#1505">1505: </a>                        <span class="php-var">$this</span>-&gt;writeToTraceLog(<span class="php-quote">&quot;Signature of extension </span><span class="php-var">$extensionId</span><span class="php-quote"> is incorrect.&quot;</span>);
+</span><span id="1506" class="l"><a href="#1506">1506: </a>                        <span class="php-keyword1">if</span> (<span class="php-var">$extension</span>-&gt;getStrictSignatureVerification()) {
+</span><span id="1507" class="l"><a href="#1507">1507: </a>                            <span class="php-keyword1">throw</span> <span class="php-keyword1">new</span> Exception(<span class="php-quote">&quot;Result signature of extension </span><span class="php-var">$extensionId</span><span class="php-quote"> is incorrect. Please make sure that bank's public key in file specified in config is correct and up-to-date.&quot;</span>);
+</span><span id="1508" class="l"><a href="#1508">1508: </a>                        } <span class="php-keyword1">else</span> {
+</span><span id="1509" class="l"><a href="#1509">1509: </a>                            <span class="php-var">$extension</span>-&gt;setSignatureCorrect(<span class="php-keyword1">false</span>);
+</span><span id="1510" class="l"><a href="#1510">1510: </a>                        }
+</span><span id="1511" class="l"><a href="#1511">1511: </a>                    } <span class="php-keyword1">else</span> {
+</span><span id="1512" class="l"><a href="#1512">1512: </a>                        <span class="php-var">$extension</span>-&gt;setSignatureCorrect(<span class="php-keyword1">true</span>);
+</span><span id="1513" class="l"><a href="#1513">1513: </a>                    }
+</span><span id="1514" class="l"><a href="#1514">1514: </a>                }
+</span><span id="1515" class="l"><a href="#1515">1515: </a>            }
+</span><span id="1516" class="l"><a href="#1516">1516: </a>        }
+</span><span id="1517" class="l"><a href="#1517">1517: </a>
+</span><span id="1518" class="l"><a href="#1518">1518: </a>        <span class="php-var">$this</span>-&gt;writeToTraceLog(<span class="php-quote">&quot;OK&quot;</span>);
+</span><span id="1519" class="l"><a href="#1519">1519: </a>
+</span><span id="1520" class="l"><a href="#1520">1520: </a>        <span class="php-keyword1">return</span> <span class="php-var">$decoded</span>;
 </span><span id="1521" class="l"><a href="#1521">1521: </a>    }
 </span><span id="1522" class="l"><a href="#1522">1522: </a>
 </span><span id="1523" class="l"><a href="#1523">1523: </a>    <span class="php-comment">/**
-</span></span><span id="1524" class="l"><a href="#1524">1524: </a><span class="php-comment">     * @param array $response
-</span></span><span id="1525" class="l"><a href="#1525">1525: </a><span class="php-comment">     * @param string $signature in Base64
-</span></span><span id="1526" class="l"><a href="#1526">1526: </a><span class="php-comment">     * @param array $responseFieldsOrder
-</span></span><span id="1527" class="l"><a href="#1527">1527: </a><span class="php-comment">     * @return bool
-</span></span><span id="1528" class="l"><a href="#1528">1528: </a><span class="php-comment">     * @ignore
-</span></span><span id="1529" class="l"><a href="#1529">1529: </a><span class="php-comment">     */</span>
-</span><span id="1530" class="l"><a href="#1530">1530: </a>    <span class="php-keyword1">function</span> verifyResponseSignature(<span class="php-var">$response</span>, <span class="php-var">$signature</span>, <span class="php-var">$responseFieldsOrder</span> = <span class="php-keyword1">array</span>()) {
+</span></span><span id="1524" class="l"><a href="#1524">1524: </a><span class="php-comment">     * Gets the URL of API method
+</span></span><span id="1525" class="l"><a href="#1525">1525: </a><span class="php-comment">     * @param string $apiMethod
+</span></span><span id="1526" class="l"><a href="#1526">1526: </a><span class="php-comment">     * @return string
+</span></span><span id="1527" class="l"><a href="#1527">1527: </a><span class="php-comment">     */</span>
+</span><span id="1528" class="l"><a href="#1528">1528: </a>    <span class="php-keyword1">function</span> getApiMethodUrl(<span class="php-var">$apiMethod</span>) {
+</span><span id="1529" class="l"><a href="#1529">1529: </a>        <span class="php-keyword1">return</span> <span class="php-var">$this</span>-&gt;config-&gt;url . <span class="php-quote">&quot;/&quot;</span> . <span class="php-var">$apiMethod</span>;
+</span><span id="1530" class="l"><a href="#1530">1530: </a>    }
 </span><span id="1531" class="l"><a href="#1531">1531: </a>
-</span><span id="1532" class="l"><a href="#1532">1532: </a>        <span class="php-var">$responseWithoutSignature</span> = <span class="php-var">$response</span>;
-</span><span id="1533" class="l"><a href="#1533">1533: </a>        <span class="php-keyword1">if</span> (<span class="php-keyword1">isset</span>(<span class="php-var">$responseWithoutSignature</span>[<span class="php-quote">&quot;signature&quot;</span>])) {
-</span><span id="1534" class="l"><a href="#1534">1534: </a>            <span class="php-keyword1">unset</span>(<span class="php-var">$responseWithoutSignature</span>[<span class="php-quote">&quot;signature&quot;</span>]);
-</span><span id="1535" class="l"><a href="#1535">1535: </a>        }
-</span><span id="1536" class="l"><a href="#1536">1536: </a>
-</span><span id="1537" class="l"><a href="#1537">1537: </a>        <span class="php-keyword1">if</span> (<span class="php-var">$responseFieldsOrder</span>) {
-</span><span id="1538" class="l"><a href="#1538">1538: </a>            <span class="php-var">$string</span> = Crypto::createSignatureBaseWithOrder(<span class="php-var">$responseWithoutSignature</span>, <span class="php-var">$responseFieldsOrder</span>, <span class="php-keyword1">false</span>);
-</span><span id="1539" class="l"><a href="#1539">1539: </a>        } <span class="php-keyword1">else</span> {
-</span><span id="1540" class="l"><a href="#1540">1540: </a>            <span class="php-var">$string</span> = Crypto::createSignatureBaseFromArray(<span class="php-var">$responseWithoutSignature</span>, <span class="php-keyword1">false</span>);
-</span><span id="1541" class="l"><a href="#1541">1541: </a>        }
-</span><span id="1542" class="l"><a href="#1542">1542: </a>
-</span><span id="1543" class="l"><a href="#1543">1543: </a>        <span class="php-var">$this</span>-&gt;writeToTraceLog(<span class="php-quote">&quot;String for verifying signature: \&quot;&quot;</span> . <span class="php-var">$string</span> . <span class="php-quote">&quot;\&quot;, using key &quot;</span> . <span class="php-var">$this</span>-&gt;config-&gt;bankPublicKeyFile);
-</span><span id="1544" class="l"><a href="#1544">1544: </a>
-</span><span id="1545" class="l"><a href="#1545">1545: </a>        <span class="php-keyword1">return</span> Crypto::verifySignature(<span class="php-var">$string</span>, <span class="php-var">$signature</span>, <span class="php-var">$this</span>-&gt;config-&gt;bankPublicKeyFile);
-</span><span id="1546" class="l"><a href="#1546">1546: </a>    }
-</span><span id="1547" class="l"><a href="#1547">1547: </a>
-</span><span id="1548" class="l"><a href="#1548">1548: </a>
-</span><span id="1549" class="l"><a href="#1549">1549: </a>}
-</span><span id="1550" class="l"><a href="#1550">1550: </a></span></code></pre>
+</span><span id="1532" class="l"><a href="#1532">1532: </a>    <span class="php-comment">/**
+</span></span><span id="1533" class="l"><a href="#1533">1533: </a><span class="php-comment">     * @param array $response
+</span></span><span id="1534" class="l"><a href="#1534">1534: </a><span class="php-comment">     * @param string $signature in Base64
+</span></span><span id="1535" class="l"><a href="#1535">1535: </a><span class="php-comment">     * @param array $responseFieldsOrder
+</span></span><span id="1536" class="l"><a href="#1536">1536: </a><span class="php-comment">     * @return bool
+</span></span><span id="1537" class="l"><a href="#1537">1537: </a><span class="php-comment">     * @ignore
+</span></span><span id="1538" class="l"><a href="#1538">1538: </a><span class="php-comment">     */</span>
+</span><span id="1539" class="l"><a href="#1539">1539: </a>    <span class="php-keyword1">function</span> verifyResponseSignature(<span class="php-var">$response</span>, <span class="php-var">$signature</span>, <span class="php-var">$responseFieldsOrder</span> = <span class="php-keyword1">array</span>()) {
+</span><span id="1540" class="l"><a href="#1540">1540: </a>
+</span><span id="1541" class="l"><a href="#1541">1541: </a>        <span class="php-var">$responseWithoutSignature</span> = <span class="php-var">$response</span>;
+</span><span id="1542" class="l"><a href="#1542">1542: </a>        <span class="php-keyword1">if</span> (<span class="php-keyword1">isset</span>(<span class="php-var">$responseWithoutSignature</span>[<span class="php-quote">&quot;signature&quot;</span>])) {
+</span><span id="1543" class="l"><a href="#1543">1543: </a>            <span class="php-keyword1">unset</span>(<span class="php-var">$responseWithoutSignature</span>[<span class="php-quote">&quot;signature&quot;</span>]);
+</span><span id="1544" class="l"><a href="#1544">1544: </a>        }
+</span><span id="1545" class="l"><a href="#1545">1545: </a>
+</span><span id="1546" class="l"><a href="#1546">1546: </a>        <span class="php-keyword1">if</span> (<span class="php-var">$responseFieldsOrder</span>) {
+</span><span id="1547" class="l"><a href="#1547">1547: </a>            <span class="php-var">$string</span> = Crypto::createSignatureBaseWithOrder(<span class="php-var">$responseWithoutSignature</span>, <span class="php-var">$responseFieldsOrder</span>, <span class="php-keyword1">false</span>);
+</span><span id="1548" class="l"><a href="#1548">1548: </a>        } <span class="php-keyword1">else</span> {
+</span><span id="1549" class="l"><a href="#1549">1549: </a>            <span class="php-var">$string</span> = Crypto::createSignatureBaseFromArray(<span class="php-var">$responseWithoutSignature</span>, <span class="php-keyword1">false</span>);
+</span><span id="1550" class="l"><a href="#1550">1550: </a>        }
+</span><span id="1551" class="l"><a href="#1551">1551: </a>
+</span><span id="1552" class="l"><a href="#1552">1552: </a>        <span class="php-var">$this</span>-&gt;writeToTraceLog(<span class="php-quote">&quot;String for verifying signature: \&quot;&quot;</span> . <span class="php-var">$string</span> . <span class="php-quote">&quot;\&quot;, using key &quot;</span> . <span class="php-var">$this</span>-&gt;config-&gt;bankPublicKeyFile);
+</span><span id="1553" class="l"><a href="#1553">1553: </a>
+</span><span id="1554" class="l"><a href="#1554">1554: </a>        <span class="php-keyword1">return</span> Crypto::verifySignature(<span class="php-var">$string</span>, <span class="php-var">$signature</span>, <span class="php-var">$this</span>-&gt;config-&gt;bankPublicKeyFile);
+</span><span id="1555" class="l"><a href="#1555">1555: </a>    }
+</span><span id="1556" class="l"><a href="#1556">1556: </a>
+</span><span id="1557" class="l"><a href="#1557">1557: </a>
+</span><span id="1558" class="l"><a href="#1558">1558: </a>}
+</span><span id="1559" class="l"><a href="#1559">1559: </a></span></code></pre>
 
 	<div id="footer">
 		ČSOB payment gate PHP client API documentation generated by <a href="http://apigen.org">ApiGen</a>

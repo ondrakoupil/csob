@@ -121,7 +121,7 @@
 		<b>Namespace:</b> <a href="namespace-OndraKoupil.html">OndraKoupil</a>\<a href="namespace-OndraKoupil.Csob.html">Csob</a><br>
 		
 
-			<b>Located at</b> <a href="source-class-OndraKoupil.Csob.Config.html#5-126" title="Go to source code">Config.php</a>
+			<b>Located at</b> <a href="source-class-OndraKoupil.Csob.Config.html#5-140" title="Go to source code">Config.php</a>
 		<br>
 	</div>
 
@@ -141,7 +141,7 @@
 
 		<td class="name"><div>
 		<a class="anchor" href="#___construct">#</a>
-		<code><a href="source-class-OndraKoupil.Csob.Config.html#94-123" title="Go to source code">__construct</a>( <span>string <var>$merchantId</var></span>, <span>string <var>$privateKeyFile</var></span>, <span>string <var>$bankPublicKeyFile</var></span>, <span>string <var>$shopName</var></span>, <span>string <var>$returnUrl</var> = <span class="php-keyword1">null</span></span>, <span>string <var>$bankApiUrl</var> = <span class="php-keyword1">null</span></span>, <span>string <var>$privateKeyPassword</var> = <span class="php-keyword1">null</span></span> )</code>
+		<code><a href="source-class-OndraKoupil.Csob.Config.html#106-137" title="Go to source code">__construct</a>( <span>string <var>$merchantId</var></span>, <span>string <var>$privateKeyFile</var></span>, <span>string <var>$bankPublicKeyFile</var></span>, <span>string <var>$shopName</var></span>, <span>string <var>$returnUrl</var> = <span class="php-keyword1">null</span></span>, <span>string <var>$bankApiUrl</var> = <span class="php-keyword1">null</span></span>, <span>string <var>$privateKeyPassword</var> = <span class="php-keyword1">null</span></span>, <span>string <var>$sslCertificatePath</var> = <span class="php-keyword1">null</span></span> )</code>
 
 		<div class="description short">
 			<p>Create config with all mandatory values.</p>
@@ -170,6 +170,8 @@
 					<dt><var>$bankApiUrl</var></dt>
 					<dd></dd>
 					<dt><var>$privateKeyPassword</var></dt>
+					<dd></dd>
+					<dt><var>$sslCertificatePath</var></dt>
 					<dd></dd>
 				</dl></div>
 
@@ -444,6 +446,39 @@ See Wiki on ČSOB's github for more information.</p>
 			<div>
 				<a href="#$closePayment" class="anchor">#</a>
 				<code><span class="php-keyword1">true</span></code>
+			</div>
+		</td>
+	</tr>
+	<tr data-order="sslCertificatePath" id="$sslCertificatePath">
+		<td class="attributes"><code>
+			public  
+			string
+		</code></td>
+
+		<td class="name">
+				<a href="source-class-OndraKoupil.Csob.Config.html#94-104" title="Go to source code"><var>$sslCertificatePath</var></a>
+
+			<div class="description short">
+				<p>Path to a CA certificate chain or a directory containing certificates to verify
+bank's certificate when initiating a HTTPS connection.</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Path to a CA certificate chain or a directory containing certificates to verify
+bank's certificate when initiating a HTTPS connection.</p>
+
+<p>Leave null to disable certificate validation.</p>
+
+					<h4>See</h4>
+					<div class="list">
+							CURLOPT_SSL_VERIFYPEER, CURLOPT_CAINFO, CURLOPT_CAPATH<br>
+					</div>
+			</div>
+		</td>
+		<td class="value">
+			<div>
+				<a href="#$sslCertificatePath" class="anchor">#</a>
+				<code><span class="php-keyword1">null</span></code>
 			</div>
 		</td>
 	</tr>

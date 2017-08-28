@@ -92,7 +92,7 @@ $client = new Client($config);
 
 **Pozor - používá se zde VÁŠ soukromý klíč a veřejný klíč BANKY.** A také nezapomeňte, že testovací a ostré API má odlišný veřejný klíč.
 
-Config umožňuje nastavit i nějaké další parametry a různé výchozí hodnoty.
+Config umožňuje nastavit i nějaké další parametry a různé výchozí hodnoty, viz [dokumentace][10].
 
 ### Test připojení
 Pro ověření, že spojení funguje a požadavky se správně podepisují, lze využít
@@ -444,4 +444,5 @@ nebo mě bez obav [kontaktujte][5] napřímo :-)
 [7]: https://github.com/csob/paymentgateway/wiki/Testovac%C3%AD-karty
 [8]: https://github.com/csob/paymentgateway/wiki/Opakovan%C3%A1-platba
 [9]: https://github.com/csob/paymentgateway/wiki/Specifikace-API-roz%C5%A1%C3%AD%C5%99en%C3%AD-pro-EET
+[10]: docs/class-OndraKoupil.Csob.Config.html
 [issue43]: https://github.com/csob/paymentgateway/issues/43

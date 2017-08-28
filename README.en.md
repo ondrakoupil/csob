@@ -83,7 +83,7 @@ $client = new Client($config);
 Note that you use YOUR private key and BANK's public key.
 
 There are some more properties that can set, you probably won't need to do that.
-See Config's doc page for more.
+See [Config's doc page][10] for more.
 
 
 ### Testing connection
@@ -276,4 +276,5 @@ Feel free to [contact me][5] if you have any questions or suggestions.
 [6]: https://platebnibrana.csob.cz/
 [7]: https://github.com/csob/paymentgateway/wiki/Testovac%C3%AD-karty
 [8]: https://github.com/csob/paymentgateway/wiki/Opakovan%C3%A1-platba
+[10]: docs/class-OndraKoupil.Csob.Config.html
 [issue43]: https://github.com/csob/paymentgateway/issues/43
