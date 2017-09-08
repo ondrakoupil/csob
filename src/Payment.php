@@ -206,8 +206,8 @@ class Payment {
 		"customerId",
 		"language",
 		"ttlSec",
-		//"logoVersion",
-		//"colorSchemeVersion"
+		"logoVersion",
+		"colorSchemeVersion"
 	);
 
 	// For unknown reason, logoVersion and colorSchemeVersion seems not to be a part of the signature base string
