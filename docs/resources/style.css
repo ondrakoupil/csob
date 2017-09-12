@@ -410,6 +410,7 @@ dl.tree dd {
 }
 
 .value {
+	white-space: pre-wrap;
 }
 
 td.name, td.attributes {

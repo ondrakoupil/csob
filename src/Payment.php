@@ -206,11 +206,12 @@ class Payment {
 		"customerId",
 		"language",
 		"ttlSec",
-		"logoVersion",
-		"colorSchemeVersion"
 	);
 
-	// For unknown reason, logoVersion and colorSchemeVersion seems not to be a part of the signature base string
+	private $auxFieldsInOrder = array(
+		"logoVersion",
+		"colorSchemeVersion",
+	);
 
 
 	/**
@@ -460,6 +461,13 @@ class Payment {
 			$arr[$f] = $val;
 		}
 
+		foreach ($this->auxFieldsInOrder as $f) {
+			$val = $this->$f;
+			if ($val !== null) {
+				$arr[$f] = $val;
+			}
+		}
+
 		$stringToSign = $this->getSignatureString();
 
 		$client->writeToTraceLog('Signing payment request, base for the signature:' . "\n" . $stringToSign);
@@ -502,6 +510,13 @@ class Payment {
 				$val = implode("|", $valParts);
 			}
 			$parts[] = $val;
+		}
+
+		foreach ($this->auxFieldsInOrder as $f) {
+			$val = $this->$f;
+			if ($val !== null) {
+				$parts[] = $val;
+			}
 		}
 
 		return implode("|", $parts);

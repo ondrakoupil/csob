@@ -101,7 +101,7 @@ class PaymentTestCase extends TestCase {
 		$payment->checkAndPrepare($config);
 
 		$signatureString = $payment->getSignatureString();
-		$expectedSignatureString = "aaa|100|".date(Client::DATE_FORMAT)."|payment|card|1000|EUR|false|eee|POST|test|1|1000||ddd, 100||test@example.com|PL|1000";
+		$expectedSignatureString = "aaa|100|".date(Client::DATE_FORMAT)."|payment|card|1000|EUR|false|eee|POST|test|1|1000||ddd, 100||test@example.com|PL|1000|3|2";
 		Assert::equal($expectedSignatureString, $signatureString);
 
 		$export = $payment->signAndExport($client);
@@ -109,6 +109,47 @@ class PaymentTestCase extends TestCase {
 		Assert::truthy($export["signature"]);
 
 		Assert::true(Crypto::verifySignature($expectedSignatureString, $export["signature"], __DIR__ . "/../test-keys/test-key.pub"));
+
+	}
+
+	function testAuxFieldsInSignature() {
+
+		// Logo and colorScheme must be set or must not be in resulting data and signature.
+
+		$config = require(__DIR__ . "/../dummy-config.php");
+		$client = new Client($config);
+
+		$payment = new Payment("100");
+
+		$payment->currency = "EUR";
+		$payment->customerId = "test@example.com";
+		$payment->closePayment = false;
+
+		// A payment with aux fields set
+
+		$payment->colorSchemeVersion = 123456;
+		$payment->logoVersion = 987654;
+
+		$signatureString = $payment->getSignatureString();
+		$exportedData = $payment->signAndExport($client);
+
+		Assert::contains('123456', $signatureString);
+		Assert::contains('987654', $signatureString);
+		Assert::same(123456, $exportedData['colorSchemeVersion']);
+		Assert::same(987654, $exportedData['logoVersion']);
+
+		// A payment with aux fields not set
+
+		$payment->colorSchemeVersion = null;
+		$payment->logoVersion = null;
+
+		$signatureString = $payment->getSignatureString();
+		$exportedData = $payment->signAndExport($client);
+
+		Assert::notContains('123456', $signatureString);
+		Assert::notContains('987654', $signatureString);
+		Assert::false(isset($exportedData['colorSchemeVersion']));
+		Assert::false(isset($exportedData['logoVersion']));
 
 	}
 
