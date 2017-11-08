@@ -3245,6 +3245,9 @@ class EETData {
 		if ($this->delegatedVatId) {
 			$a['delegatedVatId'] = $this->delegatedVatId;
 		}
+		if ($this->priceZeroVat) {
+			$a['priceZeroVat'] = self::formatPriceValue($this->priceZeroVat);
+		} 
 		if ($this->priceStandardVat) {
 			$a['priceStandardVat'] = self::formatPriceValue($this->priceStandardVat);
 		}
@@ -3302,6 +3305,7 @@ class EETData {
 		'cashRegisterId',
 		'totalPrice',
 		'delegatedVatId',
+		'priceZeroVat',
 		'priceStandardVat',
 		'vatStandard',
 		'priceFirstReducedVat',
