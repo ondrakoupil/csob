@@ -1360,7 +1360,7 @@ class Client {
 		$allowInvalidReturnSignature = false,
 		$extensions = array()
 	) {
-		CsobTracyBar::addRequest($this->requestId, [
+		CsobTracyBar::addRequest($this->requestId, array(
 			'apiMethod' => $apiMethod,
 			'payload' => $payload,
 			'usePostMethod' => $usePostMethod,
@@ -1369,7 +1369,7 @@ class Client {
 			'returnUrlOnly' => $returnUrlOnly,
 			'allowInvalidReturnSignature' => $allowInvalidReturnSignature,
 			'extensions' => $extensions,
-		], []);
+		), array());
 
 		$url = $this->getApiMethodUrl($apiMethod);
 
@@ -1533,7 +1533,7 @@ class Client {
 
 		$this->writeToTraceLog("OK");
 
-		CsobTracyBar::addRequest($this->requestId, [
+		CsobTracyBar::addRequest($this->requestId, array(
 			'apiMethod' => $apiMethod,
 			'payload' => $payload,
 			'usePostMethod' => $usePostMethod,
@@ -1542,11 +1542,11 @@ class Client {
 			'returnUrlOnly' => $returnUrlOnly,
 			'allowInvalidReturnSignature' => $allowInvalidReturnSignature,
 			'extensions' => $extensions,
-		], [
+		), array(
 			'httpCode' => $httpCode,
 			'rawResponse' => $result,
 			'data' => $decoded,
-		]);
+		));
 
 		$this->requestId++;
 

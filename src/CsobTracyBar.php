@@ -18,22 +18,25 @@ class CsobTracyBar implements IBarPanel
 	/**
 	 * @var string[][]
 	 */
-	private static $requests = [];
+	private static $requests = array();
 
 	/**
 	 * @var Config
 	 */
 	private static $clientConfig;
 
-	public static function addRequest(int $id, array $request, array $response)
+	public static function addRequest($id, $request, $response)
 	{
-		self::$requests[$id] = [
+		self::$requests[$id] = array(
 			'request' => $request,
 			'response' => $response,
-		];
+		);
 	}
 
-	public static function setClientConfig(Config $config)
+	/**
+	 * @param Config $config
+	 */
+	public static function setClientConfig($config)
 	{
 		self::$clientConfig = $config;
 	}
