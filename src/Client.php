@@ -105,6 +105,10 @@ class Client {
 	 */
 	protected $traceLogCallback;
 
+	/**
+	 * @var int
+	 */
+	private $requestId = 0;
 
 	// ------- BASICS --------
 
@@ -130,6 +134,7 @@ class Client {
 			$this->setTraceLog($traceLog);
 		}
 
+		CsobTracyBar::setClientConfig($config);
 	}
 
 	/**
@@ -1355,6 +1360,17 @@ class Client {
 		$allowInvalidReturnSignature = false,
 		$extensions = array()
 	) {
+		CsobTracyBar::addRequest($this->requestId, [
+			'apiMethod' => $apiMethod,
+			'payload' => $payload,
+			'usePostMethod' => $usePostMethod,
+			'responseFieldsOrder' => $responseFieldsOrder,
+			'requestFieldsOrder' => $requestFieldsOrder,
+			'returnUrlOnly' => $returnUrlOnly,
+			'allowInvalidReturnSignature' => $allowInvalidReturnSignature,
+			'extensions' => $extensions,
+		], []);
+
 		$url = $this->getApiMethodUrl($apiMethod);
 
 		$method = $usePostMethod;
@@ -1516,6 +1532,23 @@ class Client {
 		}
 
 		$this->writeToTraceLog("OK");
+
+		CsobTracyBar::addRequest($this->requestId, [
+			'apiMethod' => $apiMethod,
+			'payload' => $payload,
+			'usePostMethod' => $usePostMethod,
+			'responseFieldsOrder' => $responseFieldsOrder,
+			'requestFieldsOrder' => $requestFieldsOrder,
+			'returnUrlOnly' => $returnUrlOnly,
+			'allowInvalidReturnSignature' => $allowInvalidReturnSignature,
+			'extensions' => $extensions,
+		], [
+			'httpCode' => $httpCode,
+			'rawResponse' => $result,
+			'data' => $decoded,
+		]);
+
+		$this->requestId++;
 
 		return $decoded;
 	}
