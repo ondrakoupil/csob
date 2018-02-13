@@ -4,6 +4,9 @@ namespace OndraKoupil\Csob;
 
 require '../bootstrap.php';
 
+use OndraKoupil\Csob\Logging\LoggedObject;
+use OndraKoupil\Csob\Logging\Request;
+use OndraKoupil\Csob\Logging\Response;
 use \Tester\Assert;
 use \Tester\TestCase;
 
@@ -95,6 +98,65 @@ class LoggingTestCase extends FilesTestCase {
 		Assert::contains($dummyPayId, $logContents);
 		Assert::contains($dummyPayId, $traceLogContents);
 
+	}
+
+	function testLoggingRequests() {
+
+		/** @var Config $config */
+		$config = require(__DIR__ . "/../dummy-config.php");
+
+		$log = array();
+
+		$logger = function(LoggedObject $obj) use (&$log) {
+			$log[] = $obj;
+		};
+
+		$client = new Client($config);
+		$client->setRequestLog($logger);
+
+		Assert::exception(function() use ($client) {
+			$client->testGetConnection();
+		}, 'OndraKoupil\Csob\Exception');
+
+		Assert::exception(function() use ($client) {
+			$client->testPostConnection();
+		}, 'OndraKoupil\Csob\Exception');
+
+		Assert::count(4, $log);
+
+		Assert::type('OndraKoupil\Csob\Logging\Request', $log[0]);
+		Assert::type('OndraKoupil\Csob\Logging\Response', $log[1]);
+		Assert::type('OndraKoupil\Csob\Logging\Request', $log[2]);
+		Assert::type('OndraKoupil\Csob\Logging\Response', $log[3]);
+
+		/** @var Request $req */
+		$req = $log[0];
+		/** @var Response $resp */
+		$resp = $log[1];
+		Assert::same(1, $req->requestNumber);
+		Assert::same('GET', $req->httpMethod);
+		Assert::same('echo', $req->apiMethod);
+		Assert::same($config->merchantId, $req->payload['merchantId']);
+		Assert::true($req->successfullySent);
+
+		Assert::same(1, $resp->requestNumber);
+		Assert::same(400, $resp->httpStatus);
+		Assert::falsey($resp->rawResponse);
+
+		/** @var Request $req */
+		$req = $log[2];
+		/** @var Response $resp */
+		$resp = $log[3];
+		Assert::same(2, $req->requestNumber);
+		Assert::same('POST', $req->httpMethod);
+		Assert::same('echo', $req->apiMethod);
+		Assert::same($config->merchantId, $req->payload['merchantId']);
+		Assert::same('{"merchantId":"aaa"', substr($req->encodedPayload, 0, 19));
+		Assert::true($req->successfullySent);
+
+		Assert::same(2, $resp->requestNumber);
+		Assert::same(400, $resp->httpStatus);
+		Assert::falsey($resp->rawResponse);
 
 	}
 

@@ -4,6 +4,12 @@
 
 namespace OndraKoupil\Csob {
 
+use OndraKoupil\Csob\Logging\LoggedObject;
+
+use OndraKoupil\Csob\Logging\Request;
+
+use OndraKoupil\Csob\Logging\Response;
+
 use \OndraKoupil\Tools\Files;
 
 use \OndraKoupil\Tools\Strings;
@@ -111,6 +117,24 @@ class Client {
 	 */
 	protected $traceLogCallback;
 
+	/**
+	 * @ignore
+	 * @var callable
+	 */
+	protected $requestLogCallback;
+
+	/**
+	 * @ignore
+	 * @var int
+	 */
+	protected $requestCounter = 0;
+
+	/**
+	 * @ignore
+	 * @var string
+	 */
+	protected $lastSignatureBase = '';
+
 
 	// ------- BASICS --------
 
@@ -123,8 +147,9 @@ class Client {
 	 * that you can use to forward messages to your own logging system.
 	 * @param callable|string $traceLog Log for technical messages with
 	 * exact contents of communication.
+	 * @param callable $requestLog Callback that will receive requests and responses: function(LoggedObject $requestOrResponse)
 	 */
-	function __construct(Config $config, $log = null, $traceLog = null) {
+	function __construct(Config $config, $log = null, $traceLog = null, $requestLog = null) {
 
 		$this->config = $config;
 
@@ -134,6 +159,10 @@ class Client {
 
 		if ($traceLog) {
 			$this->setTraceLog($traceLog);
+		}
+
+		if ($requestLog) {
+			$this->setRequestLog($requestLog);
 		}
 
 	}
@@ -173,6 +202,7 @@ class Client {
 
 		$payment->checkAndPrepare($this->config);
 		$array = $payment->signAndExport($this);
+		$this->lastSignatureBase = $array['signature'];
 
 		$this->writeToLog("payment/init started for payment with orderNo " . $payment->orderNo);
 
@@ -1214,6 +1244,20 @@ class Client {
 	}
 
 	/**
+	 * Sets logging for request/response objects.
+	 *
+	 * Is called once for request, then once for response.
+	 *
+	 * @param callable $logger function(LoggedObject $obj)
+	 *
+	 * @return $this
+	 */
+	function setRequestLog(callable $logger) {
+		$this->requestLogCallback = $logger;
+		return $this;
+	}
+
+	/**
 	 * @ignore
 	 *
 	 * @param string $message
@@ -1256,6 +1300,19 @@ class Client {
 		}
 		if ($this->traceLogCallback) {
 			call_user_func_array($this->traceLogCallback, array($message));
+		}
+	}
+
+	/**
+	 * @ignore
+	 *
+	 * @param LoggedObject $obj
+	 *
+	 * @return void
+	 */
+	function writeToRequestLog(LoggedObject $obj) {
+		if ($this->requestLogCallback) {
+			call_user_func_array($this->requestLogCallback, array($obj));
 		}
 	}
 
@@ -1329,6 +1386,7 @@ class Client {
 			$this->config->privateKeyPassword
 		);
 
+		$this->lastSignatureBase = $stringToSign;
 		$this->writeToTraceLog("Signing string \"$stringToSign\" using key $keyFile, result: ".$signature);
 
 		return $signature;
@@ -1364,6 +1422,8 @@ class Client {
 		$url = $this->getApiMethodUrl($apiMethod);
 
 		$method = $usePostMethod;
+
+		$this->requestCounter++;
 
 		$this->writeToTraceLog("Will send request to method $apiMethod");
 
@@ -1408,6 +1468,14 @@ class Client {
 			return $url;
 		}
 
+		$request = new Request();
+		$request->apiMethod = $apiMethod;
+		$request->payload = $payload;
+		$request->httpMethod = $method;
+		$request->url = $url;
+		$request->requestNumber = $this->requestCounter;
+		$request->signatureBase = $this->lastSignatureBase;
+
 		$ch = \curl_init($url);
 		$this->writeToTraceLog("URL to send request to: " . $url);
 
@@ -1416,6 +1484,7 @@ class Client {
 			$this->writeToTraceLog("JSON payload: ".$encodedPayload);
 			\curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $method);
 			\curl_setopt($ch, CURLOPT_POSTFIELDS, $encodedPayload);
+			$request->encodedPayload = $encodedPayload;
 		}
 
 		if (!$this->config->sslCertificatePath) {
@@ -1438,14 +1507,28 @@ class Client {
 
 		if (\curl_errno($ch)) {
 			$this->writeToTraceLog("CURL failed: " . \curl_errno($ch) . " " . \curl_error($ch));
+			$request->successfullySent = false;
+			$request->sendingErrorCode = curl_errno($ch);
+			$request->sendingErrorText = curl_error($ch);
+			$this->writeToRequestLog($request);
 			throw new Exception("Failed sending data to API: ".\curl_errno($ch)." ".\curl_error($ch));
 		}
 
 		$this->writeToTraceLog("API response: $result");
+		$request->successfullySent = true;
+		$this->writeToRequestLog($request);
+
 
 		$httpCode = \curl_getinfo($ch, CURLINFO_HTTP_CODE);
+
+		$response = new Response();
+		$response->requestNumber = $this->requestCounter;
+		$response->httpStatus = $httpCode;
+		$response->rawResponse = $result;
+
 		if ($httpCode != 200) {
 			$this->writeToTraceLog("Failed: returned HTTP code $httpCode");
+			$this->writeToRequestLog($response);
 			throw new Exception(
 				"API returned HTTP code $httpCode, which is not code 200."
 				. ($httpCode == 400 ? " Probably wrong signature, check crypto keys." : "")
@@ -1457,42 +1540,63 @@ class Client {
 		$decoded = @json_decode($result, true);
 		if ($decoded === null) {
 			$this->writeToTraceLog("Failed: returned value is not parsable JSON");
+			$this->writeToRequestLog($response);
 			throw new Exception("API did not return a parseable JSON string: \"".$result."\"");
 		}
 
+		$response->response = $decoded;
+
 		if (!isset($decoded["resultCode"])) {
 			$this->writeToTraceLog("Failed: API did not return response with resultCode");
+			$this->writeToRequestLog($response);
 			throw new Exception("API did not return a response containing resultCode.");
 		}
 
+		$response->apiResultCode = $decoded["resultCode"];
+
 		if (!isset($decoded["signature"]) or !$decoded["signature"]) {
 			$this->writeToTraceLog("Failed: missing response signature");
+			$this->writeToRequestLog($response);
 			throw new Exception("Result does not contain signature.");
 		}
 
 		$signature = $decoded["signature"];
 
 		try {
+
 			$verificationResult = $this->verifyResponseSignature($decoded, $signature, $responseFieldsOrder);
+
 		} catch (Exception $e) {
+			$response->expectedSignatureBase = $this->lastSignatureBase;
+			$this->writeToRequestLog($response);
 			$this->writeToTraceLog("Failed: error occured when verifying signature.");
 			throw $e;
 		}
 
 		if (!$verificationResult) {
 
+			$response->signatureCorrect = false;
+
 			if (!$allowInvalidReturnSignature) {
 				$this->writeToTraceLog("Failed: signature is incorrect.");
+				$this->writeToRequestLog($response);
 				throw new Exception("Result signature is incorrect. Please make sure that bank's public key in file specified in config is correct and up-to-date.");
 			} else {
 				$this->writeToTraceLog("Signature is incorrect, but method was called with \$allowInvalidReturnSignature = true, so we'll ignore it.");
 			}
+		} else {
+
+			$response->signatureCorrect = true;
+
 		}
 
 		if ($decoded["resultCode"] != "0") {
 			$this->writeToTraceLog("Failed: resultCode ".$decoded["resultCode"].", message ".$decoded["resultMessage"]);
+			$this->writeToRequestLog($response);
 			throw new Exception("API returned an error: resultCode \"" . $decoded["resultCode"] . "\", resultMessage: ".$decoded["resultMessage"], $decoded["resultCode"]);
 		}
+
+		$this->writeToRequestLog($response);
 
 		if ($extensions) {
 			$extensionsById = array();
@@ -1554,6 +1658,8 @@ class Client {
 		} else {
 			$string = Crypto::createSignatureBaseFromArray($responseWithoutSignature, false);
 		}
+
+		$this->lastSignatureBase = $string;
 
 		$this->writeToTraceLog("String for verifying signature: \"" . $string . "\", using key " . $this->config->bankPublicKeyFile);
 
@@ -2813,6 +2919,150 @@ class Extension {
 }
 
 
+// src/Logging/LoggedObject.php 
+
+namespace OndraKoupil\Csob\Logging {
+
+
+/**
+ * Abstract class from request/response objects for logging.
+ */
+class LoggedObject {
+
+	/**
+	 * Return self as array
+	 *
+	 * @return array
+	 */
+	function toArray() {
+		return get_object_vars($this);
+	}
+
+}
+
+}
+
+
+// src/Logging/Request.php 
+
+namespace OndraKoupil\Csob\Logging {
+
+
+/**
+ * Contains various useful information about a request sent to API
+ */
+class Request extends LoggedObject {
+
+	/**
+	 * @var string HTTP method that was used
+	 */
+	public $httpMethod;
+
+	/**
+	 * @var string Name of bank's API method
+	 */
+	public $apiMethod;
+
+	/**
+	 * @var string URL that was called
+	 */
+	public $url;
+
+	/**
+	 * @var string Request payload as PHP variables
+	 */
+	public $payload;
+
+	/**
+	 * @var string Request payload as raw value
+	 */
+	public $encodedPayload;
+
+	/**
+	 * @var string Base for request's signature
+	 */
+	public $signatureBase;
+
+	/**
+	 * @var number Request number
+	 */
+	public $requestNumber;
+
+	/**
+	 * @var bool
+	 */
+	public $successfullySent;
+
+	/**
+	 * @var number
+	 */
+	public $sendingErrorCode;
+
+	/**
+	 * @var string
+	 */
+	public $sendingErrorText;
+
+}
+
+}
+
+
+// src/Logging/Response.php 
+
+namespace OndraKoupil\Csob\Logging {
+
+
+/**
+ * Contains various useful information about a response received from API
+ */
+class Response extends LoggedObject {
+
+	/**
+	 * @var number Number of corresponding request
+	 */
+	public $requestNumber;
+
+	/**
+	 * @var string HTTP status that API returned
+	 */
+	public $httpStatus;
+
+	/**
+	 * @var string Raw returned value
+	 */
+	public $rawResponse;
+
+	/**
+	 * @var array Parsed returned value
+	 */
+	public $response;
+
+	/**
+	 * @var bool Was signature correctly verified?
+	 */
+	public $signatureCorrect;
+
+	/**
+	 * @var string Expected signature
+	 */
+	public $expectedSignature;
+
+	/**
+	 * @var string Base of the expected signature
+	 */
+	public $expectedSignatureBase;
+
+	/**
+	 * @var string Result code that API returned
+	 */
+	public $apiResultCode;
+
+}
+
+}
+
+
 // src/Extensions/CardNumberExtension.php 
 
 namespace OndraKoupil\Csob\Extensions {
@@ -3247,7 +3497,7 @@ class EETData {
 		}
 		if ($this->priceZeroVat) {
 			$a['priceZeroVat'] = self::formatPriceValue($this->priceZeroVat);
-		} 
+		}                
 		if ($this->priceStandardVat) {
 			$a['priceStandardVat'] = self::formatPriceValue($this->priceStandardVat);
 		}
