@@ -1407,11 +1407,13 @@ class Client {
 
 		if ($method === "POST" or $method === "PUT") {
 			$encodedPayload = json_encode($payload);
-			if (!$encodedPayload) {
-				if (json_last_error()) {
-					$this->writeToTraceLog('Failed encoding to JSON: ' . json_last_error() . ' ' . json_last_error_msg());
-					throw new Exception('Request data could not be encoded to JSON: ' . json_last_error() . ' ' . json_last_error_msg(), 1);
+			if (json_last_error()) {
+				$msg = 'Request data could not be encoded to JSON: ' . json_last_error();
+				if (function_exists('json_last_error_msg')) {
+					$msg .= ' - ' . json_last_error_msg();
 				}
+				$this->writeToTraceLog($msg);
+				throw new Exception($msg, 1);
 			}
 			$this->writeToTraceLog("JSON payload: ".$encodedPayload);
 			\curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $method);
