@@ -199,6 +199,25 @@ class PaymentTestCase extends TestCase {
 
 	}
 
+	function testInvalidUtfData() {
+
+		$payment = new Payment(1234);
+		$invalidString = pack("H*" ,'c32e'); // https://stackoverflow.com/questions/10205722/json-encode-invalid-utf-8-sequence-in-argument
+		$payment->addCartItem('Hello ' . $invalidString, 1, 12300);
+
+		$client = new Client(include __DIR__ . '/../dummy-config.php');
+
+		Assert::exception(
+			function() use ($client, $payment) {
+				$client->paymentInit($payment);
+			},
+			'OndraKoupil\Csob\Exception',
+			null,
+			1
+		);
+
+	}
+
 
 }
 
