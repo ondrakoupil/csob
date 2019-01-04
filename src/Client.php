@@ -201,7 +201,7 @@ class Client {
 	}
 
 	/**
-	 * Generates URL to send customer's browser to after initing the payment.
+	 * Generates URL to send customer's browser to after initiating the payment.
 	 *
 	 * Use this after you successfully called paymentInit() and redirect
 	 * the customer's browser on the URL that this method returns manually,
@@ -238,6 +238,64 @@ class Client {
 
 		return $url;
 	}
+
+    /**
+     * Generates checkout URL to send customer's browser to after initiating
+     * the payment.
+     *
+     * @param string|Payment $payment Either PayID given during paymentInit(),
+     * or just the Payment object you used in paymentInit()
+     *
+     * @param int $oneClickPaymentCheckbox Flag to indicate whether to display
+     * the checkbox for saving card for future payments and to indicate whether
+     * it should be preselected or not.
+     *   0 - hidden, unchecked
+     *   1 - displayed, unchecked
+     *   2 - displayed, checked
+     *   3 - hidden, checked (you need to indicate to customer that this happens
+     *       before initiating the payment)
+     *
+     * @param bool|null $displayOmnibox Flag to indicate whether to display
+     * omnibox in desktop's iframe version instead of card number, expiration
+     * and cvc fields
+     *
+     * @param string|null $returnCheckoutUrl URL for scenario when process needs
+     * to get back to checkout page
+     *
+     * @return string
+     */
+    function getPaymentCheckoutUrl($payment, $oneClickPaymentCheckbox, $displayOmnibox = null, $returnCheckoutUrl = null) {
+        $payId = $this->getPayId($payment);
+
+        $payload = array(
+            "merchantId" => $this->config->merchantId,
+            "payId" => $payId,
+            "dttm" => $this->getDTTM(),
+            "oneclickPaymentCheckbox" => $oneClickPaymentCheckbox,
+        );
+
+        if ($displayOmnibox !== null) {
+            $payload["displayOmnibox"] = $displayOmnibox ? "true" : "false";
+        }
+        if ($returnCheckoutUrl !== null) {
+            $payload["returnCheckoutUrl"] = $returnCheckoutUrl;
+        }
+
+        $payload["signature"] = $this->signRequest($payload);
+
+        $url = $this->sendRequest(
+            "payment/checkout",
+            $payload,
+            "GET",
+            array(),
+            array("merchantId", "payId", "dttm", "oneclickPaymentCheckbox", "displayOmnibox", "returnCheckoutUrl", "signature"),
+            true
+        );
+
+        $this->writeToLog("URL for processing payment ".$payId.": $url");
+
+        return $url;
+    }
 
 	/**
 	 * Redirect customer's browser to payment gateway.
