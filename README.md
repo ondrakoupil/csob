@@ -237,6 +237,31 @@ if ($hasCards) {
 }
 ```
 
+### Payment/checkout
+
+Jde o zatím neveřejnou funkce platební brány. Umožní zobrazit minimalistický iframe a celé
+odbavení platby a objednávky udělat v iframu vloženém do vašeho webu namísto přechodu na platební bránu.
+
+Pro aktivaci je nutné kontaktovat ČSOB a požádat o aktivování této funkce. Při té příležitosti
+vám také pošlou podrobnější dokumentaci.
+
+Poté, co je funkce povolená, můžete místo `payment/process` volat `payment/checkout`.
+
+Pokud pro vaše `merchantId` není funkce povolená, brána zobrazí chybovou hlášku.
+
+```php
+$url = $client->getPaymentCheckoutUrl($payment, $oneClickPaymentCheckbox);
+redirect($url);
+```
+
+`$payment` může být Payment objekt anebo prosté PayID, obdobně jako u jiných metod.
+
+Pro `$oneClickPaymentCheckbox` použijte jednu z možností popsanou v PHPDocu zdrojového kódu metody.
+
+Další parametry jsou popsané v dokumentaci metody.
+
+Díky @rootpd.
+
 ### Opakované platby
 
 Počínaje API 1.5 lze provádět opakované platby. Jak přesně to funguje se dočtete na

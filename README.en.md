@@ -147,29 +147,6 @@ terminateApp();
 
 As the argument, you can use the $payment object from before or just plain string $payId.
 
-### Processing payment (payment/checkout)
-
-If you want to display payment window in minimalistic iframe, you can opt-in the bank
-for iframe/checkout support. Once approved, you can use `payment/checkout` instead of
-`payment/process` to generate the URL.
-
-The feature is not publicly documented, please request the full documentation from the
-bank if you want to use it.
-
-If it's not enabled for your `merchantId`, the gateway will display an error message instead
-of a standard payment form.
-
-```php
-$url = $client->getPaymentCheckoutUrl($payment, $oneClickPaymentCheckbox);
-redirect($url);
-``` 
-
-As the `$payment` argument, you can use the $payment object from before or just plain string $payId.
-
-As the `$oneClickPaymentCheckbox` please use one of the values as decribed in PHPDoc of the function.
-
-See the function documentation for description of optional parameters.
-
 ### When customer returns...
 
 You specified the URL to return the customer to in Config object or in Payment object. On that URL,
@@ -248,6 +225,31 @@ if ($hasCards) {
 	echo "These are payment options...";
 }
 ```
+
+### Processing payment (payment/checkout)
+
+If you want to display payment window in minimalistic iframe, you can opt-in the bank
+for iframe/checkout support. Once approved, you can use `payment/checkout` instead of
+`payment/process` to generate the URL.
+
+The feature is not publicly documented, please request the full documentation from the
+bank if you want to use it.
+
+If it's not enabled for your `merchantId`, the gateway will display an error message instead
+of a standard payment form.
+
+```php
+$url = $client->getPaymentCheckoutUrl($payment, $oneClickPaymentCheckbox);
+redirect($url);
+```
+
+As the `$payment` argument, you can use the $payment object from before or just plain string $payId.
+
+As the `$oneClickPaymentCheckbox` please use one of the values as decribed in PHPDoc of the function.
+
+See the function documentation for description of optional parameters.
+
+Thanks @rootpd
 
 ### Recurring payments
 
