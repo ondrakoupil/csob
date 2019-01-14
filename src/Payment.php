@@ -271,7 +271,7 @@ class Payment {
 		$this->cart[] = array(
 			"name" => $name,
 			"quantity" => $quantity,
-			"amount" => $totalAmount,
+			"amount" => intval(round($totalAmount)),
 			"description" => $description
 		);
 

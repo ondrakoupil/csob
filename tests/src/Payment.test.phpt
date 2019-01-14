@@ -59,6 +59,13 @@ class PaymentTestCase extends TestCase {
 			$payment->checkAndPrepare($config);
 		}, '\OndraKoupil\Csob\Exception');
 
+
+		// Price must not be decimal
+		$payment = new Payment("100");
+		$payment->addCartItem("Decimal item", 2, 1234.56);
+		$exported = $payment->checkAndPrepare($config)->signAndExport($client);
+		Assert::same(1235, $exported["totalAmount"]);
+
 	}
 
 	function testCartName() {
