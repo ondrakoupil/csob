@@ -114,6 +114,8 @@ class Crypto {
 					$ret,
 					self::createSignatureBaseRecursion($val, $depthCheck + 1)
 				);
+			} elseif (is_bool($val)) {
+				$ret[] = $val ? 'true' : 'false';
 			} else {
 				$ret[] = $val;
 			}
