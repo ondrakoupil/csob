@@ -3,14 +3,14 @@ dist: precise
 language: php
 
 php:
-  - '5.3'
+# - '5.3' # Not supported anymore - min required is 5.4.8 because of SHA256 signing
   - '5.4'
   - '5.5'  
   - '7.0'
   - '7.1'
   - '7.2'
   - '7.3'
-  - '7.4'
+# - '7.4'  # Too early for this
 
 env:
   - TESTER_PHP_BIN="php"
