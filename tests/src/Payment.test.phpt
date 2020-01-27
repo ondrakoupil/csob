@@ -86,17 +86,31 @@ class PaymentTestCase extends TestCase {
 
 	function testSignature() {
 
+		/** @var Config $config */
 		$config = require(__DIR__ . "/../dummy-config.php");
 		$client = new Client($config);
+
+		$configOnApi17 = clone $config;
+		$configOnApi17->url = GatewayUrl::TEST_1_7;
+		$configOnApi17->apiVersion = '1.7';
+		$clientOnApi17 = clone $client;
+		$clientOnApi17->setConfig($configOnApi17);
 
 		$payment = new Payment("100");
 
 		$payment->currency = "EUR";
 		$payment->customerId = "test@example.com";
 		$payment->closePayment = false;
+		$payment->description = 'DESC';
 
-		$signatureString = $payment->getSignatureString();
-		$expectedSignatureString = "|100||||0|EUR|false||||||test@example.com||";
+		// Api 1.8 has no description
+		$signatureString = $payment->getSignatureString($client);
+		$expectedSignatureString = "|100||||0|EUR|false|||||test@example.com||";
+		Assert::equal($expectedSignatureString, $signatureString);
+
+		// Api 1.7 has description
+		$signatureString = $payment->getSignatureString($clientOnApi17);
+		$expectedSignatureString = "|100||||0|EUR|false||||DESC||test@example.com||";
 		Assert::equal($expectedSignatureString, $signatureString);
 
 		$payment->addCartItem("test", 1, 1000);
@@ -107,15 +121,22 @@ class PaymentTestCase extends TestCase {
 
 		$payment->checkAndPrepare($config);
 
-		$signatureString = $payment->getSignatureString();
-		$expectedSignatureString = "aaa|100|".date(Client::DATE_FORMAT)."|payment|card|1000|EUR|false|eee|POST|test|1|1000||ddd, 100||test@example.com|PL|1000|3|2";
+		$signatureString = $payment->getSignatureString($client);
+		$expectedSignatureString = "aaa|100|".date(Client::DATE_FORMAT)."|payment|card|1000|EUR|false|eee|POST|test|1|1000|||test@example.com|PL|1000|3|2";
 		Assert::equal($expectedSignatureString, $signatureString);
 
-		$export = $payment->signAndExport($client);
+		$signatureStringOnApi17 = $payment->getSignatureString($clientOnApi17);
+		$expectedSignatureStringOnApi17 = "aaa|100|".date(Client::DATE_FORMAT)."|payment|card|1000|EUR|false|eee|POST|test|1|1000||DESC||test@example.com|PL|1000|3|2";
+		Assert::equal($expectedSignatureStringOnApi17, $signatureStringOnApi17);
 
-		Assert::truthy($export["signature"]);
+		$export18 = $payment->signAndExport($client);
+		$export17 = $payment->signAndExport($clientOnApi17);
 
-		Assert::true(Crypto::verifySignature($expectedSignatureString, $export["signature"], __DIR__ . "/../test-keys/test-key.pub"));
+		Assert::truthy($export17["signature"]);
+		Assert::truthy($export18["signature"]);
+
+		Assert::true(Crypto::verifySignature($expectedSignatureStringOnApi17, $export17["signature"], __DIR__ . "/../test-keys/test-key.pub", $clientOnApi17->getConfig()->getHashMethod()));
+		Assert::true(Crypto::verifySignature($expectedSignatureString, $export18["signature"], __DIR__ . "/../test-keys/test-key.pub", $client->getConfig()->getHashMethod()));
 
 	}
 
@@ -137,7 +158,7 @@ class PaymentTestCase extends TestCase {
 		$payment->colorSchemeVersion = 123456;
 		$payment->logoVersion = 987654;
 
-		$signatureString = $payment->getSignatureString();
+		$signatureString = $payment->getSignatureString($client);
 		$exportedData = $payment->signAndExport($client);
 
 		Assert::contains('123456', $signatureString);
@@ -150,7 +171,7 @@ class PaymentTestCase extends TestCase {
 		$payment->colorSchemeVersion = null;
 		$payment->logoVersion = null;
 
-		$signatureString = $payment->getSignatureString();
+		$signatureString = $payment->getSignatureString($client);
 		$exportedData = $payment->signAndExport($client);
 
 		Assert::notContains('123456', $signatureString);

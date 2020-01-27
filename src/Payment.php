@@ -453,7 +453,13 @@ class Payment {
 
 		$config = $client->getConfig();
 
-		foreach($this->fieldsInOrder as $f) {
+		$fieldNames = $this->fieldsInOrder;
+		if ($client->getConfig()->queryApiVersion('1.8')) {
+			// Version 1.8 omitted $description parameter
+			$fieldNames = Arrays::deleteValue($fieldNames, 'description');
+		}
+
+		foreach($fieldNames as $f) {
 			$val = $this->$f;
 			if ($val === null) {
 				$val = "";
@@ -468,11 +474,11 @@ class Payment {
 			}
 		}
 
-		$stringToSign = $this->getSignatureString();
+		$stringToSign = $this->getSignatureString($client);
 
 		$client->writeToTraceLog('Signing payment request, base for the signature:' . "\n" . $stringToSign);
 
-		$signed = Crypto::signString($stringToSign, $config->privateKeyFile, $config->privateKeyPassword);
+		$signed = Crypto::signString($stringToSign, $config->privateKeyFile, $config->privateKeyPassword, $client->getConfig()->getHashMethod());
 		$arr["signature"] = $signed;
 
 		return $arr;
@@ -480,13 +486,22 @@ class Payment {
 
 	/**
 	 * Convert to string that serves as base for signing.
+	 *
+	 * @param Client $client
+	 *
 	 * @return string
 	 * @ignore
 	 */
-	function getSignatureString() {
+	function getSignatureString(Client $client) {
 		$parts = array();
 
-		foreach($this->fieldsInOrder as $f) {
+		$fieldNames = $this->fieldsInOrder;
+		if ($client->getConfig()->queryApiVersion('1.8')) {
+			// Version 1.8 omitted $description parameter
+			$fieldNames = Arrays::deleteValue($fieldNames, 'description');
+		}
+
+		foreach($fieldNames as $f) {
 			$val = $this->$f;
 			if ($val === null) {
 				$val = "";

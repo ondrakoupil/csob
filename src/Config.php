@@ -18,6 +18,19 @@ class Config {
 	public $url = GatewayUrl::TEST_LATEST;
 
 	/**
+	 * API Version. Version 1.8 brings some BC breaks, so the library needs to know which version you want to call.
+	 * Use this property to explicitly specify API version. Leave null to autodetect from endpoint URL.
+	 *
+	 * @var string
+	 */
+	public $apiVersion = null;
+
+	/**
+	 * @var int|null One of OPENSSL_HASH_* constants or null for auto detection
+	 */
+	public $hashMethod = null;
+
+	/**
 	 * Path to file where bank's public key is saved.
 	 *
 	 * You can obtain the key from bank's app
@@ -114,12 +127,25 @@ class Config {
 	 * @param string $privateKeyFile
 	 * @param string $bankPublicKeyFile
 	 * @param string $shopName
-	 * @param string $returnUrl
-	 * @param string $bankApiUrl
-	 * @param string $privateKeyPassword
-	 * @param string $sslCertificatePath
+	 * @param string|null $returnUrl
+	 * @param string|null $bankApiUrl
+	 * @param string|null $privateKeyPassword
+	 * @param string|null $sslCertificatePath
+	 * @param string|null $apiVersion Leave null to autodetect from $bankApiUrl
+	 * @param int|null $hashMethod One of OPENSSL_HASH_* constants, leave null for auto detection from given $bankApiUrl. Read via getHashMethod();
 	 */
-	function __construct($merchantId, $privateKeyFile, $bankPublicKeyFile, $shopName, $returnUrl = null, $bankApiUrl = null, $privateKeyPassword = null, $sslCertificatePath = null) {
+	function __construct(
+		$merchantId,
+		$privateKeyFile,
+		$bankPublicKeyFile,
+		$shopName,
+		$returnUrl = null,
+		$bankApiUrl = null,
+		$privateKeyPassword = null,
+		$sslCertificatePath = null,
+		$apiVersion = null,
+		$hashMethod = null
+	) {
 		if ($bankApiUrl) {
 			$this->url = $bankApiUrl;
 		}
@@ -134,7 +160,50 @@ class Config {
 		$this->returnUrl = $returnUrl;
 		$this->shopName = $shopName;
 		$this->sslCertificatePath = $sslCertificatePath;
+		$this->hashMethod = $hashMethod;
+		$this->apiVersion = $apiVersion;
 	}
 
+	function getVersion() {
+		if (!$this->apiVersion) {
+			if (!$this->url) {
+				throw new Exception('You must specify bank API URL first.');
+			}
+			$match = preg_match('~\/api\/v([0-9.]+)$~', $this->url, $matches);
+			if ($match) {
+				$this->apiVersion = $matches[1];
+			} else {
+				throw new Exception('Can not deduce API version from URL: ' . $this->url);
+			}
+		}
+		return $this->apiVersion;
+	}
+
+	/**
+	 * Return the set hashing method or deduce it from bank API's version.
+	 *
+	 * @return int
+	 */
+	function getHashMethod() {
+		if ($this->hashMethod) {
+			return $this->hashMethod;
+		}
+		if ($this->queryApiVersion('1.8')) {
+			return OPENSSL_ALGO_SHA256;
+		} else {
+			return OPENSSL_ALGO_SHA1;
+		}
+	}
+
+	/**
+	 * Returns true if currently set API version is at least $version or greater.
+	 *
+	 * @param string $version
+	 *
+	 * @return boolean
+	 */
+	function queryApiVersion($version) {
+		return !!version_compare($this->getVersion(), $version, '>=');
+	}
 
 }

@@ -9,6 +9,8 @@ Pomocí této knihovny lze pohodlně integrovat [platební bránu ČSOB][6] do v
 nebo jiné aplikace v PHP bez nutnosti přímo pracovat s jejím API, volat
 nějaké metody, ověřovat podpisy apod.
 
+**[English readme is here][english]**.
+
 Podrobnosti o API platební brány, o generování klíčů a
 o jednotlivých krocích zpracováná platby najdete na [https://github.com/csob/paymentgateway][1].
 Testovací platební karty jsou na [wiki zde][7]
@@ -18,19 +20,24 @@ Pozor pozor! Často na to někdo naráží, že to raději vypíchnu tady nahoř
 
 ## Novinky
 
-- Knihovna nyní podporuje ČSOB eAPI 1.7, přidává [extensions](#extension), podporu pro [EET](#eet), one click platby a platební tlačítko ČSOB.
-- `paymentRecurrent()` je nyní deprecated, protože i API tuto metodu již nepodporuje. Nahrazeno `paymentOneClickInit()` a `paymentOneClickStart()`.
-- Knihovna umožňuje posílat [custom requesty](#custom-request) na ostatní metody API, které nemají v knihovně vlastní metodu (hlavně masterpass metody) pomocí `customRequest()`
-- Extensions je možné používat genericky pomocí třídy Extension, pro EET je vše předpřipraveno
-formou oddědených tříd. 
-- Postupně doplním i předpřipravené třidy pro ostatní extensions. 
+### ČSOB API 1.8
+Na podzim 2019 vydala banka API verze 1.8, které kromě několika přidaných funkcí zavádí také malé, nicméně zpětně nekompatibilní, změny. 
+Používáte-li tedy knihovnu ve své aplikaci a používáte adresu nejnovější verze `GatewayUrl::PRODUCTION_LATEST`, tak pozor, updatem knihovny na verzi 1.8
+dojde i k update na API 1.8 a některé věci tedy mohou fungovat jinak.  
 
-Jako výchozí adresa je testovací platební brána aktuální verze (nyní tedy 1.7).
+- Knihovna nyní podporuje ČSOB eAPI 1.8 a podpisy pomocí SHA 256. U metod API, které mají v knihovně svoji vlastní metodu, např. paymentInit nebo customerInfo,
+jsou všechny změny v API 1.8 již zohledněny. Voláte-li nějaké pokročilejší metody ručně přes `customRequest()`, zkontrolujte, že nedošlo k změně v API.
+- V Configu lze explicitně nastavit, jakou adresu a jakou verzi API má knihovna používat. Nespecifikujte nic, má-li se vše nastavit automaticky.
+- Nové platební metody (MallPay, ApplePay) nejsem dost dobře schopný otestovat, neexistují pro ně tedy přesné metody v knihovně. Používejte tedy univerzální metodu `customRequest()`, 
+  parametry zadejte manuálně a knihovna alespoň odešle request a ověří odpověď. Pokud pro tyto platby někdo vyvine a otestuje jednotlivé metody do knihovny do Client třídy, nechť pošle PR, rád ho zapojím.  
+
+Jako výchozí adresa je testovací platební brána aktuální verze (nyní tedy 1.8 - `GatewayUrl::TEST_1_8`).
 
 Nově jsou dostupné konstanty třídy GatewayUrl, které obsahují URL jednotlivých verzí API.
 
 ```
 $config->url = GatewayUrl::TEST_1_7;
+$config->url = GatewayUrl::PRODUCTION_1_8;
 $config->url = GatewayUrl::PRODUCTION_LATEST;
 ```
 
@@ -147,12 +154,12 @@ jejíž adresu vygeneruje `getPaymentProcessUrl()`. Jako pomůcka je tu rovnou i
 
 ```php
 $url = $client->getPaymentProcessUrl($payment);
-redirectBrowserTo($url);
+redirectBrowserTo($url);  // fiktivní funkce pro přesměrování
 
 // NEBO
 
 $client->redirectToGateway($payment);
-terminateApp();
+terminateApp();  // fiktivní funkce pro ukončení skriptu
 ```
 
 Jako argument lze používat buď $payment objekt z předchozího volání, anebo PayID jako obyčejný string.
@@ -237,6 +244,8 @@ if ($hasCards) {
 }
 ```
 
+API 1.8 tuto metodu přejmenovalo na `echo/customer`, knihovna zvolí vhodný endpoint sama, v PHP ale volejte vždy `customerInfo()`
+
 ### Payment/checkout
 
 Jde o zatím neveřejnou funkce platební brány. Umožní zobrazit minimalistický iframe a celé
@@ -277,6 +286,7 @@ Počínaje API 1.5 lze provádět opakované platby. Jak přesně to funguje se 
   a s novým Payment objektem. Tím se založí nová platba. Následným zavoláním `paymentOneClickStart()`
   se platba provede.
 - nová platba dostane své vlastní PayID a lze s ní pracovat jako s jakoukoliv jinou platbou
+- API 1.8 změnilo název endpointu, knihovna to sama zohlední, v PHP vždy volejte paymentOneClickInit()
 
 ## Logování
 
@@ -297,7 +307,7 @@ $client->setTraceLog(function($message) use ($myLogger) {
 
 ## Custom request
 Pokud potřebujete poslat požadavek na API metodu, která není v této knihovně speciálně implementovaná 
-(zatím např. metody masterpass), lze využít customRequest() metodu. Je potřeba jen pohlídat,
+(zatím např. metody Masterpass, ApplePay nebo MallPay), lze využít customRequest() metodu. Je potřeba jen pohlídat,
  v jakém pořadí jsou zadána vstupní data a v jakém pořadí jsou data v odpovědi skládána
  do řetězce pro ověření podpisu odpovědi.
  
@@ -329,6 +339,9 @@ $client->customRequest(
     $ignoreInvalidReturnSignature = false
 )
 ```
+
+V `$expectedOutputFields` může určitá hodnota začínat na ?, v takovém případě s epovažuje za nepovinnou a není-li v odpovědi banky
+vůebc zahrnuta, nebude do základu podpisu zahrnutá. Pokud nezačíná na ?, do základu podpisu se dá prázdný řetězec. 
 
 ## Extension
 
@@ -471,3 +484,4 @@ nebo mě bez obav [kontaktujte][5] napřímo :-)
 [9]: https://github.com/csob/paymentgateway/wiki/Specifikace-API-roz%C5%A1%C3%AD%C5%99en%C3%AD-pro-EET
 [10]: docs/class-OndraKoupil.Csob.Config.html
 [issue43]: https://github.com/csob/paymentgateway/issues/43
+[english]: README.en.md

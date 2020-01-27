@@ -9,10 +9,10 @@ namespace OndraKoupil\Csob;
  */
 class Crypto {
 
-	/**
-	 * Currently used has algorithm
-	 */
-	const HASH_METHOD = \OPENSSL_ALGO_SHA1;
+	const DEFAULT_HASH_METHOD = OPENSSL_ALGO_SHA1;
+
+	const HASH_SHA1 = OPENSSL_ALGO_SHA1;
+	const HASH_SHA256 = OPENSSL_ALGO_SHA256;
 
 	/**
 	 * Signs a string
@@ -20,10 +20,11 @@ class Crypto {
 	 * @param string $string
 	 * @param string $privateKeyFile Path to file with your private key (the .key file from https://iplatebnibrana.csob.cz/keygen/ )
 	 * @param string $privateKeyPassword Password to the key, if it was generated with one. Leave empty if you created the key at https://iplatebnibrana.csob.cz/keygen/
+	 * @param int $hashMethod One of OPENSSL_HASH_* constants
 	 * @return string Signature encoded with Base64
 	 * @throws CryptoException When signing fails or key file path is not valid
 	 */
-	static function signString($string, $privateKeyFile, $privateKeyPassword = "") {
+	static function signString($string, $privateKeyFile, $privateKeyPassword = "", $hashMethod = self::DEFAULT_HASH_METHOD) {
 
 		if (!function_exists("openssl_get_privatekey")) {
 			throw new CryptoException("OpenSSL extension in PHP is required. Please install or enable it.");
@@ -40,7 +41,7 @@ class Crypto {
 			throw new CryptoException("Private key could not be loaded from file \"$privateKeyFile\". Please make sure that the file contains valid private key in PEM format.");
 		}
 
-		$ok = openssl_sign($string, $signature, $privateKeyId, self::HASH_METHOD);
+		$ok = openssl_sign($string, $signature, $privateKeyId, $hashMethod);
 		if (!$ok) {
 			throw new CryptoException("Signing failed.");
 		}
@@ -59,10 +60,11 @@ class Crypto {
 	 * @param string $publicKeyFile Path to file where bank's public key is saved
 	 * (you can obtain it from bank's app https://iposman.iplatebnibrana.csob.cz/posmerchant
 	 * or from their package on GitHub)
+	 * @param int $hashMethod One of OPENSSL_HASH_* constants
+	 *
 	 * @return bool True if signature is correct
-	 * @throws CryptoException When some cryptographic operation fails and key file path is not valid
 	 */
-	static function verifySignature($textToVerify, $signatureInBase64, $publicKeyFile) {
+	static function verifySignature($textToVerify, $signatureInBase64, $publicKeyFile, $hashMethod = self::DEFAULT_HASH_METHOD) {
 
 		if (!function_exists("openssl_get_privatekey")) {
 			throw new CryptoException("OpenSSL extension in PHP is required. Please install or enable it.");
@@ -77,7 +79,7 @@ class Crypto {
 
 		$signature = base64_decode($signatureInBase64);
 
-		$res = openssl_verify($textToVerify, $signature, $publicKeyId, self::HASH_METHOD);
+		$res = openssl_verify($textToVerify, $signature, $publicKeyId, $hashMethod);
 		openssl_free_key($publicKeyId);
 
 		if ($res == -1) {
@@ -194,7 +196,11 @@ class Crypto {
 				if (is_array($pos)) {
 					$result = array_merge($result, self::createSignatureBaseFromArray($pos, true));
 				} else {
-					$result[] = $pos;
+					if (is_bool($pos)) {
+						$result[] = $pos ? 'true' : 'false';
+					} else {
+						$result[] = $pos;
+					}
 				}
 			} else {
 				if (!$optional) {

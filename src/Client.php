@@ -169,7 +169,7 @@ class Client {
 		$array = $payment->signAndExport($this);
 
 		$this->writeToLog("payment/init started for payment with orderNo " . $payment->orderNo);
-
+		
 		try {
 			$ret = $this->sendRequest(
 				"payment/init",
@@ -359,7 +359,7 @@ class Client {
 	 *
 	 * @return array|number Number if $returnStatusOnly was true, array otherwise.
 	 */
-	function paymentStatus($payment, $returnStatusOnly = true, $extensions = array()) {
+	function paymentStatus($payment, $returnStatusOnly = true, $extensions = array(), $nullIfPaymentNotFound = true) {
 		$payId = $this->getPayId($payment);
 
 		$this->writeToLog("payment/status started for payment $payId");
@@ -377,7 +377,8 @@ class Client {
 				"payment/status",
 				$payload,
 				"GET",
-				array("payId", "dttm", "resultCode", "resultMessage", "paymentStatus", "?authCode"),
+				// Payment status is optional, bank doesn't include it in signature base if the payment is not found.
+				array("payId", "dttm", "resultCode", "resultMessage", "?paymentStatus", "?authCode"),
 				array("merchantId", "payId", "dttm", "signature"),
 				false,
 				false,
@@ -385,8 +386,13 @@ class Client {
 			);
 
 		} catch (Exception $e) {
-			$this->writeToLog("Fail, got exception: " . $e->getCode().", " . $e->getMessage());
-			throw $e;
+			if ($nullIfPaymentNotFound and $e->getCode() === 140) {
+				// Error 140 = payment not found
+				return null;
+			} else {
+				$this->writeToLog("Fail, got exception: " . $e->getCode().", " . $e->getMessage());
+				throw $e;
+			}
 		}
 
 		$this->writeToLog("payment/status OK, status of payment $payId is ".$ret["paymentStatus"]);
@@ -814,13 +820,15 @@ class Client {
 			$payload["description"] = $newDescription;
 		}
 
-		$this->writeToLog("payment/oneclick/init started using orig payment $origPayId");
+		$endpointName = $this->config->queryApiVersion('1.8') ? 'oneclick/init' : 'payment/oneclick/init';
+
+		$this->writeToLog("$endpointName started using orig payment $origPayId");
 
 		try {
 			$payload["signature"] = $this->signRequest($payload);
 
 			$ret = $this->sendRequest(
-				"payment/oneclick/init",
+				$endpointName,
 				$payload,
 				"POST",
 				array("payId", "dttm", "resultCode", "resultMessage", "?paymentStatus", "?authCode"),
@@ -835,7 +843,7 @@ class Client {
 			throw $e;
 		}
 
-		$this->writeToLog("payment/oneclick/init OK, new payment got payId " . $ret["payId"]);
+		$this->writeToLog("$endpointName OK, new payment got payId " . $ret["payId"]);
 
 		$newPayment->setPayId($ret["payId"]);
 
@@ -922,13 +930,15 @@ class Client {
 			"dttm" => $this->getDTTM(),
 		);
 
-		$this->writeToLog("payment/button started with PayId $payId");
+		$endpointName = $this->config->queryApiVersion('1.8') ? 'button/init' : 'payment/button';
+
+		$this->writeToLog("$endpointName started with PayId $payId");
 
 		try {
 			$payload["signature"] = $this->signRequest($payload);
 
 			$ret = $this->sendRequest(
-				"payment/button",
+				$endpointName,
 				$payload,
 				"POST",
 				array("payId", "dttm", "resultCode", "resultMessage", "redirect"),
@@ -943,7 +953,7 @@ class Client {
 			throw $e;
 		}
 
-		$this->writeToLog("payment/button OK");
+		$this->writeToLog("$endpointName OK");
 
 		return $ret;
 
@@ -1079,7 +1089,7 @@ class Client {
 	}
 
 	/**
-	 * Performs customer/info API call.
+	 * Performs customer/info (below v1.8) or echo/customer (>=v1.8) API call.
 	 *
 	 * Use this method to check if customer with given ID has any saved cards.
 	 * If he does, you can show some icon or change default payment method in
@@ -1118,8 +1128,14 @@ class Client {
 		$resMessage = "";
 
 		try {
+
+			$endpointName = 'customer/info';
+			if ($this->getConfig()->queryApiVersion('1.8')) {
+				$endpointName = 'echo/customer'; // API 1.8 renamed this method
+			}
+
 			$ret = $this->sendRequest(
-				"customer/info",
+				$endpointName,
 				$payload,
 				"GET",
 				array("customerId", "dttm", "resultCode", "resultMessage"),
@@ -1130,6 +1146,11 @@ class Client {
 			$resMessage = $e->getMessage();
 
 			switch  ($e->getCode()) {
+
+				// V 1.8 returns 404 for nonexistent user
+				case 404:
+					$result = self::CUST_NOT_FOUND;
+					break;
 
 				case self::CUST_CARDS:
 				case self::CUST_NO_CARDS:
@@ -1378,7 +1399,8 @@ class Client {
 		$signature = Crypto::signString(
 			$stringToSign,
 			$keyFile,
-			$this->config->privateKeyPassword
+			$this->config->privateKeyPassword,
+			$this->config->getHashMethod()
 		);
 
 		$this->writeToTraceLog("Signing string \"$stringToSign\" using key $keyFile, result: ".$signature);
@@ -1508,7 +1530,8 @@ class Client {
 			$this->writeToTraceLog("Failed: returned HTTP code $httpCode");
 			throw new Exception(
 				"API returned HTTP code $httpCode, which is not code 200."
-				. ($httpCode == 400 ? " Probably wrong signature, check crypto keys." : "")
+				. ($httpCode == 400 ? " Probably wrong signature, check crypto keys." : ""),
+				$httpCode
 			);
 		}
 
@@ -1617,7 +1640,7 @@ class Client {
 
 		$this->writeToTraceLog("String for verifying signature: \"" . $string . "\", using key " . $this->config->bankPublicKeyFile);
 
-		return Crypto::verifySignature($string, $signature, $this->config->bankPublicKeyFile);
+		return Crypto::verifySignature($string, $signature, $this->config->bankPublicKeyFile, $this->config->getHashMethod());
 	}
 
 

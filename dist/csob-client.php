@@ -175,7 +175,7 @@ class Client {
 		$array = $payment->signAndExport($this);
 
 		$this->writeToLog("payment/init started for payment with orderNo " . $payment->orderNo);
-
+		
 		try {
 			$ret = $this->sendRequest(
 				"payment/init",
@@ -365,7 +365,7 @@ class Client {
 	 *
 	 * @return array|number Number if $returnStatusOnly was true, array otherwise.
 	 */
-	function paymentStatus($payment, $returnStatusOnly = true, $extensions = array()) {
+	function paymentStatus($payment, $returnStatusOnly = true, $extensions = array(), $nullIfPaymentNotFound = true) {
 		$payId = $this->getPayId($payment);
 
 		$this->writeToLog("payment/status started for payment $payId");
@@ -383,7 +383,8 @@ class Client {
 				"payment/status",
 				$payload,
 				"GET",
-				array("payId", "dttm", "resultCode", "resultMessage", "paymentStatus", "?authCode"),
+				// Payment status is optional, bank doesn't include it in signature base if the payment is not found.
+				array("payId", "dttm", "resultCode", "resultMessage", "?paymentStatus", "?authCode"),
 				array("merchantId", "payId", "dttm", "signature"),
 				false,
 				false,
@@ -391,8 +392,13 @@ class Client {
 			);
 
 		} catch (Exception $e) {
-			$this->writeToLog("Fail, got exception: " . $e->getCode().", " . $e->getMessage());
-			throw $e;
+			if ($nullIfPaymentNotFound and $e->getCode() === 140) {
+				// Error 140 = payment not found
+				return null;
+			} else {
+				$this->writeToLog("Fail, got exception: " . $e->getCode().", " . $e->getMessage());
+				throw $e;
+			}
 		}
 
 		$this->writeToLog("payment/status OK, status of payment $payId is ".$ret["paymentStatus"]);
@@ -820,13 +826,15 @@ class Client {
 			$payload["description"] = $newDescription;
 		}
 
-		$this->writeToLog("payment/oneclick/init started using orig payment $origPayId");
+		$endpointName = $this->config->queryApiVersion('1.8') ? 'oneclick/init' : 'payment/oneclick/init';
+
+		$this->writeToLog("$endpointName started using orig payment $origPayId");
 
 		try {
 			$payload["signature"] = $this->signRequest($payload);
 
 			$ret = $this->sendRequest(
-				"payment/oneclick/init",
+				$endpointName,
 				$payload,
 				"POST",
 				array("payId", "dttm", "resultCode", "resultMessage", "?paymentStatus", "?authCode"),
@@ -841,7 +849,7 @@ class Client {
 			throw $e;
 		}
 
-		$this->writeToLog("payment/oneclick/init OK, new payment got payId " . $ret["payId"]);
+		$this->writeToLog("$endpointName OK, new payment got payId " . $ret["payId"]);
 
 		$newPayment->setPayId($ret["payId"]);
 
@@ -928,13 +936,15 @@ class Client {
 			"dttm" => $this->getDTTM(),
 		);
 
-		$this->writeToLog("payment/button started with PayId $payId");
+		$endpointName = $this->config->queryApiVersion('1.8') ? 'button/init' : 'payment/button';
+
+		$this->writeToLog("$endpointName started with PayId $payId");
 
 		try {
 			$payload["signature"] = $this->signRequest($payload);
 
 			$ret = $this->sendRequest(
-				"payment/button",
+				$endpointName,
 				$payload,
 				"POST",
 				array("payId", "dttm", "resultCode", "resultMessage", "redirect"),
@@ -949,7 +959,7 @@ class Client {
 			throw $e;
 		}
 
-		$this->writeToLog("payment/button OK");
+		$this->writeToLog("$endpointName OK");
 
 		return $ret;
 
@@ -1085,7 +1095,7 @@ class Client {
 	}
 
 	/**
-	 * Performs customer/info API call.
+	 * Performs customer/info (below v1.8) or echo/customer (>=v1.8) API call.
 	 *
 	 * Use this method to check if customer with given ID has any saved cards.
 	 * If he does, you can show some icon or change default payment method in
@@ -1124,8 +1134,14 @@ class Client {
 		$resMessage = "";
 
 		try {
+
+			$endpointName = 'customer/info';
+			if ($this->getConfig()->queryApiVersion('1.8')) {
+				$endpointName = 'echo/customer'; // API 1.8 renamed this method
+			}
+
 			$ret = $this->sendRequest(
-				"customer/info",
+				$endpointName,
 				$payload,
 				"GET",
 				array("customerId", "dttm", "resultCode", "resultMessage"),
@@ -1136,6 +1152,11 @@ class Client {
 			$resMessage = $e->getMessage();
 
 			switch  ($e->getCode()) {
+
+				// V 1.8 returns 404 for nonexistent user
+				case 404:
+					$result = self::CUST_NOT_FOUND;
+					break;
 
 				case self::CUST_CARDS:
 				case self::CUST_NO_CARDS:
@@ -1384,7 +1405,8 @@ class Client {
 		$signature = Crypto::signString(
 			$stringToSign,
 			$keyFile,
-			$this->config->privateKeyPassword
+			$this->config->privateKeyPassword,
+			$this->config->getHashMethod()
 		);
 
 		$this->writeToTraceLog("Signing string \"$stringToSign\" using key $keyFile, result: ".$signature);
@@ -1514,7 +1536,8 @@ class Client {
 			$this->writeToTraceLog("Failed: returned HTTP code $httpCode");
 			throw new Exception(
 				"API returned HTTP code $httpCode, which is not code 200."
-				. ($httpCode == 400 ? " Probably wrong signature, check crypto keys." : "")
+				. ($httpCode == 400 ? " Probably wrong signature, check crypto keys." : ""),
+				$httpCode
 			);
 		}
 
@@ -1623,7 +1646,7 @@ class Client {
 
 		$this->writeToTraceLog("String for verifying signature: \"" . $string . "\", using key " . $this->config->bankPublicKeyFile);
 
-		return Crypto::verifySignature($string, $signature, $this->config->bankPublicKeyFile);
+		return Crypto::verifySignature($string, $signature, $this->config->bankPublicKeyFile, $this->config->getHashMethod());
 	}
 
 
@@ -1651,6 +1674,19 @@ class Config {
 	 * @see GatewayUrl
 	 */
 	public $url = GatewayUrl::TEST_LATEST;
+
+	/**
+	 * API Version. Version 1.8 brings some BC breaks, so the library needs to know which version you want to call.
+	 * Use this property to explicitly specify API version. Leave null to autodetect from endpoint URL.
+	 *
+	 * @var string
+	 */
+	public $apiVersion = null;
+
+	/**
+	 * @var int|null One of OPENSSL_HASH_* constants or null for auto detection
+	 */
+	public $hashMethod = null;
 
 	/**
 	 * Path to file where bank's public key is saved.
@@ -1749,12 +1785,25 @@ class Config {
 	 * @param string $privateKeyFile
 	 * @param string $bankPublicKeyFile
 	 * @param string $shopName
-	 * @param string $returnUrl
-	 * @param string $bankApiUrl
-	 * @param string $privateKeyPassword
-	 * @param string $sslCertificatePath
+	 * @param string|null $returnUrl
+	 * @param string|null $bankApiUrl
+	 * @param string|null $privateKeyPassword
+	 * @param string|null $sslCertificatePath
+	 * @param string|null $apiVersion Leave null to autodetect from $bankApiUrl
+	 * @param int|null $hashMethod One of OPENSSL_HASH_* constants, leave null for auto detection from given $bankApiUrl. Read via getHashMethod();
 	 */
-	function __construct($merchantId, $privateKeyFile, $bankPublicKeyFile, $shopName, $returnUrl = null, $bankApiUrl = null, $privateKeyPassword = null, $sslCertificatePath = null) {
+	function __construct(
+		$merchantId,
+		$privateKeyFile,
+		$bankPublicKeyFile,
+		$shopName,
+		$returnUrl = null,
+		$bankApiUrl = null,
+		$privateKeyPassword = null,
+		$sslCertificatePath = null,
+		$apiVersion = null,
+		$hashMethod = null
+	) {
 		if ($bankApiUrl) {
 			$this->url = $bankApiUrl;
 		}
@@ -1769,8 +1818,51 @@ class Config {
 		$this->returnUrl = $returnUrl;
 		$this->shopName = $shopName;
 		$this->sslCertificatePath = $sslCertificatePath;
+		$this->hashMethod = $hashMethod;
+		$this->apiVersion = $apiVersion;
 	}
 
+	function getVersion() {
+		if (!$this->apiVersion) {
+			if (!$this->url) {
+				throw new Exception('You must specify bank API URL first.');
+			}
+			$match = preg_match('~\/api\/v([0-9.]+)$~', $this->url, $matches);
+			if ($match) {
+				$this->apiVersion = $matches[1];
+			} else {
+				throw new Exception('Can not deduce API version from URL: ' . $this->url);
+			}
+		}
+		return $this->apiVersion;
+	}
+
+	/**
+	 * Return the set hashing method or deduce it from bank API's version.
+	 *
+	 * @return int
+	 */
+	function getHashMethod() {
+		if ($this->hashMethod) {
+			return $this->hashMethod;
+		}
+		if ($this->queryApiVersion('1.8')) {
+			return OPENSSL_ALGO_SHA256;
+		} else {
+			return OPENSSL_ALGO_SHA1;
+		}
+	}
+
+	/**
+	 * Returns true if currently set API version is at least $version or greater.
+	 *
+	 * @param string $version
+	 *
+	 * @return boolean
+	 */
+	function queryApiVersion($version) {
+		return !!version_compare($this->getVersion(), $version, '>=');
+	}
 
 }
 
@@ -2053,7 +2145,7 @@ class Payment {
 		$this->cart[] = array(
 			"name" => $name,
 			"quantity" => $quantity,
-			"amount" => $totalAmount,
+			"amount" => intval(round($totalAmount)),
 			"description" => $description
 		);
 
@@ -2235,7 +2327,13 @@ class Payment {
 
 		$config = $client->getConfig();
 
-		foreach($this->fieldsInOrder as $f) {
+		$fieldNames = $this->fieldsInOrder;
+		if ($client->getConfig()->queryApiVersion('1.8')) {
+			// Version 1.8 omitted $description parameter
+			$fieldNames = Arrays::deleteValue($fieldNames, 'description');
+		}
+
+		foreach($fieldNames as $f) {
 			$val = $this->$f;
 			if ($val === null) {
 				$val = "";
@@ -2250,11 +2348,11 @@ class Payment {
 			}
 		}
 
-		$stringToSign = $this->getSignatureString();
+		$stringToSign = $this->getSignatureString($client);
 
 		$client->writeToTraceLog('Signing payment request, base for the signature:' . "\n" . $stringToSign);
 
-		$signed = Crypto::signString($stringToSign, $config->privateKeyFile, $config->privateKeyPassword);
+		$signed = Crypto::signString($stringToSign, $config->privateKeyFile, $config->privateKeyPassword, $client->getConfig()->getHashMethod());
 		$arr["signature"] = $signed;
 
 		return $arr;
@@ -2262,13 +2360,22 @@ class Payment {
 
 	/**
 	 * Convert to string that serves as base for signing.
+	 *
+	 * @param Client $client
+	 *
 	 * @return string
 	 * @ignore
 	 */
-	function getSignatureString() {
+	function getSignatureString(Client $client) {
 		$parts = array();
 
-		foreach($this->fieldsInOrder as $f) {
+		$fieldNames = $this->fieldsInOrder;
+		if ($client->getConfig()->queryApiVersion('1.8')) {
+			// Version 1.8 omitted $description parameter
+			$fieldNames = Arrays::deleteValue($fieldNames, 'description');
+		}
+
+		foreach($fieldNames as $f) {
 			$val = $this->$f;
 			if ($val === null) {
 				$val = "";
@@ -2322,10 +2429,10 @@ namespace OndraKoupil\Csob {
  */
 class Crypto {
 
-	/**
-	 * Currently used has algorithm
-	 */
-	const HASH_METHOD = \OPENSSL_ALGO_SHA1;
+	const DEFAULT_HASH_METHOD = OPENSSL_ALGO_SHA1;
+
+	const HASH_SHA1 = OPENSSL_ALGO_SHA1;
+	const HASH_SHA256 = OPENSSL_ALGO_SHA256;
 
 	/**
 	 * Signs a string
@@ -2333,10 +2440,11 @@ class Crypto {
 	 * @param string $string
 	 * @param string $privateKeyFile Path to file with your private key (the .key file from https://iplatebnibrana.csob.cz/keygen/ )
 	 * @param string $privateKeyPassword Password to the key, if it was generated with one. Leave empty if you created the key at https://iplatebnibrana.csob.cz/keygen/
+	 * @param int $hashMethod One of OPENSSL_HASH_* constants
 	 * @return string Signature encoded with Base64
 	 * @throws CryptoException When signing fails or key file path is not valid
 	 */
-	static function signString($string, $privateKeyFile, $privateKeyPassword = "") {
+	static function signString($string, $privateKeyFile, $privateKeyPassword = "", $hashMethod = self::DEFAULT_HASH_METHOD) {
 
 		if (!function_exists("openssl_get_privatekey")) {
 			throw new CryptoException("OpenSSL extension in PHP is required. Please install or enable it.");
@@ -2353,7 +2461,7 @@ class Crypto {
 			throw new CryptoException("Private key could not be loaded from file \"$privateKeyFile\". Please make sure that the file contains valid private key in PEM format.");
 		}
 
-		$ok = openssl_sign($string, $signature, $privateKeyId, self::HASH_METHOD);
+		$ok = openssl_sign($string, $signature, $privateKeyId, $hashMethod);
 		if (!$ok) {
 			throw new CryptoException("Signing failed.");
 		}
@@ -2372,10 +2480,11 @@ class Crypto {
 	 * @param string $publicKeyFile Path to file where bank's public key is saved
 	 * (you can obtain it from bank's app https://iposman.iplatebnibrana.csob.cz/posmerchant
 	 * or from their package on GitHub)
+	 * @param int $hashMethod One of OPENSSL_HASH_* constants
+	 *
 	 * @return bool True if signature is correct
-	 * @throws CryptoException When some cryptographic operation fails and key file path is not valid
 	 */
-	static function verifySignature($textToVerify, $signatureInBase64, $publicKeyFile) {
+	static function verifySignature($textToVerify, $signatureInBase64, $publicKeyFile, $hashMethod = self::DEFAULT_HASH_METHOD) {
 
 		if (!function_exists("openssl_get_privatekey")) {
 			throw new CryptoException("OpenSSL extension in PHP is required. Please install or enable it.");
@@ -2390,7 +2499,7 @@ class Crypto {
 
 		$signature = base64_decode($signatureInBase64);
 
-		$res = openssl_verify($textToVerify, $signature, $publicKeyId, self::HASH_METHOD);
+		$res = openssl_verify($textToVerify, $signature, $publicKeyId, $hashMethod);
 		openssl_free_key($publicKeyId);
 
 		if ($res == -1) {
@@ -2427,6 +2536,8 @@ class Crypto {
 					$ret,
 					self::createSignatureBaseRecursion($val, $depthCheck + 1)
 				);
+			} elseif (is_bool($val)) {
+				$ret[] = $val ? 'true' : 'false';
 			} else {
 				$ret[] = $val;
 			}
@@ -2505,7 +2616,11 @@ class Crypto {
 				if (is_array($pos)) {
 					$result = array_merge($result, self::createSignatureBaseFromArray($pos, true));
 				} else {
-					$result[] = $pos;
+					if (is_bool($pos)) {
+						$result[] = $pos ? 'true' : 'false';
+					} else {
+						$result[] = $pos;
+					}
 				}
 			} else {
 				if (!$optional) {
@@ -2556,9 +2671,9 @@ namespace OndraKoupil\Csob {
  */
 class GatewayUrl {
 
-	const TEST_LATEST = self::TEST_1_7;
+	const TEST_LATEST = self::TEST_1_8;
 
-	const PRODUCTION_LATEST = self::PRODUCTION_1_7;
+	const PRODUCTION_LATEST = self::PRODUCTION_1_8;
 
 	const TEST_1_0 = "https://iapi.iplatebnibrana.csob.cz/api/v1";
 
@@ -2575,6 +2690,10 @@ class GatewayUrl {
 	const TEST_1_7 = "https://iapi.iplatebnibrana.csob.cz/api/v1.7";
 
 	const PRODUCTION_1_7 = "https://api.platebnibrana.csob.cz/api/v1.7";
+
+	const TEST_1_8 = "https://iapi.iplatebnibrana.csob.cz/api/v1.8";
+
+	const PRODUCTION_1_8 = "https://api.platebnibrana.csob.cz/api/v1.8";
 
 }
 

@@ -9,22 +9,32 @@ This library enables you to integrate ČSOB payment gateway into your e-shop or 
 
 See [https://github.com/csob/paymentgateway][1] for further information about the gateway, it's API, generating keys, payment processing steps, payment statuses and many more.
 
+Heads up! People are often mistaken with this, so I am putting this right here:
+**Use YOUR private key and [BANK's public key][3].** Not vice versa. Not your public key.
+
+
 ## News
 
-The library now supports ČSOB eAPI 1.7. 
-Select whichever eAPI version you want to use
-by setting address in your config object. Use GatewayUrl class constants for your convenience.
+The library now supports ČSOB eAPI 1.8. 
+Select whichever eAPI version you want to use by setting proper API URL in Config constructor or explicitly by setting $apiVersion in Config. 
+Use GatewayUrl class constants for your convenience. Library automatically infers API version from URL, so in real world, you'll probably never need to 
+set $apiVersion manually. 
 
 ```
 $config->url = GatewayUrl::TEST_1_7;
+$config->url = GatewayUrl::PRODUCTION_1_8;
 $config->url = GatewayUrl::PRODUCTION_LATEST;
+$config->apiVersion = '1.5'; 
 // etc.
 ```
 
-Library now supports extensions and EET.
+API 1.8 introduced some minor BC breaks. The library tries to shield you from it and automatically handles small nuances in all pre-implemented
+methods that can be found in Client class in PHP. However, if you use universal `customRequest()` method, you might want to check that everything works
+before updating to new library version.
 
-Heads up! People are often mistaken with this, so I am putting this here:
-**Use YOUR private key and [BANK's public key][3].** Not vice versa. Not your public key.
+API 1.8 also introduced new payment methods - ApplePay and MallPay. However it is not possible for me to implement and test the whole process
+with these specific payment methods, so the library doesn't ship with all methods required for calling these payments. You'll need to use `customRequest()` and
+set up the parameters for yourself. The library will then send a request and handle and verify the response for you.   
 
 
 ## Installation
@@ -225,6 +235,8 @@ if ($hasCards) {
 	echo "These are payment options...";
 }
 ```
+
+API version 1.8 renamed the method to echo/customer, however in PHP, always call customerInfo() and the library will choose the correct endpoint.
 
 ### Processing payment (payment/checkout)
 
