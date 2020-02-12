@@ -267,7 +267,7 @@ Thanks @rootpd
 
 Since eAPI 1.5, you can make recurring payments. See the [wiki page][8] for details.
 
-Use paymentOneClickInit() and paymentOneClickStart() to implement recurring payments.
+Use paymentOneClickEcho(), paymentOneClickInit() and paymentOneClickStart() to implement recurring payments.
 Former paymentRecurrent is deprecated now as it has been deprecated in CSOB API as well.
 
 ## Logging

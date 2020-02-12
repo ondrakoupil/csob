@@ -312,6 +312,15 @@ class Payment {
 	}
 
 	/**
+	 * Get back MerchantData encoded as base64.
+	 *
+	 * @return string
+	 */
+	public function getMerchantDataEncoded() {
+		return $this->merchantData ?: '';
+	}
+
+	/**
 	 * After the payment has been saved using payment/init, you can
 	 * get PayID from here.
 	 *

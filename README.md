@@ -282,11 +282,13 @@ Počínaje API 1.5 lze provádět opakované platby. Jak přesně to funguje se 
   nejlépe zavoláním `$payment->setOneClickPayment(true)`
 - zákazník pak zadá číslo karty, kód a provede 3D ověření jako u běžné platby
 - vy si uložíte PayID, abyste se na tuto autorizovanou transakci mohli odkazovat
+- od API verze 1.8 existuje `paymentOneClickEcho()` pro ověření, zda je originální PayID stále použitelné.
 - pak můžete kdykoliv zavolat metodu `paymentOneClickInit()` s PayID původní transakce
   a s novým Payment objektem. Tím se založí nová platba. Následným zavoláním `paymentOneClickStart()`
   se platba provede.
 - nová platba dostane své vlastní PayID a lze s ní pracovat jako s jakoukoliv jinou platbou
-- API 1.8 změnilo název endpointu, knihovna to sama zohlední, v PHP vždy volejte paymentOneClickInit()
+- API 1.8 změnilo název endpointu, knihovna to sama zohlední, v PHP vždy volejte paymentOneClickInit() 
+  nebo paymentOneClickStart(). Také se v paymentOneClickInit přidal povinný parametr `clientIp`.
 
 ## Logování
 

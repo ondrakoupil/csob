@@ -777,16 +777,18 @@ class Client {
 	 *
 	 * This method is a successor of now deprecated paymentRecurrent() method.
 	 *
+	 * Since API v 1.8, this method uses oneclick/init endpoint.
+	 *
 	 * @param Payment|string $origPayment Either string PayID or a Payment object
 	 * @param Payment $newPayment
 	 * @param Extension[]|Extension $extensions
-	 * @return array Data with new values
-	 * @throws Exception
+	 * @param string $clientIp IP address of customer's browser
 	 *
+	 * @return array Data with new values
 	 * @see Payment::setOneClickPayment()
-	 * @see paumentOneClickStart()
+	 * @see paymentOneClickStart()
 	 */
-	function paymentOneClickInit($origPayment, Payment $newPayment, $extensions = array()) {
+	function paymentOneClickInit($origPayment, Payment $newPayment, $extensions = array(), $clientIp = '') {
 		$origPayId = $this->getPayId($origPayment);
 
 		$newOrderNo = $newPayment->orderNo;
@@ -803,6 +805,7 @@ class Client {
 		}
 
 		$newDescription = Strings::shorten($newPayment->description, 240, "...");
+		$version1_8 = $this->config->queryApiVersion('1.8');
 
 		$payload = array(
 			"merchantId" => $this->config->merchantId,
@@ -811,18 +814,37 @@ class Client {
 			"dttm" => $this->getDTTM(),
 		);
 
+		if ($version1_8) {
+			// A new parameter appeared in v 1.8
+			$payload['clientIp'] = $clientIp;
+		}
+
 		if ($totalAmount > 0) {
 			$payload["totalAmount"] = $totalAmount;
 			$payload["currency"] = $newPayment->currency ?: "CZK"; // Currency is mandatory since 2016-01-10
 		}
 
-		if ($newDescription) {
+		if ($newDescription and !$version1_8) {
+			// In v 1.8, there is no description anymore
 			$payload["description"] = $newDescription;
 		}
+
+		if ($version1_8) {
+			// A new parameter appeared in v 1.8
+			$payload['merchantData'] = $newPayment->getMerchantDataEncoded();
+		}
+
+
 
 		$endpointName = $this->config->queryApiVersion('1.8') ? 'oneclick/init' : 'payment/oneclick/init';
 
 		$this->writeToLog("$endpointName started using orig payment $origPayId");
+
+		if ($version1_8) {
+			$requestFields = array("merchantId", "origPayId", "orderNo", "dttm", "clientIp", "totalAmount", "currency", "merchantData", "signature");
+		} else {
+			$requestFields = array("merchantId", "origPayId", "orderNo", "dttm", "totalAmount", "currency", "description", "signature");
+		}
 
 		try {
 			$payload["signature"] = $this->signRequest($payload);
@@ -832,7 +854,7 @@ class Client {
 				$payload,
 				"POST",
 				array("payId", "dttm", "resultCode", "resultMessage", "?paymentStatus", "?authCode"),
-				array("merchantId", "origPayId", "orderNo", "dttm", "totalAmount", "currency", "description", "signature"),
+				$requestFields,
 				false,
 				false,
 				$extensions
@@ -851,7 +873,7 @@ class Client {
 	}
 
 	/**
-	 * Performs a payment/oneclick/start API call.
+	 * Performs a payment/oneclick/start (or oneclick/start) API call.
 	 *
 	 * Use this method to confirm a recurring one click payment
 	 * that was previously initiated using paymentOneClickInit() method.
@@ -876,11 +898,13 @@ class Client {
 
 		$this->writeToLog("payment/oneclick/start started with PayId $newPayId");
 
+		$endpointName = $this->config->queryApiVersion('1.8') ? 'oneclick/start' : 'payment/oneclick/start';
+
 		try {
 			$payload["signature"] = $this->signRequest($payload);
 
 			$ret = $this->sendRequest(
-				"payment/oneclick/start",
+				$endpointName,
 				$payload,
 				"POST",
 				array("payId", "dttm", "resultCode", "resultMessage", "?paymentStatus"),
@@ -898,6 +922,68 @@ class Client {
 		$this->writeToLog("payment/oneclick/start OK");
 
 		return $ret;
+	}
+
+	/**
+	 * Performs a oneclick/echo API call.
+	 *
+	 * Use this method to check whether a oneclick template is still ready to be used.
+	 *
+	 * CAUTION! The method returns a numeric code. 0 means success. Positive number means failure.
+	 * Do not just `if ($client->paymentOneClickEcho($payId)) { success(); } else { fail(); }`!!
+	 *
+	 * See https://github.com/csob/paymentgateway/wiki/Vol%C3%A1n%C3%AD-rozhran%C3%AD-eAPI#operation-return-code
+	 * for explanation.
+	 *
+	 * @param string $origPayId The PayID of original payment template.
+	 *
+	 * @return number 0 = template is OK, number 700-740 = template is not OK.
+	 *
+	 * @see https://github.com/csob/paymentgateway/wiki/Vol%C3%A1n%C3%AD-rozhran%C3%AD-eAPI#operation-return-code
+	 */
+	function paymentOneClickEcho($origPayId) {
+
+		$payload = array(
+			"merchantId" => $this->config->merchantId,
+			"origPayId" => $origPayId,
+			"dttm" => $this->getDTTM(),
+		);
+
+		$this->writeToLog("oneclick/echo started with \$origPayId $origPayId");
+
+		$resultCode = 0;
+
+		try {
+			$payload["signature"] = $this->signRequest($payload);
+
+			$ret = $this->sendRequest(
+				"oneclick/echo",
+				$payload,
+				"POST",
+				array("origPayId", "dttm", "resultCode", "resultMessage", "?paymentStatus"),
+				array("merchantId", "origPayId", "dttm", "signature"),
+				false,
+				false
+			);
+
+			$resultCode = $ret['resultCode'];
+
+		} catch (Exception $e) {
+
+			if ($e->getCode() >= 700 and $e->getCode() <= 740) {
+				// This is the way bank responds for unusable payment templates (origPayIds).
+				$resultCode = $e->getCode();
+			} else {
+				$this->writeToLog("Fail, got exception: " . $e->getCode().", " . $e->getMessage());
+				throw $e;
+			}
+
+		}
+
+		$this->writeToLog("oneclick/echo OK, result " . $resultCode);
+
+		return +$resultCode;
+
 	}
 
 	/**
