@@ -25,7 +25,6 @@
     },
     "require-dev": {
         "nette/tester": "^1",
-        "ondrakoupil/testing-utils": "~0.0.7",
-        "apigen/apigen": "^4"
+        "ondrakoupil/testing-utils": "~0.0.7"
     }
 }
