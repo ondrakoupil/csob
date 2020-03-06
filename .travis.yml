@@ -19,7 +19,7 @@ before_install:
   - composer self-update
 
 install:
-  - composer install --no-interaction --prefer-source  
+  - composer install --no-interaction --prefer-source --no-dev
 
 script:
   - ./vendor/bin/tester -p $TESTER_PHP_BIN -s ./tests/src
