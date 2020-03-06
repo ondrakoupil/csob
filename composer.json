@@ -24,7 +24,8 @@
         "php": ">=5.4.8"
     },
     "require-dev": {
-        "nette/tester": "dev-master",
-        "ondrakoupil/testing-utils": "~0.0.7"
+        "nette/tester": "^1",
+        "ondrakoupil/testing-utils": "~0.0.7",
+        "apigen/apigen": "^4"
     }
 }

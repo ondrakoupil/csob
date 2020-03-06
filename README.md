@@ -29,11 +29,12 @@ dojde i k update na API 1.8 a některé věci tedy mohou fungovat jinak.
 jsou všechny změny v API 1.8 již zohledněny. Voláte-li nějaké pokročilejší metody ručně přes `customRequest()`, zkontrolujte, že nedošlo k změně v API.
 - V Configu lze explicitně nastavit, jakou adresu a jakou verzi API má knihovna používat. Nespecifikujte nic, má-li se vše nastavit automaticky.
 - Nové platební metody (MallPay, ApplePay) nejsem dost dobře schopný otestovat, neexistují pro ně tedy přesné metody v knihovně. Používejte tedy univerzální metodu `customRequest()`, 
-  parametry zadejte manuálně a knihovna alespoň odešle request a ověří odpověď. Pokud pro tyto platby někdo vyvine a otestuje jednotlivé metody do knihovny do Client třídy, nechť pošle PR, rád ho zapojím.  
+  parametry zadejte manuálně a knihovna alespoň odešle request a ověří odpověď. Pokud pro tyto platby někdo vyvine a otestuje jednotlivé metody do knihovny do Client třídy, nechť pošle PR, rád ho zapojím.
+- Pro platbu platebními tlačítko ČSOB a ERA je od verze 1.8 nová metoda - buttonInit(). Pro API < 1.8 používejte nadále paymentButton().
 
 Jako výchozí adresa je testovací platební brána aktuální verze (nyní tedy 1.8 - `GatewayUrl::TEST_1_8`).
 
-Nově jsou dostupné konstanty třídy GatewayUrl, které obsahují URL jednotlivých verzí API.
+DOporučuji používat konstanty třídy GatewayUrl, které obsahují URL jednotlivých verzí API.
 
 ```
 $config->url = GatewayUrl::TEST_1_7;
@@ -270,6 +271,11 @@ Pro `$oneClickPaymentCheckbox` použijte jednu z možností popsanou v PHPDocu z
 Další parametry jsou popsané v dokumentaci metody.
 
 Díky @rootpd.
+
+### Platební tlačítka
+
+Metody paymentButton() pro API < 1.8 a buttonInit() pro API >= 1.8 slouží k platbě tzv. platebním tlačítkem.
+Podrobnější parametry jsou v dokumentaci obou metod.
 
 ### Opakované platby
 

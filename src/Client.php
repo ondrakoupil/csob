@@ -987,7 +987,7 @@ class Client {
 	}
 
 	/**
-	 * Performs a payment/button API call.
+	 * Performs a payment/button API call in API <= 1.7
 	 *
 	 * You need a Payment object that was already processed via paymentInit() method
 	 * (or was injected with a payId that you received from other source).
@@ -1001,6 +1001,8 @@ class Client {
 	 * @param Extension[]|Extension $extensions
 	 *
 	 * @return array|string
+	 *
+	 * @deprecated Not available since API 1.8, use buttonInit() instead
 	 */
 	function paymentButton(Payment $payment, $brand = "csob", $extensions = array()) {
 
@@ -1016,7 +1018,11 @@ class Client {
 			"dttm" => $this->getDTTM(),
 		);
 
-		$endpointName = $this->config->queryApiVersion('1.8') ? 'button/init' : 'payment/button';
+		if ($this->config->queryApiVersion('1.8')) {
+			throw new Exception('paymentButton() is not available in API 1.8 and newer.');
+		}
+
+		$endpointName = 'payment/button';
 
 		$this->writeToLog("$endpointName started with PayId $payId");
 
@@ -1043,6 +1049,80 @@ class Client {
 
 		return $ret;
 
+
+	}
+
+	/**
+	 * Performs a button/init API call in API >= 1.8
+	 *
+	 * You need a Payment object, but DO NOT process it via paymentInit() method. You don't need its PayID.
+	 * It is used only as source of data for calling API.
+	 *
+	 * Items in cart in Payment object are not used, only total sum of their prices.
+	 *
+	 * In response, you'll receive an array with [redirect], which should be
+	 * another array with [method], [url] and possibly [params] items.
+	 * Redirect your user to that address to complete the payment.
+	 *
+	 * @see https://github.com/csob/paymentgateway/wiki/Metody-pro-platebn%C3%AD-tla%C4%8D%C3%ADtko for details
+	 *
+	 * @param Payment $payment
+	 * @param string $clientIp
+	 * @param string $brand "csob" or "era"
+	 * @param Extension[]|Extension $extensions
+	 *
+	 * @return array
+	 */
+	public function buttonInit(Payment $payment, $clientIp, $brand = 'csob', $extensions = array()) {
+		if (!$this->config->queryApiVersion('1.8')) {
+			throw new Exception('buttonInit() is not available since API 1.8.');
+		}
+
+		if ($brand !== 'csob' and $brand !== 'era') {
+			throw new Exception('Invalid $brand, must be "csob" or "era".');
+		}
+
+		$payment->checkAndPrepare($this->config);
+
+		$payload = array(
+			"merchantId" => $this->config->merchantId,
+			"orderNo" => $payment->orderNo,
+			"dttm" => $this->getDTTM(),
+			"clientIp" => $clientIp,
+			"totalAmount" => $payment->getTotalAmount(),
+			"currency" => $payment->currency,
+			"returnUrl" => $payment->returnUrl,
+			"returnMethod" => $payment->returnMethod,
+			"brand" => $brand,
+			"merchantData" => $payment->getMerchantDataEncoded(),
+			"language" => $payment->language,
+		);
+
+		$payload["signature"] = $this->signRequest($payload);
+
+		$this->writeToLog("button/init started for payment with orderNo " . $payment->orderNo);
+
+		try {
+
+			$ret = $this->sendRequest(
+				"button/init",
+				$payload,
+				"POST",
+				array("payId", "dttm", "resultCode", "resultMessage", "?paymentStatus","?redirect.method","?redirect.url","?redirect.params"),
+				null,
+				false,
+				false,
+				$extensions
+			);
+
+		} catch (Exception $e) {
+			$this->writeToLog("Fail, got exception: " . $e->getCode().", " . $e->getMessage());
+			throw $e;
+		}
+
+		$this->writeToLog("button/init OK");
+
+		return $ret;
 
 	}
 

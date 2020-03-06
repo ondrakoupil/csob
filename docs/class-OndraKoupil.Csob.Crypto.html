@@ -5,7 +5,7 @@
 
 	<title>Class OndraKoupil\Csob\Crypto | ČSOB payment gate PHP client</title>
 
-	<link rel="stylesheet" href="resources/style.css?ece90927a9d9c062449c24ff926274b49e781e42">
+	<link rel="stylesheet" href="resources/style.css?c2f33731c1948fbed7c333554678bfa68d4817da">
 
 </head>
 
@@ -123,7 +123,7 @@
 
 				<b>See:</b>
 				https://github.com/csob/paymentgateway/blob/master/eshop-integration/eAPI/v1/php/example/crypto.php<br>
-			<b>Located at</b> <a href="source-class-OndraKoupil.Csob.Crypto.html#5-212" title="Go to source code">Crypto.php</a>
+			<b>Located at</b> <a href="source-class-OndraKoupil.Csob.Crypto.html#5-220" title="Go to source code">Crypto.php</a>
 		<br>
 	</div>
 
@@ -143,7 +143,7 @@
 
 		<td class="name"><div>
 		<a class="anchor" href="#_signString">#</a>
-		<code><a href="source-class-OndraKoupil.Csob.Crypto.html#17-51" title="Go to source code">signString</a>( <span>string <var>$string</var></span>, <span>string <var>$privateKeyFile</var></span>, <span>string <var>$privateKeyPassword</var> = <span class="php-quote">&quot;&quot;</span></span> )</code>
+		<code><a href="source-class-OndraKoupil.Csob.Crypto.html#17-52" title="Go to source code">signString</a>( <span>string <var>$string</var></span>, <span>string <var>$privateKeyFile</var></span>, <span>string <var>$privateKeyPassword</var> = <span class="php-quote">&quot;&quot;</span></span>, <span>integer <var>$hashMethod</var> = self::DEFAULT_HASH_METHOD</span> )</code>
 
 		<div class="description short">
 			<p>Signs a string</p>
@@ -161,6 +161,8 @@
 					<dd>Path to file with your private key (the .key file from https://iplatebnibrana.csob.cz/keygen/ )</dd>
 					<dt><var>$privateKeyPassword</var></dt>
 					<dd>Password to the key, if it was generated with one. Leave empty if you created the key at https://iplatebnibrana.csob.cz/keygen/</dd>
+					<dt><var>$hashMethod</var></dt>
+					<dd>One of OPENSSL_HASH_* constants</dd>
 				</dl></div>
 
 				<h4>Returns</h4>
@@ -190,7 +192,7 @@
 
 		<td class="name"><div>
 		<a class="anchor" href="#_verifySignature">#</a>
-		<code><a href="source-class-OndraKoupil.Csob.Crypto.html#54-88" title="Go to source code">verifySignature</a>( <span>string <var>$textToVerify</var></span>, <span>string <var>$signatureInBase64</var></span>, <span>string <var>$publicKeyFile</var></span> )</code>
+		<code><a href="source-class-OndraKoupil.Csob.Crypto.html#55-90" title="Go to source code">verifySignature</a>( <span>string <var>$textToVerify</var></span>, <span>string <var>$signatureInBase64</var></span>, <span>string <var>$publicKeyFile</var></span>, <span>integer <var>$hashMethod</var> = self::DEFAULT_HASH_METHOD</span> )</code>
 
 		<div class="description short">
 			<p>Verifies signature of a string</p>
@@ -210,6 +212,8 @@
 					<dd><p>Path to file where bank's public key is saved
 (you can obtain it from bank's app https://iposman.iplatebnibrana.csob.cz/posmerchant
 or from their package on GitHub)</p></dd>
+					<dt><var>$hashMethod</var></dt>
+					<dd>One of OPENSSL_HASH_* constants</dd>
 				</dl></div>
 
 				<h4>Returns</h4>
@@ -217,10 +221,6 @@ or from their package on GitHub)</p></dd>
 					boolean<br>True if signature is correct
 				</div>
 
-				<h4>Throws</h4>
-				<div class="list">
-					<code><a href="class-OndraKoupil.Csob.CryptoException.html">OndraKoupil\Csob\CryptoException</a></code><br>When some cryptographic operation fails and key file path is not valid
-				</div>
 
 
 
@@ -239,7 +239,7 @@ or from their package on GitHub)</p></dd>
 
 		<td class="name"><div>
 		<a class="anchor" href="#_createSignatureBaseFromArray">#</a>
-		<code><a href="source-class-OndraKoupil.Csob.Crypto.html#90-104" title="Go to source code">createSignatureBaseFromArray</a>( <span>array <var>$array</var></span>, <span>boolean <var>$returnAsArray</var> = <span class="php-keyword1">false</span></span> )</code>
+		<code><a href="source-class-OndraKoupil.Csob.Crypto.html#92-106" title="Go to source code">createSignatureBaseFromArray</a>( <span>array <var>$array</var></span>, <span>boolean <var>$returnAsArray</var> = <span class="php-keyword1">false</span></span> )</code>
 
 		<div class="description short">
 			<p>Vytvoří z array (i víceúrovňového) string pro výpočet podpisu.</p>
@@ -280,7 +280,7 @@ or from their package on GitHub)</p></dd>
 
 		<td class="name"><div>
 		<a class="anchor" href="#_createSignatureBaseRecursion">#</a>
-		<code><a href="source-class-OndraKoupil.Csob.Crypto.html#106-122" title="Go to source code">createSignatureBaseRecursion</a>( <span> <var>$array</var></span>, <span> <var>$depthCheck</var> = <span class="php-num">0</span></span> )</code>
+		<code><a href="source-class-OndraKoupil.Csob.Crypto.html#108-126" title="Go to source code">createSignatureBaseRecursion</a>( <span> <var>$array</var></span>, <span> <var>$depthCheck</var> = <span class="php-num">0</span></span> )</code>
 
 		<div class="description short">
 			
@@ -310,7 +310,7 @@ or from their package on GitHub)</p></dd>
 
 		<td class="name"><div>
 		<a class="anchor" href="#_createSignatureBaseWithOrder">#</a>
-		<code><a href="source-class-OndraKoupil.Csob.Crypto.html#124-210" title="Go to source code">createSignatureBaseWithOrder</a>( <span>array <var>$data</var></span>, <span>array <var>$order</var></span>, <span>boolean <var>$returnAsArray</var> = <span class="php-keyword1">false</span></span> )</code>
+		<code><a href="source-class-OndraKoupil.Csob.Crypto.html#128-218" title="Go to source code">createSignatureBaseWithOrder</a>( <span>array <var>$data</var></span>, <span>array <var>$order</var></span>, <span>boolean <var>$returnAsArray</var> = <span class="php-keyword1">false</span></span> )</code>
 
 		<div class="description short">
 			<p>Generická implementace linearizace pole s dopředu zadaným požadovaným pořadím.</p>
@@ -372,27 +372,75 @@ položka nalezena, z výsledku se vynechá. V opačném případě se vloží pr
 
 	<table class="summary constants" id="constants">
 	<caption>Constants summary</caption>
-	<tr data-order="HASH_METHOD" id="HASH_METHOD">
+	<tr data-order="DEFAULT_HASH_METHOD" id="DEFAULT_HASH_METHOD">
 
 		<td class="attributes"><code>integer</code></td>
 		<td class="name">
 			<code>
-				<a href="source-class-OndraKoupil.Csob.Crypto.html#12-15" title="Go to source code"><b>HASH_METHOD</b></a>
+				<a href="source-class-OndraKoupil.Csob.Crypto.html#12" title="Go to source code"><b>DEFAULT_HASH_METHOD</b></a>
 			</code>
 
 			<div class="description short">
-				<p>Currently used has algorithm</p>
+				
 			</div>
 
 			<div class="description detailed hidden">
-				<p>Currently used has algorithm</p>
+				
 
 			</div>
 		</td>
 		<td class="value">
 			<div>
-				<a href="#HASH_METHOD" class="anchor">#</a>
-				<code>\OPENSSL_ALGO_SHA1</code>
+				<a href="#DEFAULT_HASH_METHOD" class="anchor">#</a>
+				<code>OPENSSL_ALGO_SHA1</code>
+			</div>
+		</td>
+	</tr>
+	<tr data-order="HASH_SHA1" id="HASH_SHA1">
+
+		<td class="attributes"><code>integer</code></td>
+		<td class="name">
+			<code>
+				<a href="source-class-OndraKoupil.Csob.Crypto.html#14" title="Go to source code"><b>HASH_SHA1</b></a>
+			</code>
+
+			<div class="description short">
+				
+			</div>
+
+			<div class="description detailed hidden">
+				
+
+			</div>
+		</td>
+		<td class="value">
+			<div>
+				<a href="#HASH_SHA1" class="anchor">#</a>
+				<code>OPENSSL_ALGO_SHA1</code>
+			</div>
+		</td>
+	</tr>
+	<tr data-order="HASH_SHA256" id="HASH_SHA256">
+
+		<td class="attributes"><code>integer</code></td>
+		<td class="name">
+			<code>
+				<a href="source-class-OndraKoupil.Csob.Crypto.html#15" title="Go to source code"><b>HASH_SHA256</b></a>
+			</code>
+
+			<div class="description short">
+				
+			</div>
+
+			<div class="description detailed hidden">
+				
+
+			</div>
+		</td>
+		<td class="value">
+			<div>
+				<a href="#HASH_SHA256" class="anchor">#</a>
+				<code>OPENSSL_ALGO_SHA256</code>
 			</div>
 		</td>
 	</tr>
@@ -414,7 +462,7 @@ položka nalezena, z výsledku se vynechá. V opačném případě se vloží pr
 	</div>
 </div>
 </div>
-<script src="resources/combined.js"></script>
-<script src="elementlist.js"></script>
+<script src="resources/combined.js?ad5a898ea233eeea64c8e17f31730d98b30d6afd"></script>
+<script src="elementlist.js?c50a1b21d491f7974f91c53b65bb4818dc1ce2b5"></script>
 </body>
 </html>

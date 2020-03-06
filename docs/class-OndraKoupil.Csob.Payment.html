@@ -5,7 +5,7 @@
 
 	<title>Class OndraKoupil\Csob\Payment | ČSOB payment gate PHP client</title>
 
-	<link rel="stylesheet" href="resources/style.css?ece90927a9d9c062449c24ff926274b49e781e42">
+	<link rel="stylesheet" href="resources/style.css?c2f33731c1948fbed7c333554678bfa68d4817da">
 
 </head>
 
@@ -125,7 +125,7 @@ from the order.</p>
 		<b>Namespace:</b> <a href="namespace-OndraKoupil.html">OndraKoupil</a>\<a href="namespace-OndraKoupil.Csob.html">Csob</a><br>
 		
 
-			<b>Located at</b> <a href="source-class-OndraKoupil.Csob.Payment.html#8-526" title="Go to source code">Payment.php</a>
+			<b>Located at</b> <a href="source-class-OndraKoupil.Csob.Payment.html#8-561" title="Go to source code">Payment.php</a>
 		<br>
 	</div>
 
@@ -309,6 +309,40 @@ in <strong>hundredths</strong> of currency unit</p></dd>
 		</div>
 		</div></td>
 	</tr>
+	<tr data-order="getMerchantDataEncoded" id="_getMerchantDataEncoded">
+
+		<td class="attributes"><code>
+			 public 
+
+			string
+			
+			</code>
+		</td>
+
+		<td class="name"><div>
+		<a class="anchor" href="#_getMerchantDataEncoded">#</a>
+		<code><a href="source-class-OndraKoupil.Csob.Payment.html#314-321" title="Go to source code">getMerchantDataEncoded</a>( )</code>
+
+		<div class="description short">
+			<p>Get back MerchantData encoded as base64.</p>
+		</div>
+
+		<div class="description detailed hidden">
+			<p>Get back MerchantData encoded as base64.</p>
+
+
+
+				<h4>Returns</h4>
+				<div class="list">
+					string
+				</div>
+
+
+
+
+		</div>
+		</div></td>
+	</tr>
 	<tr data-order="getPayId" id="_getPayId">
 
 		<td class="attributes"><code>
@@ -321,7 +355,7 @@ in <strong>hundredths</strong> of currency unit</p></dd>
 
 		<td class="name"><div>
 		<a class="anchor" href="#_getPayId">#</a>
-		<code><a href="source-class-OndraKoupil.Csob.Payment.html#314-322" title="Go to source code">getPayId</a>( )</code>
+		<code><a href="source-class-OndraKoupil.Csob.Payment.html#323-331" title="Go to source code">getPayId</a>( )</code>
 
 		<div class="description short">
 			<p>After the payment has been saved using payment/init, you can
@@ -345,6 +379,40 @@ get PayID from here.</p>
 		</div>
 		</div></td>
 	</tr>
+	<tr data-order="getTotalAmount" id="_getTotalAmount">
+
+		<td class="attributes"><code>
+			 public 
+
+			number
+			
+			</code>
+		</td>
+
+		<td class="name"><div>
+		<a class="anchor" href="#_getTotalAmount">#</a>
+		<code><a href="source-class-OndraKoupil.Csob.Payment.html#333-342" title="Go to source code">getTotalAmount</a>( )</code>
+
+		<div class="description short">
+			<p>Returns sum of all cart items in <strong>hundreths</strong> of base currency unit.</p>
+		</div>
+
+		<div class="description detailed hidden">
+			<p>Returns sum of all cart items in <strong>hundreths</strong> of base currency unit.</p>
+
+
+
+				<h4>Returns</h4>
+				<div class="list">
+					number
+				</div>
+
+
+
+
+		</div>
+		</div></td>
+	</tr>
 	<tr data-order="getCart" id="_getCart">
 
 		<td class="attributes"><code>
@@ -357,7 +425,7 @@ get PayID from here.</p>
 
 		<td class="name"><div>
 		<a class="anchor" href="#_getCart">#</a>
-		<code><a href="source-class-OndraKoupil.Csob.Payment.html#324-330" title="Go to source code">getCart</a>( )</code>
+		<code><a href="source-class-OndraKoupil.Csob.Payment.html#344-350" title="Go to source code">getCart</a>( )</code>
 
 		<div class="description short">
 			<p>Cart items as array.</p>
@@ -391,7 +459,7 @@ get PayID from here.</p>
 
 		<td class="name"><div>
 		<a class="anchor" href="#_setPayId">#</a>
-		<code><a href="source-class-OndraKoupil.Csob.Payment.html#332-339" title="Go to source code">setPayId</a>( <span>string <var>$id</var></span> )</code>
+		<code><a href="source-class-OndraKoupil.Csob.Payment.html#352-359" title="Go to source code">setPayId</a>( <span>string <var>$id</var></span> )</code>
 
 		<div class="description short">
 			<p>Do not call this on your own. Really.</p>
@@ -426,7 +494,7 @@ get PayID from here.</p>
 
 		<td class="name"><div>
 		<a class="anchor" href="#_setRecurrentPayment">#</a>
-		<code><a href="source-class-OndraKoupil.Csob.Payment.html#341-355" title="Go to source code">setRecurrentPayment</a>( <span>boolean <var>$recurrent</var> = <span class="php-keyword1">true</span></span> )</code>
+		<code><a href="source-class-OndraKoupil.Csob.Payment.html#361-375" title="Go to source code">setRecurrentPayment</a>( <span>boolean <var>$recurrent</var> = <span class="php-keyword1">true</span></span> )</code>
 
 		<div class="description short">
 			<p>Mark this payment as a template for recurrent payments.</p>
@@ -471,7 +539,7 @@ get PayID from here.</p>
 
 		<td class="name"><div>
 		<a class="anchor" href="#_setOneClickPayment">#</a>
-		<code><a href="source-class-OndraKoupil.Csob.Payment.html#357-369" title="Go to source code">setOneClickPayment</a>( <span>boolean <var>$oneClick</var> = <span class="php-keyword1">true</span></span> )</code>
+		<code><a href="source-class-OndraKoupil.Csob.Payment.html#377-389" title="Go to source code">setOneClickPayment</a>( <span>boolean <var>$oneClick</var> = <span class="php-keyword1">true</span></span> )</code>
 
 		<div class="description short">
 			<p>Mark this payment as one-click payment template</p>
@@ -997,7 +1065,7 @@ It is given to your payment by bank.</p>
 	</div>
 </div>
 </div>
-<script src="resources/combined.js"></script>
-<script src="elementlist.js"></script>
+<script src="resources/combined.js?ad5a898ea233eeea64c8e17f31730d98b30d6afd"></script>
+<script src="elementlist.js?c50a1b21d491f7974f91c53b65bb4818dc1ce2b5"></script>
 </body>
 </html>

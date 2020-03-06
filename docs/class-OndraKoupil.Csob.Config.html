@@ -5,7 +5,7 @@
 
 	<title>Class OndraKoupil\Csob\Config | ČSOB payment gate PHP client</title>
 
-	<link rel="stylesheet" href="resources/style.css?ece90927a9d9c062449c24ff926274b49e781e42">
+	<link rel="stylesheet" href="resources/style.css?c2f33731c1948fbed7c333554678bfa68d4817da">
 
 </head>
 
@@ -121,7 +121,7 @@
 		<b>Namespace:</b> <a href="namespace-OndraKoupil.html">OndraKoupil</a>\<a href="namespace-OndraKoupil.Csob.html">Csob</a><br>
 		
 
-			<b>Located at</b> <a href="source-class-OndraKoupil.Csob.Config.html#5-140" title="Go to source code">Config.php</a>
+			<b>Located at</b> <a href="source-class-OndraKoupil.Csob.Config.html#5-209" title="Go to source code">Config.php</a>
 		<br>
 	</div>
 
@@ -141,7 +141,7 @@
 
 		<td class="name"><div>
 		<a class="anchor" href="#___construct">#</a>
-		<code><a href="source-class-OndraKoupil.Csob.Config.html#106-137" title="Go to source code">__construct</a>( <span>string <var>$merchantId</var></span>, <span>string <var>$privateKeyFile</var></span>, <span>string <var>$bankPublicKeyFile</var></span>, <span>string <var>$shopName</var></span>, <span>string <var>$returnUrl</var> = <span class="php-keyword1">null</span></span>, <span>string <var>$bankApiUrl</var> = <span class="php-keyword1">null</span></span>, <span>string <var>$privateKeyPassword</var> = <span class="php-keyword1">null</span></span>, <span>string <var>$sslCertificatePath</var> = <span class="php-keyword1">null</span></span> )</code>
+		<code><a href="source-class-OndraKoupil.Csob.Config.html#119-165" title="Go to source code">__construct</a>( <span>string <var>$merchantId</var></span>, <span>string <var>$privateKeyFile</var></span>, <span>string <var>$bankPublicKeyFile</var></span>, <span>string <var>$shopName</var></span>, <span>string|null <var>$returnUrl</var> = <span class="php-keyword1">null</span></span>, <span>string|null <var>$bankApiUrl</var> = <span class="php-keyword1">null</span></span>, <span>string|null <var>$privateKeyPassword</var> = <span class="php-keyword1">null</span></span>, <span>string|null <var>$sslCertificatePath</var> = <span class="php-keyword1">null</span></span>, <span>string|null <var>$apiVersion</var> = <span class="php-keyword1">null</span></span>, <span>integer|null <var>$hashMethod</var> = <span class="php-keyword1">null</span> </span> )</code>
 
 		<div class="description short">
 			<p>Create config with all mandatory values.</p>
@@ -173,8 +173,115 @@
 					<dd></dd>
 					<dt><var>$sslCertificatePath</var></dt>
 					<dd></dd>
+					<dt><var>$apiVersion</var></dt>
+					<dd>Leave null to autodetect from $bankApiUrl</dd>
+					<dt><var>$hashMethod</var></dt>
+					<dd>One of OPENSSL_HASH_* constants, leave null for auto detection from given $bankApiUrl. Read via getHashMethod();</dd>
 				</dl></div>
 
+
+
+
+
+		</div>
+		</div></td>
+	</tr>
+	<tr data-order="getVersion" id="_getVersion">
+
+		<td class="attributes"><code>
+			 public 
+
+			
+			
+			</code>
+		</td>
+
+		<td class="name"><div>
+		<a class="anchor" href="#_getVersion">#</a>
+		<code><a href="source-class-OndraKoupil.Csob.Config.html#167-180" title="Go to source code">getVersion</a>( )</code>
+
+		<div class="description short">
+			
+		</div>
+
+		<div class="description detailed hidden">
+			
+
+
+
+
+
+
+
+		</div>
+		</div></td>
+	</tr>
+	<tr data-order="getHashMethod" id="_getHashMethod">
+
+		<td class="attributes"><code>
+			 public 
+
+			integer
+			
+			</code>
+		</td>
+
+		<td class="name"><div>
+		<a class="anchor" href="#_getHashMethod">#</a>
+		<code><a href="source-class-OndraKoupil.Csob.Config.html#182-196" title="Go to source code">getHashMethod</a>( )</code>
+
+		<div class="description short">
+			<p>Return the set hashing method or deduce it from bank API's version.</p>
+		</div>
+
+		<div class="description detailed hidden">
+			<p>Return the set hashing method or deduce it from bank API's version.</p>
+
+
+
+				<h4>Returns</h4>
+				<div class="list">
+					integer
+				</div>
+
+
+
+
+		</div>
+		</div></td>
+	</tr>
+	<tr data-order="queryApiVersion" id="_queryApiVersion">
+
+		<td class="attributes"><code>
+			 public 
+
+			boolean
+			
+			</code>
+		</td>
+
+		<td class="name"><div>
+		<a class="anchor" href="#_queryApiVersion">#</a>
+		<code><a href="source-class-OndraKoupil.Csob.Config.html#198-207" title="Go to source code">queryApiVersion</a>( <span>string <var>$version</var></span> )</code>
+
+		<div class="description short">
+			<p>Returns true if currently set API version is at least $version or greater.</p>
+		</div>
+
+		<div class="description detailed hidden">
+			<p>Returns true if currently set API version is at least $version or greater.</p>
+
+
+				<h4>Parameters</h4>
+				<div class="list"><dl>
+					<dt><var>$version</var></dt>
+					<dd></dd>
+				</dl></div>
+
+				<h4>Returns</h4>
+				<div class="list">
+					boolean
+				</div>
 
 
 
@@ -224,7 +331,59 @@ Change that when you are ready to go to live environment.</p>
 		<td class="value">
 			<div>
 				<a href="#$url" class="anchor">#</a>
-				<code><code><a href="class-OndraKoupil.Csob.GatewayUrl.html#TEST_LATEST">OndraKoupil\Csob\GatewayUrl::<b>TEST_LATEST</b></a></code></code>
+				<code>GatewayUrl::TEST_LATEST</code>
+			</div>
+		</td>
+	</tr>
+	<tr data-order="apiVersion" id="$apiVersion">
+		<td class="attributes"><code>
+			public  
+			string
+		</code></td>
+
+		<td class="name">
+				<a href="source-class-OndraKoupil.Csob.Config.html#20-26" title="Go to source code"><var>$apiVersion</var></a>
+
+			<div class="description short">
+				<p>API Version. Version 1.8 brings some BC breaks, so the library needs to know which version you want to call.
+Use this property to explicitly specify API version. Leave null to autodetect from endpoint URL.</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>API Version. Version 1.8 brings some BC breaks, so the library needs to know which version you want to call.
+Use this property to explicitly specify API version. Leave null to autodetect from endpoint URL.</p>
+
+			</div>
+		</td>
+		<td class="value">
+			<div>
+				<a href="#$apiVersion" class="anchor">#</a>
+				<code><span class="php-keyword1">null</span></code>
+			</div>
+		</td>
+	</tr>
+	<tr data-order="hashMethod" id="$hashMethod">
+		<td class="attributes"><code>
+			public  
+			integer|null
+		</code></td>
+
+		<td class="name">
+				<a href="source-class-OndraKoupil.Csob.Config.html#28-31" title="Go to source code"><var>$hashMethod</var></a>
+
+			<div class="description short">
+				<p>One of OPENSSL_HASH_* constants or null for auto detection</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>One of OPENSSL_HASH_* constants or null for auto detection</p>
+
+			</div>
+		</td>
+		<td class="value">
+			<div>
+				<a href="#$hashMethod" class="anchor">#</a>
+				<code><span class="php-keyword1">null</span></code>
 			</div>
 		</td>
 	</tr>
@@ -235,7 +394,7 @@ Change that when you are ready to go to live environment.</p>
 		</code></td>
 
 		<td class="name">
-				<a href="source-class-OndraKoupil.Csob.Config.html#20-29" title="Go to source code"><var>$bankPublicKeyFile</var></a>
+				<a href="source-class-OndraKoupil.Csob.Config.html#33-42" title="Go to source code"><var>$bankPublicKeyFile</var></a>
 
 			<div class="description short">
 				<p>Path to file where bank's public key is saved.</p>
@@ -264,7 +423,7 @@ or from their package on GitHub)</p>
 		</code></td>
 
 		<td class="name">
-				<a href="source-class-OndraKoupil.Csob.Config.html#31-38" title="Go to source code"><var>$merchantId</var></a>
+				<a href="source-class-OndraKoupil.Csob.Config.html#44-51" title="Go to source code"><var>$merchantId</var></a>
 
 			<div class="description short">
 				<p>Your Merchant ID.</p>
@@ -291,7 +450,7 @@ or from their package on GitHub)</p>
 		</code></td>
 
 		<td class="name">
-				<a href="source-class-OndraKoupil.Csob.Config.html#40-49" title="Go to source code"><var>$privateKeyFile</var></a>
+				<a href="source-class-OndraKoupil.Csob.Config.html#53-62" title="Go to source code"><var>$privateKeyFile</var></a>
 
 			<div class="description short">
 				<p>Path to file where your private key is saved.</p>
@@ -321,7 +480,7 @@ the .key file you download from the keygen.</p>
 		</code></td>
 
 		<td class="name">
-				<a href="source-class-OndraKoupil.Csob.Config.html#51-58" title="Go to source code"><var>$privateKeyPassword</var></a>
+				<a href="source-class-OndraKoupil.Csob.Config.html#64-71" title="Go to source code"><var>$privateKeyPassword</var></a>
 
 			<div class="description short">
 				<p>Password for your private key.</p>
@@ -349,7 +508,7 @@ using bank's keygen https://iplatebnibrana.csob.cz/keygen/</p>
 		</code></td>
 
 		<td class="name">
-				<a href="source-class-OndraKoupil.Csob.Config.html#60-65" title="Go to source code"><var>$returnUrl</var></a>
+				<a href="source-class-OndraKoupil.Csob.Config.html#73-78" title="Go to source code"><var>$returnUrl</var></a>
 
 			<div class="description short">
 				<p>A URL of your e-shop to return your customers after the have paid.</p>
@@ -374,7 +533,7 @@ using bank's keygen https://iplatebnibrana.csob.cz/keygen/</p>
 		</code></td>
 
 		<td class="name">
-				<a href="source-class-OndraKoupil.Csob.Config.html#67-75" title="Go to source code"><var>$returnMethod</var></a>
+				<a href="source-class-OndraKoupil.Csob.Config.html#80-88" title="Go to source code"><var>$returnMethod</var></a>
 
 			<div class="description short">
 				<p>A method to return customers on $returnUrl.</p>
@@ -402,7 +561,7 @@ you must support both GET and POST methods.</p>
 		</code></td>
 
 		<td class="name">
-				<a href="source-class-OndraKoupil.Csob.Config.html#78-84" title="Go to source code"><var>$shopName</var></a>
+				<a href="source-class-OndraKoupil.Csob.Config.html#91-97" title="Go to source code"><var>$shopName</var></a>
 
 			<div class="description short">
 				<p>Name of your e-shop or app - it will be used on some points of
@@ -429,7 +588,7 @@ creating payments.</p>
 		</code></td>
 
 		<td class="name">
-				<a href="source-class-OndraKoupil.Csob.Config.html#86-92" title="Go to source code"><var>$closePayment</var></a>
+				<a href="source-class-OndraKoupil.Csob.Config.html#99-105" title="Go to source code"><var>$closePayment</var></a>
 
 			<div class="description short">
 				<p>Should payments be created with closePayment = true by default?
@@ -456,7 +615,7 @@ See Wiki on ČSOB's github for more information.</p>
 		</code></td>
 
 		<td class="name">
-				<a href="source-class-OndraKoupil.Csob.Config.html#94-104" title="Go to source code"><var>$sslCertificatePath</var></a>
+				<a href="source-class-OndraKoupil.Csob.Config.html#107-117" title="Go to source code"><var>$sslCertificatePath</var></a>
 
 			<div class="description short">
 				<p>Path to a CA certificate chain or a directory containing certificates to verify
@@ -496,7 +655,7 @@ bank's certificate when initiating a HTTPS connection.</p>
 	</div>
 </div>
 </div>
-<script src="resources/combined.js"></script>
-<script src="elementlist.js"></script>
+<script src="resources/combined.js?ad5a898ea233eeea64c8e17f31730d98b30d6afd"></script>
+<script src="elementlist.js?c50a1b21d491f7974f91c53b65bb4818dc1ce2b5"></script>
 </body>
 </html>

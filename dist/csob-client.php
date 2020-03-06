@@ -783,16 +783,18 @@ class Client {
 	 *
 	 * This method is a successor of now deprecated paymentRecurrent() method.
 	 *
+	 * Since API v 1.8, this method uses oneclick/init endpoint.
+	 *
 	 * @param Payment|string $origPayment Either string PayID or a Payment object
 	 * @param Payment $newPayment
 	 * @param Extension[]|Extension $extensions
-	 * @return array Data with new values
-	 * @throws Exception
+	 * @param string $clientIp IP address of customer's browser
 	 *
+	 * @return array Data with new values
 	 * @see Payment::setOneClickPayment()
-	 * @see paumentOneClickStart()
+	 * @see paymentOneClickStart()
 	 */
-	function paymentOneClickInit($origPayment, Payment $newPayment, $extensions = array()) {
+	function paymentOneClickInit($origPayment, Payment $newPayment, $extensions = array(), $clientIp = '') {
 		$origPayId = $this->getPayId($origPayment);
 
 		$newOrderNo = $newPayment->orderNo;
@@ -809,6 +811,7 @@ class Client {
 		}
 
 		$newDescription = Strings::shorten($newPayment->description, 240, "...");
+		$version1_8 = $this->config->queryApiVersion('1.8');
 
 		$payload = array(
 			"merchantId" => $this->config->merchantId,
@@ -817,18 +820,37 @@ class Client {
 			"dttm" => $this->getDTTM(),
 		);
 
+		if ($version1_8) {
+			// A new parameter appeared in v 1.8
+			$payload['clientIp'] = $clientIp;
+		}
+
 		if ($totalAmount > 0) {
 			$payload["totalAmount"] = $totalAmount;
 			$payload["currency"] = $newPayment->currency ?: "CZK"; // Currency is mandatory since 2016-01-10
 		}
 
-		if ($newDescription) {
+		if ($newDescription and !$version1_8) {
+			// In v 1.8, there is no description anymore
 			$payload["description"] = $newDescription;
 		}
+
+		if ($version1_8) {
+			// A new parameter appeared in v 1.8
+			$payload['merchantData'] = $newPayment->getMerchantDataEncoded();
+		}
+
+
 
 		$endpointName = $this->config->queryApiVersion('1.8') ? 'oneclick/init' : 'payment/oneclick/init';
 
 		$this->writeToLog("$endpointName started using orig payment $origPayId");
+
+		if ($version1_8) {
+			$requestFields = array("merchantId", "origPayId", "orderNo", "dttm", "clientIp", "totalAmount", "currency", "merchantData", "signature");
+		} else {
+			$requestFields = array("merchantId", "origPayId", "orderNo", "dttm", "totalAmount", "currency", "description", "signature");
+		}
 
 		try {
 			$payload["signature"] = $this->signRequest($payload);
@@ -838,7 +860,7 @@ class Client {
 				$payload,
 				"POST",
 				array("payId", "dttm", "resultCode", "resultMessage", "?paymentStatus", "?authCode"),
-				array("merchantId", "origPayId", "orderNo", "dttm", "totalAmount", "currency", "description", "signature"),
+				$requestFields,
 				false,
 				false,
 				$extensions
@@ -857,7 +879,7 @@ class Client {
 	}
 
 	/**
-	 * Performs a payment/oneclick/start API call.
+	 * Performs a payment/oneclick/start (or oneclick/start) API call.
 	 *
 	 * Use this method to confirm a recurring one click payment
 	 * that was previously initiated using paymentOneClickInit() method.
@@ -882,11 +904,13 @@ class Client {
 
 		$this->writeToLog("payment/oneclick/start started with PayId $newPayId");
 
+		$endpointName = $this->config->queryApiVersion('1.8') ? 'oneclick/start' : 'payment/oneclick/start';
+
 		try {
 			$payload["signature"] = $this->signRequest($payload);
 
 			$ret = $this->sendRequest(
-				"payment/oneclick/start",
+				$endpointName,
 				$payload,
 				"POST",
 				array("payId", "dttm", "resultCode", "resultMessage", "?paymentStatus"),
@@ -907,7 +931,69 @@ class Client {
 	}
 
 	/**
-	 * Performs a payment/button API call.
+	 * Performs a oneclick/echo API call.
+	 *
+	 * Use this method to check whether a oneclick template is still ready to be used.
+	 *
+	 * CAUTION! The method returns a numeric code. 0 means success. Positive number means failure.
+	 * Do not just `if ($client->paymentOneClickEcho($payId)) { success(); } else { fail(); }`!!
+	 *
+	 * See https://github.com/csob/paymentgateway/wiki/Vol%C3%A1n%C3%AD-rozhran%C3%AD-eAPI#operation-return-code
+	 * for explanation.
+	 *
+	 * @param string $origPayId The PayID of original payment template.
+	 *
+	 * @return number 0 = template is OK, number 700-740 = template is not OK.
+	 *
+	 * @see https://github.com/csob/paymentgateway/wiki/Vol%C3%A1n%C3%AD-rozhran%C3%AD-eAPI#operation-return-code
+	 */
+	function paymentOneClickEcho($origPayId) {
+
+		$payload = array(
+			"merchantId" => $this->config->merchantId,
+			"origPayId" => $origPayId,
+			"dttm" => $this->getDTTM(),
+		);
+
+		$this->writeToLog("oneclick/echo started with \$origPayId $origPayId");
+
+		$resultCode = 0;
+
+		try {
+			$payload["signature"] = $this->signRequest($payload);
+
+			$ret = $this->sendRequest(
+				"oneclick/echo",
+				$payload,
+				"POST",
+				array("origPayId", "dttm", "resultCode", "resultMessage", "?paymentStatus"),
+				array("merchantId", "origPayId", "dttm", "signature"),
+				false,
+				false
+			);
+
+			$resultCode = $ret['resultCode'];
+
+		} catch (Exception $e) {
+
+			if ($e->getCode() >= 700 and $e->getCode() <= 740) {
+				// This is the way bank responds for unusable payment templates (origPayIds).
+				$resultCode = $e->getCode();
+			} else {
+				$this->writeToLog("Fail, got exception: " . $e->getCode().", " . $e->getMessage());
+				throw $e;
+			}
+
+		}
+
+		$this->writeToLog("oneclick/echo OK, result " . $resultCode);
+
+		return +$resultCode;
+
+	}
+
+	/**
+	 * Performs a payment/button API call in API <= 1.7
 	 *
 	 * You need a Payment object that was already processed via paymentInit() method
 	 * (or was injected with a payId that you received from other source).
@@ -921,6 +1007,8 @@ class Client {
 	 * @param Extension[]|Extension $extensions
 	 *
 	 * @return array|string
+	 *
+	 * @deprecated Not available since API 1.8, use buttonInit() instead
 	 */
 	function paymentButton(Payment $payment, $brand = "csob", $extensions = array()) {
 
@@ -936,7 +1024,11 @@ class Client {
 			"dttm" => $this->getDTTM(),
 		);
 
-		$endpointName = $this->config->queryApiVersion('1.8') ? 'button/init' : 'payment/button';
+		if ($this->config->queryApiVersion('1.8')) {
+			throw new Exception('paymentButton() is not available in API 1.8 and newer.');
+		}
+
+		$endpointName = 'payment/button';
 
 		$this->writeToLog("$endpointName started with PayId $payId");
 
@@ -963,6 +1055,82 @@ class Client {
 
 		return $ret;
 
+
+	}
+
+	/**
+	 * Performs a button/init API call in API >= 1.8
+	 *
+	 * You need a Payment object, but DO NOT process it via paymentInit() method. You don't need its PayID.
+	 * It is used only as source of data for calling API.
+	 *
+	 * Items in cart in Payment object are not used, only total sum of their prices.
+	 *
+	 * In response, you'll receive an array with [redirect], which should be
+	 * another array with [method], [url] and possibly [params] items.
+	 * Redirect your user to that address to complete the payment.
+	 *
+	 * @see https://github.com/csob/paymentgateway/wiki/Metody-pro-platebn%C3%AD-tla%C4%8D%C3%ADtko for details
+	 *
+	 * @param Payment $payment
+	 * @param string $clientIp
+	 * @param string $brand "csob" or "era"
+	 * @param Extension[]|Extension $extensions
+	 *
+	 * @return array
+	 *
+	 * @deprecated Not available since API 1.8, use buttonInit() instead
+	 */
+	public function buttonInit(Payment $payment, $clientIp, $brand = 'csob', $extensions = array()) {
+		if (!$this->config->queryApiVersion('1.8')) {
+			throw new Exception('buttonInit() is not available since API 1.8.');
+		}
+
+		if ($brand !== 'csob' and $brand !== 'era') {
+			throw new Exception('Invalid $brand, must be "csob" or "era".');
+		}
+
+		$payment->checkAndPrepare($this->config);
+
+		$payload = array(
+			"merchantId" => $this->config->merchantId,
+			"orderNo" => $payment->orderNo,
+			"dttm" => $this->getDTTM(),
+			"clientIp" => $clientIp,
+			"totalAmount" => $payment->getTotalAmount(),
+			"currency" => $payment->currency,
+			"returnUrl" => $payment->returnUrl,
+			"returnMethod" => $payment->returnMethod,
+			"brand" => $brand,
+			"merchantData" => $payment->getMerchantDataEncoded(),
+			"language" => $payment->language,
+		);
+
+		$payload["signature"] = $this->signRequest($payload);
+
+		$this->writeToLog("button/init started for payment with orderNo " . $payment->orderNo);
+
+		try {
+
+			$ret = $this->sendRequest(
+				"button/init",
+				$payload,
+				"POST",
+				array("payId", "dttm", "resultCode", "resultMessage", "?paymentStatus","?redirect.method","?redirect.url","?redirect.params"),
+				null,
+				false,
+				false,
+				$extensions
+			);
+
+		} catch (Exception $e) {
+			$this->writeToLog("Fail, got exception: " . $e->getCode().", " . $e->getMessage());
+			throw $e;
+		}
+
+		$this->writeToLog("button/init OK");
+
+		return $ret;
 
 	}
 
@@ -2186,6 +2354,15 @@ class Payment {
 	}
 
 	/**
+	 * Get back MerchantData encoded as base64.
+	 *
+	 * @return string
+	 */
+	public function getMerchantDataEncoded() {
+		return $this->merchantData ?: '';
+	}
+
+	/**
 	 * After the payment has been saved using payment/init, you can
 	 * get PayID from here.
 	 *
@@ -2193,6 +2370,17 @@ class Payment {
 	 */
 	public function getPayId() {
 		return $this->foreignId;
+	}
+
+	/**
+	 * Returns sum of all cart items in **hundreths** of base currency unit.
+	 *
+	 * @return number
+	 */
+	public function getTotalAmount() {
+		$sumOfItems = array_sum(Arrays::transform($this->cart, true, "amount"));
+		$this->totalAmount = $sumOfItems;
+		return $this->totalAmount;
 	}
 
 	/**

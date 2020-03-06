@@ -331,6 +331,17 @@ class Payment {
 	}
 
 	/**
+	 * Returns sum of all cart items in **hundreths** of base currency unit.
+	 *
+	 * @return number
+	 */
+	public function getTotalAmount() {
+		$sumOfItems = array_sum(Arrays::transform($this->cart, true, "amount"));
+		$this->totalAmount = $sumOfItems;
+		return $this->totalAmount;
+	}
+
+	/**
 	 * Cart items as array.
 	 * @return array
 	 */
