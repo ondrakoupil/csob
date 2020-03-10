@@ -995,6 +995,8 @@ class Client {
 	 * In response, you'll receive an array with [redirect], which should be
 	 * another array with [method] and [url] items. Redirect your user to that address
 	 * to complete the payment.
+	 * Do not use redirectToGateway(), just redirect to `$response[redirect][url]`.
+	 *
 	 *
 	 * @param Payment $payment
 	 * @param string $brand "csob" or "era"
@@ -1063,6 +1065,7 @@ class Client {
 	 * In response, you'll receive an array with [redirect], which should be
 	 * another array with [method], [url] and possibly [params] items.
 	 * Redirect your user to that address to complete the payment.
+	 * Do not use redirectToGateway(), just redirect to `$response[redirect][url]`.
 	 *
 	 * @see https://github.com/csob/paymentgateway/wiki/Metody-pro-platebn%C3%AD-tla%C4%8D%C3%ADtko for details
 	 *

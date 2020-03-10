@@ -31,10 +31,11 @@ jsou všechny změny v API 1.8 již zohledněny. Voláte-li nějaké pokročilej
 - Nové platební metody (MallPay, ApplePay) nejsem dost dobře schopný otestovat, neexistují pro ně tedy přesné metody v knihovně. Používejte tedy univerzální metodu `customRequest()`, 
   parametry zadejte manuálně a knihovna alespoň odešle request a ověří odpověď. Pokud pro tyto platby někdo vyvine a otestuje jednotlivé metody do knihovny do Client třídy, nechť pošle PR, rád ho zapojím.
 - Pro platbu platebními tlačítko ČSOB a ERA je od verze 1.8 nová metoda - buttonInit(). Pro API < 1.8 používejte nadále paymentButton().
+  Ve verzích 1.8 a 1.8.1 měla buttonInit() chybu, která je ve verzi 1.8.2 opravena.
 
 Jako výchozí adresa je testovací platební brána aktuální verze (nyní tedy 1.8 - `GatewayUrl::TEST_1_8`).
 
-DOporučuji používat konstanty třídy GatewayUrl, které obsahují URL jednotlivých verzí API.
+Doporučuji používat konstanty třídy GatewayUrl, které obsahují URL jednotlivých verzí API.
 
 ```
 $config->url = GatewayUrl::TEST_1_7;
@@ -276,6 +277,10 @@ Díky @rootpd.
 
 Metody paymentButton() pro API < 1.8 a buttonInit() pro API >= 1.8 slouží k platbě tzv. platebním tlačítkem.
 Podrobnější parametry jsou v dokumentaci obou metod.
+
+Tyto metody vrací pole s různými daty, mimo jiné `redirect`, ve kterém je uvedena adresa,
+na níž máte uživatele přesměrovat. Nepoužívejte tedy redirectToGateway() nebo něco podobného,
+ale přímo přesměrujte uživatele na adresu, kterou banka vrátí.
 
 ### Opakované platby
 

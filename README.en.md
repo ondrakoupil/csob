@@ -263,6 +263,17 @@ See the function documentation for description of optional parameters.
 
 Thanks @rootpd
 
+
+### Payment via "payment buttons"
+
+Use payment buttons to quickly initiate classical bank transfer from ČSOB or ERA accounts.
+Use paymentButton() for API < 1.8 and buttonInit() for API >= 1.8. See there method's documentation
+for details about their parameters and return values.
+
+These methods returns array vith various values including `redirect`. It contains an URL to
+redirect the user to. Do not use redirectToGateway or other methods used in another
+payment methods, just do a standard redirect to the address returned by the bank API.
+
 ### Recurring payments
 
 Since eAPI 1.5, you can make recurring payments. See the [wiki page][8] for details.
