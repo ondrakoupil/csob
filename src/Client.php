@@ -1679,6 +1679,10 @@ class Client {
 			}
 		}
 
+		if ($this->config->sslVersion) {
+			\curl_setopt($ch, CURLOPT_SSLVERSION, $this->config->sslVersion);
+		}
+
 		\curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 		\curl_setopt($ch, CURLOPT_HTTPHEADER, array(
 			'Content-Type: application/json',

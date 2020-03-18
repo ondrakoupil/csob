@@ -32,6 +32,7 @@ jsou všechny změny v API 1.8 již zohledněny. Voláte-li nějaké pokročilej
   parametry zadejte manuálně a knihovna alespoň odešle request a ověří odpověď. Pokud pro tyto platby někdo vyvine a otestuje jednotlivé metody do knihovny do Client třídy, nechť pošle PR, rád ho zapojím.
 - Pro platbu platebními tlačítko ČSOB a ERA je od verze 1.8 nová metoda - buttonInit(). Pro API < 1.8 používejte nadále paymentButton().
   Ve verzích 1.8 a 1.8.1 měla buttonInit() chybu, která je ve verzi 1.8.2 opravena.
+- Ve třídě Config přibyla možnost nastavit $sslVersion pro explicitní určení, jaká verze SSL/TLS se má pro komunikaci s bankou použít.
 
 Jako výchozí adresa je testovací platební brána aktuální verze (nyní tedy 1.8 - `GatewayUrl::TEST_1_8`).
 

@@ -117,6 +117,17 @@ class Config {
 	public $sslCertificatePath = null;
 
 	/**
+	 * Force the client to use a specific SSL version.
+	 *
+	 * Leave null to use automatic selection (default).
+	 *
+	 * @var number Use one of CURL_SSLVERSION_* or CURL_SSLVERSION_MAX_* constants
+	 *
+	 * @see https://www.php.net/manual/en/function.curl-setopt.php
+	 */
+	public $sslVersion = null;
+
+	/**
 	 * Create config with all mandatory values.
 	 *
 	 * See equally named properties of this class for more info.
