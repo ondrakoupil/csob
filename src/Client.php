@@ -171,7 +171,7 @@ class Client {
 		$this->writeToLog("payment/init started for payment with orderNo " . $payment->orderNo);
 		$returnDataNames = array("payId", "dttm", "resultCode", "resultMessage", "?paymentStatus", "?authCode");
 		if($this->getConfig()->queryApiVersion('1.8')){
-			$returnDataNames = array_merge($returnDataNames, ["?customerCode", "?statusDetail"]);
+			$returnDataNames = array_merge($returnDataNames, array("?customerCode","?statusDetail"));
 		}
 		try {
 			$ret = $this->sendRequest(
@@ -377,7 +377,7 @@ class Client {
 			$payload["signature"] = $this->signRequest($payload);
 			$returnDataNames = array("payId", "dttm", "resultCode", "resultMessage", "?paymentStatus", "?authCode");
 			if($this->getConfig()->queryApiVersion('1.8')){
-				 $returnDataNames = array_merge($returnDataNames, ["?customerCode", "?statusDetail"]);
+				 $returnDataNames = array_merge($returnDataNames, array("?customerCode","?statusDetail"));
 			}
 			$ret = $this->sendRequest(
 				"payment/status",
@@ -449,7 +449,7 @@ class Client {
 
 		$returnDataNames = array("payId", "dttm", "resultCode", "resultMessage", "?paymentStatus", "?authCode");
 		if($this->getConfig()->queryApiVersion('1.8')){
-			$returnDataNames = array_merge($returnDataNames, ["?customerCode", "?statusDetail"]);
+			$returnDataNames = array_merge($returnDataNames, array("?customerCode","?statusDetail"));
 		}
 		$this->writeToLog("payment/reverse started for payment $payId");
 
@@ -539,7 +539,7 @@ class Client {
 
 		$returnDataNames = array("payId", "dttm", "resultCode", "resultMessage", "?paymentStatus", "?authCode");
 		if($this->getConfig()->queryApiVersion('1.8')){
-			$returnDataNames = array_merge($returnDataNames, ["?customerCode", "?statusDetail"]);
+			$returnDataNames = array_merge($returnDataNames, array("?customerCode","?statusDetail"));
 		}
 		try {
 			$payload["signature"] = $this->signRequest($payload);
@@ -632,7 +632,7 @@ class Client {
 
 		$returnDataNames = array("payId", "dttm", "resultCode", "resultMessage", "?paymentStatus", "?authCode");
 		if($this->getConfig()->queryApiVersion('1.8')){
-			$returnDataNames = array_merge($returnDataNames, ["?customerCode", "?statusDetail"]);
+			$returnDataNames = array_merge($returnDataNames, array("?customerCode","?statusDetail"));
 		}
 
 		try {
@@ -1371,12 +1371,11 @@ class Client {
 	 *
 	 *
 	 * @param array|null $input If return data is not in GET or POST, supply
-	 * your own array with accordingly named variables.
+	 *                          your own array with accordingly named variables.
+	 *
 	 * @return array|null Array with received data or null if no data is present.
-	 * @throws Exception When data is present but signature is incorrect.
 	 */
 	function receiveReturningCustomer($input = null) {
-
 		$returnDataNames = array(
 			"payId",
 			"dttm",
