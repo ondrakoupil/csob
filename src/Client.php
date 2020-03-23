@@ -169,13 +169,16 @@ class Client {
 		$array = $payment->signAndExport($this);
 
 		$this->writeToLog("payment/init started for payment with orderNo " . $payment->orderNo);
-		
+		$returnDataNames = array("payId", "dttm", "resultCode", "resultMessage", "?paymentStatus", "?authCode");
+		if($this->getConfig()->queryApiVersion('1.8')){
+			$returnDataNames = array_merge($returnDataNames, ["?customerCode", "?statusDetail"]);
+		}
 		try {
 			$ret = $this->sendRequest(
 				"payment/init",
 				$array,
 				"POST",
-				array("payId", "dttm", "resultCode", "resultMessage", "?paymentStatus", "?authCode"),
+				$returnDataNames,
 				null,
 				false,
 				false,
@@ -372,13 +375,16 @@ class Client {
 
 		try {
 			$payload["signature"] = $this->signRequest($payload);
-
+			$returnDataNames = array("payId", "dttm", "resultCode", "resultMessage", "?paymentStatus", "?authCode");
+			if($this->getConfig()->queryApiVersion('1.8')){
+				 $returnDataNames = array_merge($returnDataNames, ["?customerCode", "?statusDetail"]);
+			}
 			$ret = $this->sendRequest(
 				"payment/status",
 				$payload,
 				"GET",
 				// Payment status is optional, bank doesn't include it in signature base if the payment is not found.
-				array("payId", "dttm", "resultCode", "resultMessage", "?paymentStatus", "?authCode"),
+				$returnDataNames,
 				array("merchantId", "payId", "dttm", "signature"),
 				false,
 				false,
@@ -441,6 +447,10 @@ class Client {
 			"dttm" => $this->getDTTM()
 		);
 
+		$returnDataNames = array("payId", "dttm", "resultCode", "resultMessage", "?paymentStatus", "?authCode");
+		if($this->getConfig()->queryApiVersion('1.8')){
+			$returnDataNames = array_merge($returnDataNames, ["?customerCode", "?statusDetail"]);
+		}
 		$this->writeToLog("payment/reverse started for payment $payId");
 
 		try {
@@ -452,7 +462,7 @@ class Client {
 					"payment/reverse",
 					$payload,
 					"PUT",
-					array("payId", "dttm", "resultCode", "resultMessage", "paymentStatus", "?authCode"),
+					$returnDataNames,
 					array("merchantId", "payId", "dttm", "signature"),
 					false,
 					false,
@@ -527,6 +537,10 @@ class Client {
 
 		$this->writeToLog("payment/close started for payment $payId" . ($amount !== null ? ", amount $amount" : ""));
 
+		$returnDataNames = array("payId", "dttm", "resultCode", "resultMessage", "?paymentStatus", "?authCode");
+		if($this->getConfig()->queryApiVersion('1.8')){
+			$returnDataNames = array_merge($returnDataNames, ["?customerCode", "?statusDetail"]);
+		}
 		try {
 			$payload["signature"] = $this->signRequest($payload);
 
@@ -536,7 +550,7 @@ class Client {
 					"payment/close",
 					$payload,
 					"PUT",
-					array("payId", "dttm", "resultCode", "resultMessage", "paymentStatus", "?authCode"),
+					$returnDataNames,
 					array("merchantId", "payId", "dttm", "totalAmount", "signature"),
 					false,
 					false,
@@ -616,6 +630,11 @@ class Client {
 
 		$this->writeToLog("payment/refund started for payment $payId, amount = " . ($amount !== null ? $amount : "null"));
 
+		$returnDataNames = array("payId", "dttm", "resultCode", "resultMessage", "?paymentStatus", "?authCode");
+		if($this->getConfig()->queryApiVersion('1.8')){
+			$returnDataNames = array_merge($returnDataNames, ["?customerCode", "?statusDetail"]);
+		}
+
 		try {
 
 			$payloadForSigning = $payload;
@@ -633,7 +652,7 @@ class Client {
 					"payment/refund",
 					$payload,
 					"PUT",
-					array("payId", "dttm", "resultCode", "resultMessage", "paymentStatus"),
+					$returnDataNames,
 					array("merchantId", "payId", "dttm", "amount", "signature"),
 					false,
 					false,
