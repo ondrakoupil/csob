@@ -24,7 +24,7 @@
         "php": ">=5.4.8"
     },
     "require-dev": {
-        "nette/tester": "^1",
+        "nette/tester": "1.7.2",
         "ondrakoupil/testing-utils": "~0.0.7"
     }
 }

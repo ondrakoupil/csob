@@ -20,6 +20,7 @@ before_install:
 
 install:
   - composer install --no-interaction --prefer-source
+  - php ./tests/fix-old-tester.php
 
 script:
   - ./vendor/bin/tester -p $TESTER_PHP_BIN -s ./tests/src
