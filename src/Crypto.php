@@ -46,7 +46,10 @@ class Crypto {
 			throw new CryptoException("Signing failed.");
 		}
 		$signature = base64_encode ($signature);
-		openssl_free_key ($privateKeyId);
+		if (version_compare(PHP_VERSION, '8.0', '<')) {
+			// https://github.com/ondrakoupil/csob/issues/33
+			openssl_free_key ($privateKeyId);
+		}
 
 		return $signature;
 	}
@@ -80,7 +83,10 @@ class Crypto {
 		$signature = base64_decode($signatureInBase64);
 
 		$res = openssl_verify($textToVerify, $signature, $publicKeyId, $hashMethod);
-		openssl_free_key($publicKeyId);
+		if (version_compare(PHP_VERSION, '8.0', '<')) {
+			// https://github.com/ondrakoupil/csob/issues/33
+			openssl_free_key($publicKeyId);
+		}
 
 		if ($res == -1) {
 			throw new CryptoException("Verification of signature failed: ".openssl_error_string());
