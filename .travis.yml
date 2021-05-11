@@ -1,11 +1,12 @@
-dist: trusty
+dist: xenial
 
 language: php
 
 php:
 # - '5.3' # Not supported anymore - min required is 5.4.8 because of SHA256 signing
-  - '5.4'
-  - '5.5'  
+# - '5.4' # Not supported by Travis anymore, but the library should work
+# - '5.5' # Not supported by Travis anymore, but the library should work
+  - '5.6'
   - '7.0'
   - '7.1'
   - '7.2'
