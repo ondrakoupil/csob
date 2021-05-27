@@ -175,13 +175,16 @@ class Client {
 		$array = $payment->signAndExport($this);
 
 		$this->writeToLog("payment/init started for payment with orderNo " . $payment->orderNo);
-		
+		$returnDataNames = array("payId", "dttm", "resultCode", "resultMessage", "?paymentStatus", "?authCode");
+		if($this->getConfig()->queryApiVersion('1.8')){
+			$returnDataNames = array_merge($returnDataNames, array("?customerCode","?statusDetail"));
+		}
 		try {
 			$ret = $this->sendRequest(
 				"payment/init",
 				$array,
 				"POST",
-				array("payId", "dttm", "resultCode", "resultMessage", "?paymentStatus", "?authCode"),
+				$returnDataNames,
 				null,
 				false,
 				false,
@@ -378,13 +381,16 @@ class Client {
 
 		try {
 			$payload["signature"] = $this->signRequest($payload);
-
+			$returnDataNames = array("payId", "dttm", "resultCode", "resultMessage", "?paymentStatus", "?authCode");
+			if($this->getConfig()->queryApiVersion('1.8')){
+				 $returnDataNames = array_merge($returnDataNames, array("?customerCode","?statusDetail"));
+			}
 			$ret = $this->sendRequest(
 				"payment/status",
 				$payload,
 				"GET",
 				// Payment status is optional, bank doesn't include it in signature base if the payment is not found.
-				array("payId", "dttm", "resultCode", "resultMessage", "?paymentStatus", "?authCode"),
+				$returnDataNames,
 				array("merchantId", "payId", "dttm", "signature"),
 				false,
 				false,
@@ -447,6 +453,10 @@ class Client {
 			"dttm" => $this->getDTTM()
 		);
 
+		$returnDataNames = array("payId", "dttm", "resultCode", "resultMessage", "?paymentStatus", "?authCode");
+		if($this->getConfig()->queryApiVersion('1.8')){
+			$returnDataNames = array_merge($returnDataNames, array("?customerCode","?statusDetail"));
+		}
 		$this->writeToLog("payment/reverse started for payment $payId");
 
 		try {
@@ -458,7 +468,7 @@ class Client {
 					"payment/reverse",
 					$payload,
 					"PUT",
-					array("payId", "dttm", "resultCode", "resultMessage", "paymentStatus", "?authCode"),
+					$returnDataNames,
 					array("merchantId", "payId", "dttm", "signature"),
 					false,
 					false,
@@ -533,6 +543,10 @@ class Client {
 
 		$this->writeToLog("payment/close started for payment $payId" . ($amount !== null ? ", amount $amount" : ""));
 
+		$returnDataNames = array("payId", "dttm", "resultCode", "resultMessage", "?paymentStatus", "?authCode");
+		if($this->getConfig()->queryApiVersion('1.8')){
+			$returnDataNames = array_merge($returnDataNames, array("?customerCode","?statusDetail"));
+		}
 		try {
 			$payload["signature"] = $this->signRequest($payload);
 
@@ -542,7 +556,7 @@ class Client {
 					"payment/close",
 					$payload,
 					"PUT",
-					array("payId", "dttm", "resultCode", "resultMessage", "paymentStatus", "?authCode"),
+					$returnDataNames,
 					array("merchantId", "payId", "dttm", "totalAmount", "signature"),
 					false,
 					false,
@@ -622,6 +636,11 @@ class Client {
 
 		$this->writeToLog("payment/refund started for payment $payId, amount = " . ($amount !== null ? $amount : "null"));
 
+		$returnDataNames = array("payId", "dttm", "resultCode", "resultMessage", "?paymentStatus", "?authCode");
+		if($this->getConfig()->queryApiVersion('1.8')){
+			$returnDataNames = array_merge($returnDataNames, array("?customerCode","?statusDetail"));
+		}
+
 		try {
 
 			$payloadForSigning = $payload;
@@ -639,7 +658,7 @@ class Client {
 					"payment/refund",
 					$payload,
 					"PUT",
-					array("payId", "dttm", "resultCode", "resultMessage", "paymentStatus"),
+					$returnDataNames,
 					array("merchantId", "payId", "dttm", "amount", "signature"),
 					false,
 					false,
@@ -1358,12 +1377,11 @@ class Client {
 	 *
 	 *
 	 * @param array|null $input If return data is not in GET or POST, supply
-	 * your own array with accordingly named variables.
+	 *                          your own array with accordingly named variables.
+	 *
 	 * @return array|null Array with received data or null if no data is present.
-	 * @throws Exception When data is present but signature is incorrect.
 	 */
 	function receiveReturningCustomer($input = null) {
-
 		$returnDataNames = array(
 			"payId",
 			"dttm",
@@ -1645,6 +1663,7 @@ class Client {
 				if (!($extension instanceof Extension)) {
 					throw new Exception('Given argument is not Extension object.');
 				}
+				$extension->setHashMethod($this->config->getHashMethod());
 				$addedData = $extension->createRequestArray($this);
 				if ($addedData) {
 					$payload["extensions"][] = $addedData;
@@ -1768,6 +1787,7 @@ class Client {
 					/** @var Extension $extensionObject */
 					$extensionObject = $extensionsById[$extensionId];
 					$extensionObject->setResponseData($extensionData);
+					$extensionObject->setHashMethod($this->config->getHashMethod());
 					$signatureResult = $extensionObject->verifySignature($extensionData, $this);
 					if (!$signatureResult) {
 						$this->writeToTraceLog("Signature of extension $extensionId is incorrect.");
@@ -2670,7 +2690,10 @@ class Crypto {
 			throw new CryptoException("Signing failed.");
 		}
 		$signature = base64_encode ($signature);
-		openssl_free_key ($privateKeyId);
+		if (version_compare(PHP_VERSION, '8.0', '<')) {
+			// https://github.com/ondrakoupil/csob/issues/33
+			openssl_free_key ($privateKeyId);
+		}
 
 		return $signature;
 	}
@@ -2704,7 +2727,10 @@ class Crypto {
 		$signature = base64_decode($signatureInBase64);
 
 		$res = openssl_verify($textToVerify, $signature, $publicKeyId, $hashMethod);
-		openssl_free_key($publicKeyId);
+		if (version_compare(PHP_VERSION, '8.0', '<')) {
+			// https://github.com/ondrakoupil/csob/issues/33
+			openssl_free_key($publicKeyId);
+		}
 
 		if ($res == -1) {
 			throw new CryptoException("Verification of signature failed: ".openssl_error_string());
@@ -2948,6 +2974,11 @@ class Extension {
 	protected $signatureCorrect = false;
 
 	/**
+	 * @var int
+	 */
+	protected $hashMethod = Crypto::DEFAULT_HASH_METHOD;
+
+	/**
 	 * @param string $extensionId
 	 */
 	function __construct($extensionId) {
@@ -3072,7 +3103,7 @@ class Extension {
 
 		$baseString = $this->getRequestSignatureBase($sourceArray);
 		$client->writeToTraceLog('Signing request of extension ' . $this->extensionId . ', base string is:' . "\n" . $baseString);
-		$signature = Crypto::signString($baseString, $config->privateKeyFile, $config->privateKeyPassword);
+		$signature = Crypto::signString($baseString, $config->privateKeyFile, $config->privateKeyPassword, $this->hashMethod);
 
 		$sourceArray['signature'] = $signature;
 
@@ -3120,7 +3151,7 @@ class Extension {
 		$config = $client->getConfig();
 		$client->writeToTraceLog('Verifying signature of response of extension ' . $this->extensionId . ', base string is:' . "\n" . $baseString);
 
-		return Crypto::verifySignature($baseString, $signature, $config->bankPublicKeyFile);
+		return Crypto::verifySignature($baseString, $signature, $config->bankPublicKeyFile, $this->hashMethod);
 
 	}
 
@@ -3192,9 +3223,19 @@ class Extension {
 		$this->responseData = $responseData;
 	}
 
+	/**
+	 * @return int
+	 */
+	public function getHashMethod() {
+		return $this->hashMethod;
+	}
 
-
-
+	/**
+	 * @param int $hashMethod
+	 */
+	public function setHashMethod($hashMethod) {
+		$this->hashMethod = $hashMethod;
+	}
 
 
 }

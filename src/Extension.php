@@ -41,6 +41,11 @@ class Extension {
 	protected $signatureCorrect = false;
 
 	/**
+	 * @var int
+	 */
+	protected $hashMethod = Crypto::DEFAULT_HASH_METHOD;
+
+	/**
 	 * @param string $extensionId
 	 */
 	function __construct($extensionId) {
@@ -165,7 +170,7 @@ class Extension {
 
 		$baseString = $this->getRequestSignatureBase($sourceArray);
 		$client->writeToTraceLog('Signing request of extension ' . $this->extensionId . ', base string is:' . "\n" . $baseString);
-		$signature = Crypto::signString($baseString, $config->privateKeyFile, $config->privateKeyPassword);
+		$signature = Crypto::signString($baseString, $config->privateKeyFile, $config->privateKeyPassword, $this->hashMethod);
 
 		$sourceArray['signature'] = $signature;
 
@@ -213,7 +218,7 @@ class Extension {
 		$config = $client->getConfig();
 		$client->writeToTraceLog('Verifying signature of response of extension ' . $this->extensionId . ', base string is:' . "\n" . $baseString);
 
-		return Crypto::verifySignature($baseString, $signature, $config->bankPublicKeyFile);
+		return Crypto::verifySignature($baseString, $signature, $config->bankPublicKeyFile, $this->hashMethod);
 
 	}
 
@@ -285,9 +290,19 @@ class Extension {
 		$this->responseData = $responseData;
 	}
 
+	/**
+	 * @return int
+	 */
+	public function getHashMethod() {
+		return $this->hashMethod;
+	}
 
-
-
+	/**
+	 * @param int $hashMethod
+	 */
+	public function setHashMethod($hashMethod) {
+		$this->hashMethod = $hashMethod;
+	}
 
 
 }

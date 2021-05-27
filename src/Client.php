@@ -1657,6 +1657,7 @@ class Client {
 				if (!($extension instanceof Extension)) {
 					throw new Exception('Given argument is not Extension object.');
 				}
+				$extension->setHashMethod($this->config->getHashMethod());
 				$addedData = $extension->createRequestArray($this);
 				if ($addedData) {
 					$payload["extensions"][] = $addedData;
@@ -1780,6 +1781,7 @@ class Client {
 					/** @var Extension $extensionObject */
 					$extensionObject = $extensionsById[$extensionId];
 					$extensionObject->setResponseData($extensionData);
+					$extensionObject->setHashMethod($this->config->getHashMethod());
 					$signatureResult = $extensionObject->verifySignature($extensionData, $this);
 					if (!$signatureResult) {
 						$this->writeToTraceLog("Signature of extension $extensionId is incorrect.");
