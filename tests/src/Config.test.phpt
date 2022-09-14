@@ -41,10 +41,10 @@ class ConfigTestCase extends TestCase {
 		Assert::same('1.7', $c->getVersion());
 
 		$c = new Config('111', 'aa', 'bb', 'cc',  'dd', GatewayUrl::PRODUCTION_LATEST);
-		Assert::same('1.8', $c->getVersion());
+		Assert::same('1.9', $c->getVersion());
 
 		$c = new Config('111', 'aa', 'bb', 'cc',  'dd', GatewayUrl::TEST_LATEST);
-		Assert::same('1.8', $c->getVersion());
+		Assert::same('1.9', $c->getVersion());
 
 	}
 

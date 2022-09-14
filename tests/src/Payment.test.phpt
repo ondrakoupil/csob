@@ -4,6 +4,13 @@ namespace OndraKoupil\Csob;
 
 require '../bootstrap.php';
 
+use DateTime;
+use OndraKoupil\Csob\Metadata\Account;
+use OndraKoupil\Csob\Metadata\Address;
+use OndraKoupil\Csob\Metadata\Customer;
+use OndraKoupil\Csob\Metadata\GiftCards;
+use OndraKoupil\Csob\Metadata\Login;
+use OndraKoupil\Csob\Metadata\Order;
 use \Tester\Assert;
 use \Tester\TestCase;
 
@@ -178,6 +185,52 @@ class PaymentTestCase extends TestCase {
 		Assert::notContains('987654', $signatureString);
 		Assert::false(isset($exportedData['colorSchemeVersion']));
 		Assert::false(isset($exportedData['logoVersion']));
+
+	}
+
+	function testCustomerAndOrderSigning() {
+
+		$config = require(__DIR__ . "/../dummy-config.php");
+		$client = new Client($config);
+
+		$payment = new Payment('11222523', 'Ahoj Ondro', '2238373');
+		$payment->language = 'EN';
+		$payment->addCartItem('Test brány', 1, 12000);
+		$payment->addCartItem('Druhá položka', 2, 15000);
+
+		$customer = new Customer();
+		$customer->email = 'ondra@ondrakoupil.cz';
+		$customer->name = 'Ing. Ondřej Koupil';
+		$customer->mobilePhone = '+420.721374431';
+		$account = new Account();
+		$account->setCreatedAt(new DateTime('2021-02-11 11:15:02'));
+		$account->orderHistory = 3;
+		$customer->setAccount($account);
+		$login = new Login();
+		$login->auth = Login::AUTH_ACCOUNT;
+		$login->authData = '122222112';
+		$customer->setLogin($login);
+		$payment->setCustomer($customer);
+
+		$order = new Order();
+		$order->type = Order::TYPE_PURCHASE;
+		$addr = new Address('Šafaříkova 717', 'Hradec Králové', '50002', 'CZE');
+		$order->setShipping($addr);
+		$gifts = new GiftCards();
+		$gifts->quantity = 1;
+		$gifts->currency = 'CZK';
+		$gifts->totalAmount = 2000;
+		$order->setGiftCards($gifts);
+		$payment->setOrder($order);
+
+		$signatureString = $payment->getSignatureString($client);
+
+		echo $signatureString;
+
+		Assert::same(
+			'|11222523||||0|||||Test brány|1|12000||Druhá položka|2|15000||Ing. Ondřej Koupil|ondra@ondrakoupil.cz|+420.721374431|2021-02-11T11:15:02+01:00|3|0|0|0|false|account|122222112|purchase|0|false|false|Šafaříkova 717|Hradec Králové|50002|CZE|false|2000|CZK|1|QWhvaiBPbmRybw==|2238373|EN|',
+			$signatureString
+		);
 
 	}
 

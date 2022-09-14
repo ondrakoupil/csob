@@ -2,6 +2,9 @@
 
 namespace OndraKoupil\Csob;
 
+use DateTime;
+use OndraKoupil\Csob\Metadata\Customer;
+use OndraKoupil\Csob\Metadata\Order;
 use \OndraKoupil\Tools\Strings;
 use \OndraKoupil\Tools\Arrays;
 
@@ -32,6 +35,11 @@ class Payment {
 	const OPERATION_ONE_CLICK = "oneclickPayment";
 
 	/**
+	 * Custom platba
+	 */
+	const OPERATION_CUSTOM_PAYMENT = "customPayment";
+
+	/**
 	 * @ignore
 	 * @var string
 	 */
@@ -52,6 +60,13 @@ class Payment {
 	 * @var number
 	 */
 	protected $totalAmount = 0;
+
+	/**
+	 * For oneclick payments use only
+	 * @internal
+	 * @var string
+	 */
+	public $origPayId;
 
 	/**
 	 * Currency of the transaction. Default value is "CZK".
@@ -124,6 +139,8 @@ class Payment {
 	 * See wiki on ČSOB's Github for other values, they are not the same
 	 * as standard ISO language codes.
 	 *
+	 * @see https://github.com/csob/paymentgateway/wiki/Basic-Methods
+	 *
 	 * @var string
 	 */
 	public $language;
@@ -186,11 +203,29 @@ class Payment {
 	public $colorSchemeVersion;
 
 	/**
+	 * @var Customer
+	 */
+	protected $customer;
+
+
+	/**
+	 * @var Order
+	 */
+	protected $order;
+
+
+	/**
+	 * @var DateTime
+	 */
+	protected $customExpiry;
+
+	/**
 	 * @var array
 	 * @ignore
 	 */
 	private $fieldsInOrder = array(
 		"merchantId",
+		"*origPayId", // placeholder
 		"orderNo",
 		"dttm",
 		"payOperation",
@@ -201,6 +236,8 @@ class Payment {
 		"returnUrl",
 		"returnMethod",
 		"cart",
+		"*customer", // placeholder
+		"*order", // placeholder
 		"description",
 		"merchantData",
 		"customerId",
@@ -211,6 +248,7 @@ class Payment {
 	private $auxFieldsInOrder = array(
 		"logoVersion",
 		"colorSchemeVersion",
+		"customExpiry"
 	);
 
 
@@ -277,6 +315,46 @@ class Payment {
 
 		return $this;
 	}
+
+	/**
+	 * @return Customer
+	 */
+	public function getCustomer() {
+		return $this->customer;
+	}
+
+	/**
+	 * @param Customer $customer
+	 *
+	 * @return Payment
+	 */
+	public function setCustomer($customer) {
+		$this->customer = $customer;
+
+		return $this;
+	}
+
+	/**
+	 * @return Order
+	 */
+	public function getOrder() {
+		return $this->order;
+	}
+
+	/**
+	 * @param Order $order
+	 *
+	 * @return Payment
+	 */
+	public function setOrder($order) {
+		$this->order = $order;
+
+		return $this;
+	}
+
+
+
+
 
 	/**
 	 * Set some arbitrary data you will receive back when customer returns
@@ -358,6 +436,8 @@ class Payment {
 		$this->foreignId = $id;
 	}
 
+
+
 	/**
 	 * Mark this payment as a template for recurrent payments.
 	 *
@@ -386,6 +466,10 @@ class Payment {
 	function setOneClickPayment($oneClick = true) {
 		$this->payOperation = $oneClick ? self::OPERATION_ONE_CLICK : self::OPERATION_PAYMENT;
 		return $this;
+	}
+
+	function setCustomExpiry(DateTime $customExpiry) {
+		$this->customExpiry = $customExpiry->format('YmdHis');
 	}
 
 	/**
@@ -480,6 +564,9 @@ class Payment {
 		}
 
 		foreach($fieldNames as $f) {
+			if ($f[0] === '*') {
+				continue; // skip those beginning with asterisk - they are just placeholders
+			}
 			$val = $this->$f;
 			if ($val === null) {
 				$val = "";
@@ -491,6 +578,19 @@ class Payment {
 			$val = $this->$f;
 			if ($val !== null) {
 				$arr[$f] = $val;
+			}
+		}
+
+		// Sice API 1.9, we add a complex customer and order objects to the payment data.
+		if ($client->getConfig()->queryApiVersion('1.9')) {
+			if ($this->customer) {
+				$arr['customer'] = $this->customer->export();
+			}
+			if ($this->order) {
+				$arr['order'] = $this->order->export();
+			}
+			if ($this->origPayId) {
+				$arr['origPayId'] = $this->origPayId;
 			}
 		}
 
@@ -521,40 +621,38 @@ class Payment {
 			$fieldNames = Arrays::deleteValue($fieldNames, 'description');
 		}
 
+		$partsToSign = array();
+
 		foreach($fieldNames as $f) {
-			$val = $this->$f;
-			if ($val === null) {
-				$val = "";
-			}
-			elseif (is_bool($val)) {
-				if ($val) {
-					$val = "true";
-				} else {
-					$val = "false";
-				}
-			} elseif (is_array($val)) {
-				// There are never more than 2 levels, we don't need recursive walk
-				$valParts = array();
-				foreach($val as $v) {
-					if (is_scalar($v)) {
-						$valParts[] = $v;
-					} else {
-						$valParts[] = implode("|", $v);
+			if ($f[0] === '*') {
+				// These needs special treatment
+				if ($f === '*customer') {
+					if ($this->customer and $client->getConfig()->queryApiVersion('1.9')) {
+						$partsToSign[] = $this->customer->export();
 					}
 				}
-				$val = implode("|", $valParts);
+				if ($f === '*order') {
+					if ($this->order and $client->getConfig()->queryApiVersion('1.9')) {
+						$partsToSign[] = $this->order->export();
+					}
+				}
+				if ($f === '*origPayId' and $this->origPayId and $client->getConfig()->queryApiVersion('1.9')) {
+					$partsToSign[] = $this->origPayId;
+				}
+				continue;
 			}
-			$parts[] = $val;
+
+			$partsToSign[] = $this->$f;
 		}
 
 		foreach ($this->auxFieldsInOrder as $f) {
 			$val = $this->$f;
 			if ($val !== null) {
-				$parts[] = $val;
+				$partsToSign[] = $val;
 			}
 		}
 
-		return implode("|", $parts);
+		return Tools::linearizeForSigning($partsToSign);
 	}
 
 

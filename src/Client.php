@@ -802,15 +802,20 @@ class Client {
 	 * @param Payment $newPayment
 	 * @param Extension[]|Extension $extensions
 	 * @param string $clientIp IP address of customer's browser
+	 * @param bool $clientInitiated Indicates whether it is possible to payment authentication in the presence of the customer. New in API 1.9.
+	 * Strongly recommend setting to false, or you might have to perform additional verification actions that are not quite supported on this library.
 	 *
 	 * @return array Data with new values
+	 *
 	 * @see Payment::setOneClickPayment()
 	 * @see paymentOneClickStart()
 	 */
-	function paymentOneClickInit($origPayment, Payment $newPayment, $extensions = array(), $clientIp = '') {
+	function paymentOneClickInit($origPayment, Payment $newPayment, $extensions = array(), $clientIp = '', $clientInitiated = false) {
 		$origPayId = $this->getPayId($origPayment);
 
 		$newOrderNo = $newPayment->orderNo;
+
+		$newPayment->origPayId = $origPayId;
 
 		if (!$newOrderNo or !preg_match('~^\d{1,10}$~', $newOrderNo)) {
 			throw new Exception("Given Payment object must have an \$orderNo property, numeric, max. 10 chars length.");
@@ -825,6 +830,7 @@ class Client {
 
 		$newDescription = Strings::shorten($newPayment->description, 240, "...");
 		$version1_8 = $this->config->queryApiVersion('1.8');
+		$version1_9 = $this->config->queryApiVersion('1.9');
 
 		$payload = array(
 			"merchantId" => $this->config->merchantId,
@@ -843,6 +849,21 @@ class Client {
 			$payload["currency"] = $newPayment->currency ?: "CZK"; // Currency is mandatory since 2016-01-10
 		}
 
+		if ($version1_9) {
+			$payload['closePayment'] = !!$newPayment->closePayment;
+			$payload['returnUrl'] = $newPayment->returnUrl ?: $this->config->returnUrl;
+			$payload['returnMethod'] = $newPayment->returnMethod ?: $this->config->returnMethod;
+
+			if ($newPayment->getCustomer()) {
+				$payload['customer'] = $newPayment->getCustomer()->export();
+			}
+			if ($newPayment->getOrder()) {
+				$payload['order'] = $newPayment->getOrder()->export();
+			}
+
+			$payload['clientInitiated'] = !!$clientInitiated;
+		}
+
 		if ($newDescription and !$version1_8) {
 			// In v 1.8, there is no description anymore
 			$payload["description"] = $newDescription;
@@ -853,27 +874,30 @@ class Client {
 			$payload['merchantData'] = $newPayment->getMerchantDataEncoded();
 		}
 
-
-
 		$endpointName = $this->config->queryApiVersion('1.8') ? 'oneclick/init' : 'payment/oneclick/init';
 
-		$this->writeToLog("$endpointName started using orig payment $origPayId");
+		$signatureBase = Tools::linearizeForSigning($payload);
+		$payload["signature"] = $this->signRequest(array($signatureBase));
 
-		if ($version1_8) {
-			$requestFields = array("merchantId", "origPayId", "orderNo", "dttm", "clientIp", "totalAmount", "currency", "merchantData", "signature");
-		} else {
-			$requestFields = array("merchantId", "origPayId", "orderNo", "dttm", "totalAmount", "currency", "description", "signature");
+
+		//$newPayment->checkAndPrepare($this->config);
+		//$payload = $newPayment->signAndExport($this);
+		//
+		//
+		//$this->writeToLog($endpointName . " started for payment with orderNo " . $newPayment->orderNo);
+
+		$returnDataNames = array("payId", "dttm", "resultCode", "resultMessage", "?paymentStatus");
+		if ($this->getConfig()->queryApiVersion('1.9')){
+			$returnDataNames = array_merge($returnDataNames, array("?statusDetail","?actions"));
 		}
 
 		try {
-			$payload["signature"] = $this->signRequest($payload);
-
 			$ret = $this->sendRequest(
 				$endpointName,
 				$payload,
 				"POST",
-				array("payId", "dttm", "resultCode", "resultMessage", "?paymentStatus", "?authCode"),
-				$requestFields,
+				$returnDataNames,
+				null,
 				false,
 				false,
 				$extensions
@@ -900,9 +924,15 @@ class Client {
 	 * @param Payment $newPayment
 	 * @param Extension[]|Extension $extensions
 	 *
+	 * @deprecated Deprecated in API 1.9 - use paymentOneClickProcess now.
+	 *
 	 * @return array|string
 	 */
 	function paymentOneClickStart(Payment $newPayment, $extensions = array()) {
+
+		if ($this->config->queryApiVersion('1.9')) {
+			throw new Exception('paymentOneClickStart() is not available in API 1.9 anymore, use paymentOneClickProcess() instead.');
+		}
 
 		$newPayId = $newPayment->getPayId();
 		if (!$newPayId) {
@@ -1005,6 +1035,58 @@ class Client {
 
 	}
 
+
+	/**
+	 * Performs a oneclick/process API call.
+	 *
+	 * Use this method to confirm a recurring one click payment after you initialised it using paymentOneClickInit().
+	 *
+	 *
+	 * @param $newPayId
+	 *
+	 * @return array|string
+	 */
+	function paymentOneClickProcess($newPayId) {
+
+		if (!$this->config->queryApiVersion('1.9')) {
+			throw new Exception('paymentOneClickProcess() is only available since API 1.9.');
+		}
+
+		$newPayId = $this->getPayId($newPayId);
+
+		$payload = array(
+			"merchantId" => $this->config->merchantId,
+			"payId" => $newPayId,
+			"dttm" => $this->getDTTM(),
+		);
+
+		$this->writeToLog("oneclick/process started with PayId $newPayId");
+
+		try {
+			$payload["signature"] = $this->signRequest($payload);
+
+			$ret = $this->sendRequest(
+				'oneclick/process',
+				$payload,
+				"POST",
+				array("payId", "dttm", "resultCode", "resultMessage", "?paymentStatus", "?statusDetail","?actions"),
+				array("merchantId", "payId", "dttm", "signature"),
+				false,
+				false,
+				array()
+			);
+
+		} catch (Exception $e) {
+			$this->writeToLog("Fail, got exception: " . $e->getCode().", " . $e->getMessage());
+			throw $e;
+		}
+
+		$this->writeToLog("oneclick/process OK");
+
+		return $ret;
+	}
+
+
 	/**
 	 * Performs a payment/button API call in API <= 1.7
 	 *
@@ -1097,7 +1179,7 @@ class Client {
 	 */
 	public function buttonInit(Payment $payment, $clientIp, $brand = 'csob', $extensions = array()) {
 		if (!$this->config->queryApiVersion('1.8')) {
-			throw new Exception('buttonInit() is not available since API 1.8.');
+			throw new Exception('buttonInit() is not available before API 1.8.');
 		}
 
 		if ($brand !== 'csob' and $brand !== 'era') {

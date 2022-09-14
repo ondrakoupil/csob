@@ -808,15 +808,20 @@ class Client {
 	 * @param Payment $newPayment
 	 * @param Extension[]|Extension $extensions
 	 * @param string $clientIp IP address of customer's browser
+	 * @param bool $clientInitiated Indicates whether it is possible to payment authentication in the presence of the customer. New in API 1.9.
+	 * Strongly recommend setting to false, or you might have to perform additional verification actions that are not quite supported on this library.
 	 *
 	 * @return array Data with new values
+	 *
 	 * @see Payment::setOneClickPayment()
 	 * @see paymentOneClickStart()
 	 */
-	function paymentOneClickInit($origPayment, Payment $newPayment, $extensions = array(), $clientIp = '') {
+	function paymentOneClickInit($origPayment, Payment $newPayment, $extensions = array(), $clientIp = '', $clientInitiated = false) {
 		$origPayId = $this->getPayId($origPayment);
 
 		$newOrderNo = $newPayment->orderNo;
+
+		$newPayment->origPayId = $origPayId;
 
 		if (!$newOrderNo or !preg_match('~^\d{1,10}$~', $newOrderNo)) {
 			throw new Exception("Given Payment object must have an \$orderNo property, numeric, max. 10 chars length.");
@@ -831,6 +836,7 @@ class Client {
 
 		$newDescription = Strings::shorten($newPayment->description, 240, "...");
 		$version1_8 = $this->config->queryApiVersion('1.8');
+		$version1_9 = $this->config->queryApiVersion('1.9');
 
 		$payload = array(
 			"merchantId" => $this->config->merchantId,
@@ -849,6 +855,21 @@ class Client {
 			$payload["currency"] = $newPayment->currency ?: "CZK"; // Currency is mandatory since 2016-01-10
 		}
 
+		if ($version1_9) {
+			$payload['closePayment'] = !!$newPayment->closePayment;
+			$payload['returnUrl'] = $newPayment->returnUrl ?: $this->config->returnUrl;
+			$payload['returnMethod'] = $newPayment->returnMethod ?: $this->config->returnMethod;
+
+			if ($newPayment->getCustomer()) {
+				$payload['customer'] = $newPayment->getCustomer()->export();
+			}
+			if ($newPayment->getOrder()) {
+				$payload['order'] = $newPayment->getOrder()->export();
+			}
+
+			$payload['clientInitiated'] = !!$clientInitiated;
+		}
+
 		if ($newDescription and !$version1_8) {
 			// In v 1.8, there is no description anymore
 			$payload["description"] = $newDescription;
@@ -859,27 +880,30 @@ class Client {
 			$payload['merchantData'] = $newPayment->getMerchantDataEncoded();
 		}
 
-
-
 		$endpointName = $this->config->queryApiVersion('1.8') ? 'oneclick/init' : 'payment/oneclick/init';
 
-		$this->writeToLog("$endpointName started using orig payment $origPayId");
+		$signatureBase = Tools::linearizeForSigning($payload);
+		$payload["signature"] = $this->signRequest(array($signatureBase));
 
-		if ($version1_8) {
-			$requestFields = array("merchantId", "origPayId", "orderNo", "dttm", "clientIp", "totalAmount", "currency", "merchantData", "signature");
-		} else {
-			$requestFields = array("merchantId", "origPayId", "orderNo", "dttm", "totalAmount", "currency", "description", "signature");
+
+		//$newPayment->checkAndPrepare($this->config);
+		//$payload = $newPayment->signAndExport($this);
+		//
+		//
+		//$this->writeToLog($endpointName . " started for payment with orderNo " . $newPayment->orderNo);
+
+		$returnDataNames = array("payId", "dttm", "resultCode", "resultMessage", "?paymentStatus");
+		if ($this->getConfig()->queryApiVersion('1.9')){
+			$returnDataNames = array_merge($returnDataNames, array("?statusDetail","?actions"));
 		}
 
 		try {
-			$payload["signature"] = $this->signRequest($payload);
-
 			$ret = $this->sendRequest(
 				$endpointName,
 				$payload,
 				"POST",
-				array("payId", "dttm", "resultCode", "resultMessage", "?paymentStatus", "?authCode"),
-				$requestFields,
+				$returnDataNames,
+				null,
 				false,
 				false,
 				$extensions
@@ -906,9 +930,15 @@ class Client {
 	 * @param Payment $newPayment
 	 * @param Extension[]|Extension $extensions
 	 *
+	 * @deprecated Deprecated in API 1.9 - use paymentOneClickProcess now.
+	 *
 	 * @return array|string
 	 */
 	function paymentOneClickStart(Payment $newPayment, $extensions = array()) {
+
+		if ($this->config->queryApiVersion('1.9')) {
+			throw new Exception('paymentOneClickStart() is not available in API 1.9 anymore, use paymentOneClickProcess() instead.');
+		}
 
 		$newPayId = $newPayment->getPayId();
 		if (!$newPayId) {
@@ -1011,6 +1041,58 @@ class Client {
 
 	}
 
+
+	/**
+	 * Performs a oneclick/process API call.
+	 *
+	 * Use this method to confirm a recurring one click payment after you initialised it using paymentOneClickInit().
+	 *
+	 *
+	 * @param $newPayId
+	 *
+	 * @return array|string
+	 */
+	function paymentOneClickProcess($newPayId) {
+
+		if (!$this->config->queryApiVersion('1.9')) {
+			throw new Exception('paymentOneClickProcess() is only available since API 1.9.');
+		}
+
+		$newPayId = $this->getPayId($newPayId);
+
+		$payload = array(
+			"merchantId" => $this->config->merchantId,
+			"payId" => $newPayId,
+			"dttm" => $this->getDTTM(),
+		);
+
+		$this->writeToLog("oneclick/process started with PayId $newPayId");
+
+		try {
+			$payload["signature"] = $this->signRequest($payload);
+
+			$ret = $this->sendRequest(
+				'oneclick/process',
+				$payload,
+				"POST",
+				array("payId", "dttm", "resultCode", "resultMessage", "?paymentStatus", "?statusDetail","?actions"),
+				array("merchantId", "payId", "dttm", "signature"),
+				false,
+				false,
+				array()
+			);
+
+		} catch (Exception $e) {
+			$this->writeToLog("Fail, got exception: " . $e->getCode().", " . $e->getMessage());
+			throw $e;
+		}
+
+		$this->writeToLog("oneclick/process OK");
+
+		return $ret;
+	}
+
+
 	/**
 	 * Performs a payment/button API call in API <= 1.7
 	 *
@@ -1103,7 +1185,7 @@ class Client {
 	 */
 	public function buttonInit(Payment $payment, $clientIp, $brand = 'csob', $extensions = array()) {
 		if (!$this->config->queryApiVersion('1.8')) {
-			throw new Exception('buttonInit() is not available since API 1.8.');
+			throw new Exception('buttonInit() is not available before API 1.8.');
 		}
 
 		if ($brand !== 'csob' and $brand !== 'era') {
@@ -2077,11 +2159,16 @@ class Config {
 
 namespace OndraKoupil\Csob {
 
+use OndraKoupil\Csob\Metadata\Customer;
+
+use OndraKoupil\Csob\Metadata\Order;
+
 use \OndraKoupil\Tools\Strings;
 
 use \OndraKoupil\Tools\Arrays;
 
 
+use DateTime;
 
 /**
  * A payment request.
@@ -2110,6 +2197,11 @@ class Payment {
 	const OPERATION_ONE_CLICK = "oneclickPayment";
 
 	/**
+	 * Custom platba
+	 */
+	const OPERATION_CUSTOM_PAYMENT = "customPayment";
+
+	/**
 	 * @ignore
 	 * @var string
 	 */
@@ -2130,6 +2222,13 @@ class Payment {
 	 * @var number
 	 */
 	protected $totalAmount = 0;
+
+	/**
+	 * For oneclick payments use only
+	 * @internal
+	 * @var string
+	 */
+	public $origPayId;
 
 	/**
 	 * Currency of the transaction. Default value is "CZK".
@@ -2202,6 +2301,8 @@ class Payment {
 	 * See wiki on ČSOB's Github for other values, they are not the same
 	 * as standard ISO language codes.
 	 *
+	 * @see https://github.com/csob/paymentgateway/wiki/Basic-Methods
+	 *
 	 * @var string
 	 */
 	public $language;
@@ -2264,11 +2365,29 @@ class Payment {
 	public $colorSchemeVersion;
 
 	/**
+	 * @var Customer
+	 */
+	protected $customer;
+
+
+	/**
+	 * @var Order
+	 */
+	protected $order;
+
+
+	/**
+	 * @var DateTime
+	 */
+	protected $customExpiry;
+
+	/**
 	 * @var array
 	 * @ignore
 	 */
 	private $fieldsInOrder = array(
 		"merchantId",
+		"*origPayId", // placeholder
 		"orderNo",
 		"dttm",
 		"payOperation",
@@ -2279,6 +2398,8 @@ class Payment {
 		"returnUrl",
 		"returnMethod",
 		"cart",
+		"*customer", // placeholder
+		"*order", // placeholder
 		"description",
 		"merchantData",
 		"customerId",
@@ -2289,6 +2410,7 @@ class Payment {
 	private $auxFieldsInOrder = array(
 		"logoVersion",
 		"colorSchemeVersion",
+		"customExpiry"
 	);
 
 
@@ -2355,6 +2477,46 @@ class Payment {
 
 		return $this;
 	}
+
+	/**
+	 * @return Customer
+	 */
+	public function getCustomer() {
+		return $this->customer;
+	}
+
+	/**
+	 * @param Customer $customer
+	 *
+	 * @return Payment
+	 */
+	public function setCustomer($customer) {
+		$this->customer = $customer;
+
+		return $this;
+	}
+
+	/**
+	 * @return Order
+	 */
+	public function getOrder() {
+		return $this->order;
+	}
+
+	/**
+	 * @param Order $order
+	 *
+	 * @return Payment
+	 */
+	public function setOrder($order) {
+		$this->order = $order;
+
+		return $this;
+	}
+
+
+
+
 
 	/**
 	 * Set some arbitrary data you will receive back when customer returns
@@ -2436,6 +2598,8 @@ class Payment {
 		$this->foreignId = $id;
 	}
 
+
+
 	/**
 	 * Mark this payment as a template for recurrent payments.
 	 *
@@ -2464,6 +2628,10 @@ class Payment {
 	function setOneClickPayment($oneClick = true) {
 		$this->payOperation = $oneClick ? self::OPERATION_ONE_CLICK : self::OPERATION_PAYMENT;
 		return $this;
+	}
+
+	function setCustomExpiry(DateTime $customExpiry) {
+		$this->customExpiry = $customExpiry->format('YmdHis');
 	}
 
 	/**
@@ -2558,6 +2726,9 @@ class Payment {
 		}
 
 		foreach($fieldNames as $f) {
+			if ($f[0] === '*') {
+				continue; // skip those beginning with asterisk - they are just placeholders
+			}
 			$val = $this->$f;
 			if ($val === null) {
 				$val = "";
@@ -2569,6 +2740,19 @@ class Payment {
 			$val = $this->$f;
 			if ($val !== null) {
 				$arr[$f] = $val;
+			}
+		}
+
+		// Sice API 1.9, we add a complex customer and order objects to the payment data.
+		if ($client->getConfig()->queryApiVersion('1.9')) {
+			if ($this->customer) {
+				$arr['customer'] = $this->customer->export();
+			}
+			if ($this->order) {
+				$arr['order'] = $this->order->export();
+			}
+			if ($this->origPayId) {
+				$arr['origPayId'] = $this->origPayId;
 			}
 		}
 
@@ -2599,40 +2783,38 @@ class Payment {
 			$fieldNames = Arrays::deleteValue($fieldNames, 'description');
 		}
 
+		$partsToSign = array();
+
 		foreach($fieldNames as $f) {
-			$val = $this->$f;
-			if ($val === null) {
-				$val = "";
-			}
-			elseif (is_bool($val)) {
-				if ($val) {
-					$val = "true";
-				} else {
-					$val = "false";
-				}
-			} elseif (is_array($val)) {
-				// There are never more than 2 levels, we don't need recursive walk
-				$valParts = array();
-				foreach($val as $v) {
-					if (is_scalar($v)) {
-						$valParts[] = $v;
-					} else {
-						$valParts[] = implode("|", $v);
+			if ($f[0] === '*') {
+				// These needs special treatment
+				if ($f === '*customer') {
+					if ($this->customer and $client->getConfig()->queryApiVersion('1.9')) {
+						$partsToSign[] = $this->customer->export();
 					}
 				}
-				$val = implode("|", $valParts);
+				if ($f === '*order') {
+					if ($this->order and $client->getConfig()->queryApiVersion('1.9')) {
+						$partsToSign[] = $this->order->export();
+					}
+				}
+				if ($f === '*origPayId' and $this->origPayId and $client->getConfig()->queryApiVersion('1.9')) {
+					$partsToSign[] = $this->origPayId;
+				}
+				continue;
 			}
-			$parts[] = $val;
+
+			$partsToSign[] = $this->$f;
 		}
 
 		foreach ($this->auxFieldsInOrder as $f) {
 			$val = $this->$f;
 			if ($val !== null) {
-				$parts[] = $val;
+				$partsToSign[] = $val;
 			}
 		}
 
-		return implode("|", $parts);
+		return Tools::linearizeForSigning($partsToSign);
 	}
 
 
@@ -2901,9 +3083,9 @@ namespace OndraKoupil\Csob {
  */
 class GatewayUrl {
 
-	const TEST_LATEST = self::TEST_1_8;
+	const TEST_LATEST = self::TEST_1_9;
 
-	const PRODUCTION_LATEST = self::PRODUCTION_1_8;
+	const PRODUCTION_LATEST = self::PRODUCTION_1_9;
 
 	const TEST_1_0 = "https://iapi.iplatebnibrana.csob.cz/api/v1";
 
@@ -2924,6 +3106,10 @@ class GatewayUrl {
 	const TEST_1_8 = "https://iapi.iplatebnibrana.csob.cz/api/v1.8";
 
 	const PRODUCTION_1_8 = "https://api.platebnibrana.csob.cz/api/v1.8";
+
+	const TEST_1_9 = "https://iapi.iplatebnibrana.csob.cz/api/v1.9";
+
+	const PRODUCTION_1_9 = "https://api.platebnibrana.csob.cz/api/v1.9";
 
 }
 
@@ -3237,6 +3423,671 @@ class Extension {
 		$this->hashMethod = $hashMethod;
 	}
 
+
+}
+
+}
+
+
+// src/Metadata/Account.php 
+
+namespace OndraKoupil\Csob\Metadata {
+
+use OndraKoupil\Csob\Tools;
+
+
+use DateTime;
+
+/**
+ * @see https://github.com/csob/paymentgateway/wiki/Purchase-metadata#customer
+ */
+class Account {
+
+	/**
+	 * @var DateTime
+	 */
+	protected $createdAt;
+
+	/**
+	 * @var DateTime
+	 */
+	protected $changedAt;
+
+	/**
+	 * @var DateTime
+	 */
+	protected $changedPwdAt;
+
+	/**
+	 * @var int
+	 */
+	public $orderHistory = 0;
+
+	/**
+	 * @var int
+	 */
+	public $paymentsDay = 0;
+
+	/**
+	 * @var int
+	 */
+	public $paymentsYear = 0;
+
+	/**
+	 * @var int
+	 */
+	public $oneclickAdds = 0;
+
+	/**
+	 * @var bool
+	 */
+	public $suspicious = false;
+
+	/**
+	 * @return DateTime
+	 */
+	public function getCreatedAt() {
+		return $this->createdAt;
+	}
+
+	/**
+	 * @param DateTime $createdAt
+	 *
+	 * @return Account
+	 */
+	public function setCreatedAt(DateTime $createdAt) {
+		$this->createdAt = $createdAt;
+
+		return $this;
+	}
+
+	/**
+	 * @return DateTime
+	 */
+	public function getChangedAt() {
+		return $this->changedAt;
+	}
+
+	/**
+	 * @param DateTime $changedAt
+	 *
+	 * @return Account
+	 */
+	public function setChangedAt(DateTime $changedAt) {
+		$this->changedAt = $changedAt;
+		return $this;
+	}
+
+	/**
+	 * @return DateTime
+	 */
+	public function getChangedPwdAt() {
+		return $this->changedPwdAt;
+	}
+
+	/**
+	 * @param DateTime $changedPwdAt
+	 *
+	 * @return Account
+	 */
+	public function setChangedPwdAt(DateTime $changedPwdAt) {
+		$this->changedPwdAt = $changedPwdAt;
+
+		return $this;
+	}
+
+	public function export() {
+		$a = array(
+			'createdAt' => $this->createdAt ? $this->createdAt->format('c') : null,
+			'changedAt' => $this->changedAt ? $this->changedAt->format('c') : null,
+			'changedPwdAt' => $this->changedPwdAt ? $this->changedPwdAt->format('c') : null,
+			'orderHistory' => +$this->orderHistory,
+			'paymentsDay' => +$this->paymentsDay,
+			'paymentsYear' => +$this->paymentsYear,
+			'oneclickAdds' => +$this->oneclickAdds,
+			'suspicious' => !!$this->suspicious,
+		);
+
+		$a = Tools::filterOutEmptyFields($a);
+
+		return $a;
+	}
+
+
+}
+
+}
+
+
+// src/Metadata/Address.php 
+
+namespace OndraKoupil\Csob\Metadata {
+
+use OndraKoupil\Csob\Tools;
+
+use OndraKoupil\Tools\Strings;
+
+
+
+class Address {
+
+	/**
+	 * @var string
+	 */
+	public $address1;
+
+	/**
+	 * @var string
+	 */
+	public $address2;
+
+	/**
+	 * @var string
+	 */
+	public $address3;
+
+	/**
+	 * @var string
+	 */
+	public $city;
+
+	/**
+	 * @var string
+	 */
+	public $zip;
+
+	/**
+	 * @var string
+	 */
+	public $state;
+
+	/**
+	 * @var string
+	 */
+	public $country;
+
+	/**
+	 * @param string $address1
+	 * @param string $city
+	 * @param string $zip
+	 * @param string $country
+	 */
+	public function __construct($address1, $city, $zip, $country) {
+		$this->address1 = $address1;
+		$this->city = $city;
+		$this->zip = $zip;
+		$this->country = $country;
+	}
+
+	public function export() {
+		$a = array(
+			'address1' => Strings::shorten($this->address1, 50, '', true, true),
+			'address2' => Strings::shorten($this->address2, 50, '', true, true),
+			'address3' => Strings::shorten($this->address3, 50, '', true, true),
+			'city' => Strings::shorten($this->city, 50, '', true, true),
+			'zip' => Strings::shorten($this->zip, 16, '', true, true),
+			'state' => trim($this->state),
+			'country' => trim($this->country),
+		);
+
+		return Tools::filterOutEmptyFields($a);
+	}
+
+
+}
+
+}
+
+
+// src/Metadata/Customer.php 
+
+namespace OndraKoupil\Csob\Metadata {
+
+use OndraKoupil\Csob\Tools;
+
+use OndraKoupil\Tools\Strings;
+
+
+
+/**
+ * @see https://github.com/csob/paymentgateway/wiki/Purchase-metadata#customer
+ */
+class Customer {
+
+	/**
+	 * @var string
+	 */
+	public $name = '';
+
+	/**
+	 * @var string
+	 */
+	public $email = '';
+
+	/**
+	 * @var string
+	 */
+	public $homePhone = '';
+
+	/**
+	 * @var string
+	 */
+	public $workPhone = '';
+
+	/**
+	 * @var string
+	 */
+	public $mobilePhone = '';
+
+	/**
+	 * @var Account
+	 */
+	protected $account;
+
+	/**
+	 * @var Login
+	 */
+	protected $login;
+
+	/**
+	 * @return Account
+	 */
+	public function getAccount() {
+		return $this->account;
+	}
+
+	/**
+	 * @param Account $account
+	 *
+	 * @return Customer
+	 */
+	public function setAccount($account) {
+		$this->account = $account;
+		return $this;
+	}
+
+	/**
+	 * @return Login
+	 */
+	public function getLogin() {
+		return $this->login;
+	}
+
+	/**
+	 * @param Login $login
+	 *
+	 * @return Customer
+	 */
+	public function setLogin($login) {
+		$this->login = $login;
+		return $this;
+	}
+
+
+
+
+	function export() {
+
+		$a = array(
+			'name' => Strings::shorten(trim($this->name), 45, '', true, true),
+			'email' => Strings::shorten(trim($this->email), 100, '', true, true),
+			'homePhone' => trim($this->homePhone),
+			'workPhone' => trim($this->workPhone),
+			'mobilePhone' => trim($this->mobilePhone),
+			'account' => $this->account ? $this->account->export() : null,
+			'login' => $this->login ? $this->login->export() : null,
+		);
+
+		$a = Tools::filterOutEmptyFields($a);
+
+		return $a;
+
+	}
+
+
+
+}
+
+}
+
+
+// src/Metadata/GiftCards.php 
+
+namespace OndraKoupil\Csob\Metadata {
+
+use OndraKoupil\Csob\Tools;
+
+
+
+class GiftCards {
+
+	/**
+	 * @var number
+	 */
+	public $totalAmount;
+
+	/**
+	 * @var string
+	 */
+	public $currency;
+
+	/**
+	 * @var number
+	 */
+	public $quantity;
+
+	public function export() {
+		$a = array(
+			'totalAmount' => $this->totalAmount,
+			'currency' => $this->currency,
+			'quantity' => $this->quantity,
+		);
+
+		return Tools::filterOutEmptyFields($a);
+	}
+
+}
+
+}
+
+
+// src/Metadata/Login.php 
+
+namespace OndraKoupil\Csob\Metadata {
+
+use OndraKoupil\Csob\Tools;
+
+
+use DateTime;
+
+/**
+ * @see https://github.com/csob/paymentgateway/wiki/Purchase-metadata#customerlogin-data-
+ */
+class Login {
+
+	const AUTH_GUEST = 'guest';
+	const AUTH_ACCOUNT = 'account';
+	const AUTH_FEDERATED = 'federated';
+	const AUTH_ISSUER = 'issuer';
+	const AUTH_THIRDPARTY = 'thirdparty';
+	const AUTH_FIDO = 'fido';
+	const AUTH_FIDO_SIGNED = 'fido_signed';
+	const AUTH_API = 'api';
+
+	/**
+	 * Use AUTH_* class constants
+	 * @var string
+	 */
+	public $auth;
+
+	/**
+	 * @var DateTime
+	 */
+	protected $authAt;
+
+	public $authData;
+
+	/**
+	 * @return mixed
+	 */
+	public function getAuthAt() {
+		return $this->authAt;
+	}
+
+	/**
+	 * @param mixed $authAt
+	 *
+	 * @return Login
+	 */
+	public function setAuthAt(DateTime $authAt) {
+		$this->authAt = $authAt;
+
+		return $this;
+	}
+
+	function export() {
+		$a = array(
+			'auth'     => trim($this->auth),
+			'authAt'   => $this->authAt ? $this->authAt->format('c') : null,
+			'authData' => trim($this->authData),
+		);
+
+		$a = Tools::filterOutEmptyFields($a);
+
+		return $a;
+	}
+
+
+}
+
+}
+
+
+// src/Metadata/Order.php 
+
+namespace OndraKoupil\Csob\Metadata {
+
+use OndraKoupil\Csob\Tools;
+
+use OndraKoupil\Tools\Strings;
+
+
+use DateTime;
+
+class Order {
+
+	const TYPE_PURCHASE = 'purchase';
+	const TYPE_BALANCE = 'balance';
+	const TYPE_PREPAID = 'prepaid';
+	const TYPE_CASH = 'cash';
+	const TYPE_CHECK = 'check';
+
+	const AVAILABILITY_NOW = 'now';
+	const AVAILABILITY_PREORDER = 'preorder';
+
+	const DELIVERY_SHIPPING = 'shipping';
+	const DELIVERY_SHIPPING_VERIFIED = 'shipping_verified';
+	const DELIVERY_INSTORE = 'instore';
+	const DELIVERY_DIGITAL = 'digital';
+	const DELIVERY_TICKET = 'ticket';
+	const DELIVERY_OTHER = 'other';
+
+	const DELIVERY_MODE_ELECTRONIC = 0;
+	const DELIVERY_MODE_SAME_DAY = 1;
+	const DELIVERY_MODE_NEXT_DAY = 2;
+	const DELIVERY_MODE_LATER = 3;
+
+	/**
+	 * @var string
+	 */
+	public $type;
+
+	/**
+	 * @var string
+	 */
+	public $availability;
+
+	/**
+	 * @var string
+	 */
+	public $delivery;
+
+	/**
+	 * @var string
+	 */
+	public $deliveryMode;
+
+	/**
+	 * @var string
+	 */
+	public $deliveryEmail;
+
+	/**
+	 * @var bool
+	 */
+	public $nameMatch;
+
+	/**
+	 * @var bool
+	 */
+	public $addressMatch;
+
+	/**
+	 * @var Address
+	 */
+	protected $billing;
+
+	/**
+	 * @var Address
+	 */
+	protected $shipping;
+
+	/**
+	 * @var DateTime
+	 */
+	protected $shippingAddedAt;
+
+
+	/**
+	 * @var bool
+	 */
+	public $reorder;
+
+	/**
+	 * @var GiftCards
+	 */
+	protected $giftCards;
+
+	/**
+	 * @return Address
+	 */
+	public function getBilling() {
+		return $this->billing;
+	}
+
+	/**
+	 * @param Address $billing
+	 *
+	 * @return Order
+	 */
+	public function setBilling($billing) {
+		$this->billing = $billing;
+
+		return $this;
+	}
+
+	/**
+	 * @return Address
+	 */
+	public function getShipping() {
+		return $this->shipping;
+	}
+
+	/**
+	 * @param Address $shipping
+	 *
+	 * @return Order
+	 */
+	public function setShipping($shipping) {
+		$this->shipping = $shipping;
+
+		return $this;
+	}
+
+	/**
+	 * @return DateTime
+	 */
+	public function getShippingAddedAt() {
+		return $this->shippingAddedAt;
+	}
+
+	/**
+	 * @param DateTime $shippingAddedAt
+	 *
+	 * @return Order
+	 */
+	public function setShippingAddedAt($shippingAddedAt) {
+		$this->shippingAddedAt = $shippingAddedAt;
+
+		return $this;
+	}
+
+	/**
+	 * @return GiftCards
+	 */
+	public function getGiftCards() {
+		return $this->giftCards;
+	}
+
+	/**
+	 * @param GiftCards $giftCards
+	 *
+	 * @return Order
+	 */
+	public function setGiftCards($giftCards) {
+		$this->giftCards = $giftCards;
+		return $this;
+	}
+
+	public function export() {
+		$a = array(
+			'type' => trim($this->type),
+			'availability' => trim($this->availability),
+			'delivery' => trim($this->delivery),
+			'deliveryMode' => +$this->deliveryMode,
+			'deliveryEmail' => Strings::shorten($this->deliveryEmail, 100, '', true, true),
+			'nameMatch' => !!$this->nameMatch,
+			'addressMatch' => !!$this->addressMatch,
+			'billing' => $this->billing ? $this->billing->export() : null,
+			'shipping' => $this->shipping ? $this->shipping->export() : null,
+			'shippingAddedAt' => $this->shippingAddedAt ? $this->shippingAddedAt->format('c') : null,
+			'reorder' => !!$this->reorder,
+			'giftcards' => $this->giftCards ? $this->giftCards->export() : null,
+		);
+
+		return Tools::filterOutEmptyFields($a);
+	}
+
+
+}
+
+}
+
+
+// src/Tools.php 
+
+namespace OndraKoupil\Csob {
+
+
+class Tools {
+
+	public static function linearizeForSigning($input) {
+		if ($input === null) {
+			return '';
+		}
+		if (is_bool($input)) {
+			return $input ? 'true' : 'false';
+		}
+		if (is_array($input)) {
+			$parts = array();
+			foreach ($input as $inputItem) {
+				$parts[] = self::linearizeForSigning($inputItem);
+			}
+
+			return implode('|', $parts);
+		}
+
+		return $input;
+	}
+
+	public static function filterOutEmptyFields(array $input) {
+		return array_filter(
+			$input,
+			function($value) {
+				return ($value !== null and $value !== '');
+			}
+		);
+	}
 
 }
 
