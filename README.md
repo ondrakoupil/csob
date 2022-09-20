@@ -12,7 +12,7 @@ nějaké metody, ověřovat podpisy apod.
 **[English readme is here][english]**.
 
 Podrobnosti o API platební brány, o generování klíčů a
-o jednotlivých krocích zpracováná platby najdete na [https://github.com/csob/paymentgateway][1].
+o jednotlivých krocích zpracováná platby najdete na [https://github.com/csob/platebnibrana][1].
 Testovací platební karty jsou na [wiki zde][7]
 
 Pozor pozor! Často na to někdo naráží, že to raději vypíchnu tady nahoře.
@@ -487,15 +487,15 @@ nebo mě bez obav [kontaktujte][5] napřímo :-)
 
 
 
-[1]: https://github.com/csob/paymentgateway
+[1]: https://github.com/csob/platebnibrana
 [2]: https://iplatebnibrana.csob.cz/keygen/
-[3]: https://github.com/csob/paymentgateway/tree/master/keys
-[4]: https://github.com/csob/paymentgateway/wiki/Průběh-platby#user-content-Životní-cyklus-transakce-
+[3]: https://github.com/csob/platebnibrana/tree/main/keys
+[4]: https://github.com/csob/platebnibrana/wiki/Průběh-platby#user-content-Životní-cyklus-transakce-
 [5]: https://github.com/ondrakoupil
 [6]: https://platebnibrana.csob.cz/
-[7]: https://github.com/csob/paymentgateway/wiki/Testovac%C3%AD-karty
-[8]: https://github.com/csob/paymentgateway/wiki/Opakovan%C3%A1-platba
-[9]: https://github.com/csob/paymentgateway/wiki/Specifikace-API-roz%C5%A1%C3%AD%C5%99en%C3%AD-pro-EET
+[7]: https://github.com/csob/platebnibrana/wiki/Testovac%C3%AD-karty
+[8]: https://github.com/csob/platebnibrana/wiki/OneClick-platba
+[9]: https://github.com/csob/paymentgateway/wiki/Specifikace-API-roz%C5%A1%C3%AD%C5%99en%C3%AD-pro-EET/61e54d1d966f5ce05d1c903f50d5a5082b676285
 [10]: docs/class-OndraKoupil.Csob.Config.html
 [issue43]: https://github.com/csob/paymentgateway/issues/43
 [english]: README.en.md
