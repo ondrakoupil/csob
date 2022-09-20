@@ -321,10 +321,10 @@ Feel free to [contact me][5] if you have any questions or suggestions.
 [1]: https://github.com/csob/paymentgateway
 [2]: https://iplatebnibrana.csob.cz/keygen/
 [3]: https://github.com/csob/paymentgateway/tree/master/keys
-[4]: https://github.com/csob/paymentgateway/wiki/eAPI-v1-CZ#user-content-%C5%BDivotn%C3%AD-cyklus-transakce-
+[4]: https://github.com/csob/paymentgateway/wiki/Payment-lifecycle
 [5]: https://github.com/ondrakoupil
 [6]: https://platebnibrana.csob.cz/
-[7]: https://github.com/csob/paymentgateway/wiki/Testovac%C3%AD-karty
-[8]: https://github.com/csob/paymentgateway/wiki/Opakovan%C3%A1-platba
+[7]: https://github.com/csob/paymentgateway/wiki/Test-cards-and-credentials
+[8]: https://github.com/csob/paymentgateway/wiki/OneClick-Payment
 [10]: docs/class-OndraKoupil.Csob.Config.html
 [issue43]: https://github.com/csob/paymentgateway/issues/43
