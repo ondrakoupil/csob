@@ -375,17 +375,25 @@ class Client {
 
 		try {
 			$payload["signature"] = $this->signRequest($payload);
+			// Payment status is optional, bank doesn't include it in signature base if the payment is not found.
 			$returnDataNames = array("payId", "dttm", "resultCode", "resultMessage", "?paymentStatus", "?authCode");
-			if($this->getConfig()->queryApiVersion('1.8')){
+			if ($this->getConfig()->queryApiVersion('1.8')){
 				 $returnDataNames = array_merge($returnDataNames, array("?customerCode","?statusDetail"));
+			}
+			if ($this->getConfig()->queryApiVersion('1.9')){
+				 $returnDataNames[] = '?actions';
 			}
 			$ret = $this->sendRequest(
 				"payment/status",
 				$payload,
 				"GET",
-				// Payment status is optional, bank doesn't include it in signature base if the payment is not found.
 				$returnDataNames,
-				array("merchantId", "payId", "dttm", "signature"),
+				array(
+					"merchantId",
+					"payId",
+					"dttm",
+					"signature",
+				),
 				false,
 				false,
 				$extensions
@@ -1463,9 +1471,10 @@ class Client {
 			"dttm",
 			"resultCode",
 			"resultMessage",
-			"paymentStatus",
+			"?paymentStatus",
 			"?authCode",
-			"merchantData",
+			"?merchantData",
+			"?statusDetail",
 			// "signature"
 		);
 
