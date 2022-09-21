@@ -1505,10 +1505,11 @@ class Client {
 			$input["merchantData"] = $merch;
 		}
 
-		$mess = "Returning customer: payId ".$input["payId"].", authCode " . (isset($input["authCode"]) ? $input["authCode"] : '(not set)') . ", payment status ".$input["paymentStatus"];
-		if ($input["merchantData"]) {
-			$mess .= ", merchantData ".$input["merchantData"];
-		}
+		$mess = "Returning customer: payId ".$input["payId"];
+		if (isset($input["authCode"]) and $input['authCode']) $mess .= ', authCode ' . $input["authCode"];
+		if (isset($input["paymentStatus"]) and $input['paymentStatus']) $mess .= ', paymentStatus ' . $input["paymentStatus"];
+		if (isset($input["merchantData"]) and $input['merchantData']) $mess .= ', merchantData ' . $input["merchantData"];
+		if (isset($input["statusDetail"]) and $input['statusDetail']) $mess .= ', statusDetail ' . $input["statusDetail"];
 		$this->writeToLog($mess);
 
 		return $input;
