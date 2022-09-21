@@ -1471,7 +1471,7 @@ class Client {
 			"resultMessage",
 			"paymentStatus",
 			"?authCode",
-			"merchantData",
+			"?merchantData",
 			// "signature"
 		);
 
@@ -1503,9 +1503,9 @@ class Client {
 		}
 
 		$mess = "Returning customer: payId ".$input["payId"].", authCode " . (isset($input["authCode"]) ? $input["authCode"] : '(not set)') . ", payment status ".$input["paymentStatus"];
-		if ($input["merchantData"]) {
-			$mess .= ", merchantData ".$input["merchantData"];
-		}
+        if(array_key_exists("merchantData", $input)){
+            $mess .= ", merchantData ".$input["merchantData"];
+        }
 		$this->writeToLog($mess);
 
 		return $input;
