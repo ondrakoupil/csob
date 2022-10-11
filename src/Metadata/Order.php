@@ -32,27 +32,27 @@ class Order {
 	/**
 	 * @var string
 	 */
-	public $type;
+	public $type = '';
 
 	/**
 	 * @var string
 	 */
-	public $availability;
+	public $availability = '';
 
 	/**
 	 * @var string
 	 */
-	public $delivery;
+	public $delivery = '';
+
+	/**
+	 * @var int
+	 */
+	public $deliveryMode = 0;
 
 	/**
 	 * @var string
 	 */
-	public $deliveryMode;
-
-	/**
-	 * @var string
-	 */
-	public $deliveryEmail;
+	public $deliveryEmail = '';
 
 	/**
 	 * @var bool

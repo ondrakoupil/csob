@@ -1,0 +1,1 @@
+Tests can be run using nette/tester v1.7.2, but that fails on PHP 8.1 for some small syntactic bugs. Use these files to patch nette/tesre in vendor directory.

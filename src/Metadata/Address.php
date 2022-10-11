@@ -10,37 +10,37 @@ class Address {
 	/**
 	 * @var string
 	 */
-	public $address1;
+	public $address1 = '';
 
 	/**
 	 * @var string
 	 */
-	public $address2;
+	public $address2 = '';
 
 	/**
 	 * @var string
 	 */
-	public $address3;
+	public $address3 = '';
 
 	/**
 	 * @var string
 	 */
-	public $city;
+	public $city = '';
 
 	/**
 	 * @var string
 	 */
-	public $zip;
+	public $zip = '';
 
 	/**
 	 * @var string
 	 */
-	public $state;
+	public $state = '';
 
 	/**
 	 * @var string
 	 */
-	public $country;
+	public $country = '';
 
 	/**
 	 * @param string $address1

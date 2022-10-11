@@ -23,14 +23,14 @@ class Login {
 	 * Use AUTH_* class constants
 	 * @var string
 	 */
-	public $auth;
+	public $auth = '';
 
 	/**
 	 * @var DateTime
 	 */
 	protected $authAt;
 
-	public $authData;
+	public $authData = '';
 
 	/**
 	 * @return mixed
