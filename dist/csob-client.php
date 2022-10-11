@@ -5315,6 +5315,8 @@ class EETWarning extends EETErrorMessage {
 namespace OndraKoupil\Tools {
 
 
+use ArrayAccess;
+
 class Strings {
 
 	/**
@@ -5442,28 +5444,27 @@ class Strings {
 		$text=trim($text);
 		if ($ending===true) $ending="&hellip;";
 
-		if (self::strlen($text)<=$length) return $text;
+		$needsTrim = (self::strlen($text) > $length);
+		if (!$needsTrim) {
+			return $text;
+		}
+
+		$hardTrimmed = self::substr($text, 0, $length);
+
 		if (!$ignoreWords) {
-			$kdeRezat=$length-4;
-			if ($kdeRezat<0) $kdeRezat=0;
-			$konecTextu=self::substr($text,$kdeRezat);
-			$rozdelovace='\s\-_:."\'&/\(?!\)';
-			$match=preg_match('~^([^'.$rozdelovace.']*)['.$rozdelovace.'$]~m',$konecTextu,$casti);
-			$kdeRiznout=$length;
-			if ($match) {
-				$kdeRiznout=$kdeRezat+self::strlen($casti[1]);
+			$nextChar = self::substr($text, $length, 1);
+			if (!preg_match('~[\s.,/\-]~', $nextChar)) {
+				$endingRemains = preg_match('~[\s.,/\-]([^\s.,/\-]*)$~', $hardTrimmed, $foundParts);
+				if ($endingRemains) {
+					$endingLength = self::strlen($foundParts[1]);
+					$hardTrimmed = self::substr($hardTrimmed, 0, -1 * $endingLength - 1);
+				}
 			}
-		} else {
-			$kdeRiznout = $length - self::strlen($ending);
-			if ($kdeRiznout < 0) $kdeRiznout = 0;
-		}
-		$vrat= self::substr($text,0,$kdeRiznout).$ending;
-
-		if ($stripHtml) {
-			$vrat=self::nl2br($vrat);
 		}
 
-		return $vrat;
+		$hardTrimmed .= $ending;
+
+		return $hardTrimmed;
 	}
 
 	/**
@@ -5472,7 +5473,7 @@ class Strings {
 	* @return string
 	*/
 	static function br2nl($input) {
-		return preg_replace('~<br\s*/?>~i', "\n", $input);
+		return preg_replace('~<br\s*/?>~i', "\n", $input ?: '');
 	}
 
 
@@ -5482,32 +5483,54 @@ class Strings {
 	* @return string
 	*/
 	static function nl2br($input) {
-		$input = str_replace("\r\n", "\n", $input);
-		return str_replace("\n", "<br />", $input);
+		$input = str_replace("\r\n", "\n", $input ?: '');
+		return str_replace("\n", "<br />", $input ?: '');
 	}
 
 	/**
 	 * Nahradí entity v řetězci hodnotami ze zadaného pole.
 	 * @param string $string
-	 * @param array $valuesArray
+	 * @param array|ArrayAccess $valuesArray
 	 * @param callback $escapeFunction Funkce, ktrsou se prožene každá nahrazená entita (např. kvůli escapování paznaků). Defaultně Html::escape()
 	 * @param string $entityDelimiter Jeden znak
 	 * @param string $entityNameChars Rozsah povolených znaků v názvech entit
-	 * @return type
+	 * @return string
 	 */
 	static function replaceEntities($string, $valuesArray, $escapeFunction = "!!default", $entityDelimiter = "%", $entityNameChars = 'a-z0-9_-') {
 		if ($escapeFunction === "!!default") {
 			$escapeFunction = "\\OndraKoupil\\Tools\\Html::escape";
 		}
-		$string = \preg_replace_callback('~'.preg_quote($entityDelimiter).'(['.$entityNameChars.']+)'.preg_quote($entityDelimiter).'~i', function($found) use ($valuesArray, $escapeFunction) {
-			if (key_exists($found[1], $valuesArray)) {
+		$arrayMode = is_array($valuesArray);
+		$arrayAccessMode = (!is_array($valuesArray) and $valuesArray instanceof ArrayAccess);
+		$string = \preg_replace_callback('~'.preg_quote($entityDelimiter).'(['.$entityNameChars.']+)'.preg_quote($entityDelimiter).'~i', function($found) use ($valuesArray, $escapeFunction, $arrayMode, $arrayAccessMode) {
+			if ($arrayMode and key_exists($found[1], $valuesArray)) {
 				$v = $valuesArray[$found[1]];
 				if ($escapeFunction) {
 					$v = call_user_func_array($escapeFunction, array($v));
 				}
 				return $v;
 			}
+			if ($arrayAccessMode) {
+				if (isset($valuesArray[$found[1]])) {
+					$v = $valuesArray[$found[1]];
+					if ($escapeFunction) {
+						$v = call_user_func_array($escapeFunction, array($v));
+					}
+					return $v;
+				}
+			}
+			if (!$arrayAccessMode and !$arrayMode) {
+				if (property_exists($valuesArray, $found[1])) {
+					$v = $valuesArray->{$found[1]};
+					if ($escapeFunction) {
+						$v = call_user_func_array($escapeFunction, array($v));
+					}
+					return $v;
+				}
+			}
+
 			return $found[0];
+
 		}, $string);
 
 		return $string;
@@ -5655,6 +5678,7 @@ class Strings {
 	*/
 	static function number($string, $default = 0, $positiveOnly = false) {
 		if (is_bool($string) or is_object($string) or is_array($string)) return $default;
+		$string = (string)$string;
 		$string=str_replace(array(","," "),array(".",""),trim($string));
 		if (!is_numeric($string)) return $default;
 		$string = $string * 1; // Convert to number
@@ -5733,6 +5757,9 @@ class Strings {
 		if ($lower) {
 			$s = strtolower($s);
 		}
+		if (!$charlist) {
+			$charlist = '';
+		}
 		$s = preg_replace('#[^a-z0-9' . preg_quote($charlist, '#') . ']+#i', '-', $s);
 		$s = trim($s, '-');
 		return $s;
@@ -5754,6 +5781,60 @@ class Strings {
         elseif ($size < 1152921504606846976)       return round($size / 1125899906842624, $decimalPrecision) . ' PB';
         else return round($size / 1152921504606846976, $decimalPrecision) . ' EB';
     }
+
+	/**
+	 * Ošetření paznaků v HTML kódu
+	 *
+	 * @param string $input
+	 * @param bool $doubleEncode
+	 *
+	 * @return string
+	 */
+    public static function specChars($input, $doubleEncode = false) {
+    	return htmlspecialchars($input, ENT_QUOTES, 'utf-8', $doubleEncode);
+	}
+
+	/**
+	 * Vygeneruje náhodný alfanumerický řetězec zadané délky
+	 *
+	 * @param int $length
+	 * @return string Skládá se z [a-zA-Z0-9] nebo [a-z0-9] při $lowercase === true
+	 */
+	public static function randomString($length, $lowercase = false) {
+		$bytesLength = ceil($length * 3/4) + 1;
+		$randomBytes = openssl_random_pseudo_bytes($bytesLength);
+		$hex = base64_encode($randomBytes);
+		$hex = preg_replace('~[/+=]~', '', $hex);
+		$len = strlen($hex);
+		if ($len > $length) {
+			$hex = substr($hex, 0, $length);
+		}
+		if ($len < $length) {
+			$hex .= self::randomString($length - $len);
+		}
+		if ($lowercase) {
+			$hex = strtolower($hex);
+		}
+		return $hex;
+
+	}
+
+	/**
+	 * Převede excelovské značení sloupců (a, b, c, ..., aa, ab, ac, ...) na zero-based (0, 1, 2, ..., 26, 27, 28, ...) číslování.
+	 * @param string $excelSloupec
+	 * @return int
+	 */
+	static function excelToNumber($excelSloupec) {
+		$excelSloupec = strtolower(trim($excelSloupec));
+		$cislo = 0;
+		while ($excelSloupec) {
+			$pismenko = $excelSloupec[0];
+			$cislo *= 26;
+			$cislo += ord($pismenko) - 96;
+			$excelSloupec = substr($excelSloupec, 1);
+		}
+		return $cislo - 1;
+	}
 
 }
 
@@ -5961,6 +6042,40 @@ class Arrays {
 			$vrat=array_reverse($vrat);
 		}
 		return $vrat;
+	}
+
+	/**
+	 * Zadané dvourozměrné pole nebo traversable objekt přeindexuje tak, že jeho jednotlivé indexy
+	 * budou tvořeny určitým prvkem nebo public vlastností z každého prvku.
+	 *
+	 * Pokud některý z prvků vstupního pole neobsahuje $keyName, zachová se jeho původní index.
+	 *
+	 * @param array|\Traversable $input Vstupní pole/objekt
+	 * @param string $keyName Podle čeho indexovat
+	 * @return array
+	 */
+	static public function indexByKey($input, $keyName) {
+		if (!is_array($input) and !($input instanceof \Traversable)) {
+			throw new \InvalidArgumentException("Given argument must be an array or traversable object.");
+		}
+
+		$returnedArray = array();
+
+		foreach($input as $index => $f) {
+			if (is_array($f)) {
+				$key = array_key_exists($keyName, $f) ? $f[$keyName] : $index;
+				$returnedArray[$key] = $f;
+			} elseif (is_object($f)) {
+				$key = property_exists($f, $keyName) ? $f->$keyName : $index;
+				$returnedArray[$key] = $f;
+			} else {
+				if (!isset($returnedArray[$index])) {
+					$returnedArray[$index] = $f;
+				}
+			}
+		}
+
+		return $returnedArray;
 	}
 
 	/**
@@ -6381,8 +6496,8 @@ class Files {
 	 * Jméno souboru, ale bez přípony.
 	 *
 	 * `/var/www/vhosts/somefile.txt` => `somefile`
-	 * @param type $filename
-	 * @return type
+	 * @param string $filename
+	 * @return string
 	 */
 	static function filenameWithoutExtension($filename) {
 		$filename=self::filename($filename);
@@ -6545,6 +6660,10 @@ class Files {
 	 */
 	static function safeName($filename,$unsafeExtensions=null,$safeExtension="txt") {
 		if ($unsafeExtensions===null) $unsafeExtensions=array("php","phtml","inc","php3","php4","php5");
+		if ($filename[0] == '.') {
+			$filename = substr($filename, 1);
+		}
+		$filename = str_replace(DIRECTORY_SEPARATOR, '-', $filename);
 		$extension=self::extension($filename, "l");
 		if (in_array($extension, $unsafeExtensions)) {
 			$extension=$safeExtension;
@@ -6554,7 +6673,7 @@ class Files {
 		if (preg_match('~^(.*)[-_]+$~',$name,$partsName)) {
 			$name=$partsName[1];
 		}
-		if (preg_match('~^[-_](.*)$~',$name,$partsName)) {
+		if (preg_match('~^[-_]+(.*)$~',$name,$partsName)) {
 			$name=$partsName[1];
 		}
 		$ret=$name;

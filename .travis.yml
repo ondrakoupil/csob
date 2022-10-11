@@ -1,18 +1,19 @@
-dist: xenial
+dist: bionic
 
 language: php
 
 php:
-# - '5.3' # Not supported anymore - min required is 5.4.8 because of SHA256 signing
-# - '5.4' # Not supported by Travis anymore, but the library should work
-# - '5.5' # Not supported by Travis anymore, but the library should work
-  - '5.6'
-  - '7.0'
+  # - '5.3' # Not supported anymore - min required is 5.4.8 because of SHA256 signing
+  # - '5.4' # Not supported by Travis anymore, but the library should work
+  # - '5.5' # Not supported by Travis anymore, but the library should work
+  # - '5.6'
+  # - '7.0'
   - '7.1'
   - '7.2'
   - '7.3'
   - '7.4'
   - '8.0'
+  - '8.1'
 
 env:
   - TESTER_PHP_BIN="php"
