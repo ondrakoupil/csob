@@ -3026,7 +3026,8 @@ class Crypto {
 			$pos = $data;
 			$found = true;
 			foreach ($keyPath as $keyPathComponent) {
-				if (array_key_exists($keyPathComponent, $pos)) {
+				// NULLs are not included in signature as well
+				if (array_key_exists($keyPathComponent, $pos) and $pos[$keyPathComponent] !== null) {
 					$pos = $pos[$keyPathComponent];
 				} else {
 					$found = false;
@@ -3584,37 +3585,37 @@ class Address {
 	/**
 	 * @var string
 	 */
-	public $address1;
+	public $address1 = '';
 
 	/**
 	 * @var string
 	 */
-	public $address2;
+	public $address2 = '';
 
 	/**
 	 * @var string
 	 */
-	public $address3;
+	public $address3 = '';
 
 	/**
 	 * @var string
 	 */
-	public $city;
+	public $city = '';
 
 	/**
 	 * @var string
 	 */
-	public $zip;
+	public $zip = '';
 
 	/**
 	 * @var string
 	 */
-	public $state;
+	public $state = '';
 
 	/**
 	 * @var string
 	 */
-	public $country;
+	public $country = '';
 
 	/**
 	 * @param string $address1
@@ -3828,14 +3829,14 @@ class Login {
 	 * Use AUTH_* class constants
 	 * @var string
 	 */
-	public $auth;
+	public $auth = '';
 
 	/**
 	 * @var DateTime
 	 */
 	protected $authAt;
 
-	public $authData;
+	public $authData = '';
 
 	/**
 	 * @return mixed
@@ -3910,27 +3911,27 @@ class Order {
 	/**
 	 * @var string
 	 */
-	public $type;
+	public $type = '';
 
 	/**
 	 * @var string
 	 */
-	public $availability;
+	public $availability = '';
 
 	/**
 	 * @var string
 	 */
-	public $delivery;
+	public $delivery = '';
+
+	/**
+	 * @var int
+	 */
+	public $deliveryMode = 0;
 
 	/**
 	 * @var string
 	 */
-	public $deliveryMode;
-
-	/**
-	 * @var string
-	 */
-	public $deliveryEmail;
+	public $deliveryEmail = '';
 
 	/**
 	 * @var bool
