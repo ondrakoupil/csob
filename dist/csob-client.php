@@ -1818,9 +1818,18 @@ class Client {
 		$httpCode = \curl_getinfo($ch, CURLINFO_HTTP_CODE);
 		if ($httpCode != 200) {
 			$this->writeToTraceLog("Failed: returned HTTP code $httpCode");
+
+			$errorMessage = '';
+			$decoded = @json_decode($result, true);
+			if ($decoded) {
+				if (isset($decoded['resultMessage']) and isset($decoded['resultCode'])) {
+					$errorMessage = $decoded['resultMessage'] . ' (resultCode ' . $decoded['resultCode'] . ')';
+				}
+			}
+
 			throw new Exception(
 				"API returned HTTP code $httpCode, which is not code 200."
-				. ($httpCode == 400 ? " Probably wrong signature, check crypto keys." : ""),
+				. ($errorMessage ? (' ' . $errorMessage) : ''),
 				$httpCode
 			);
 		}
@@ -5445,6 +5454,8 @@ class Strings {
 		$text=trim($text);
 		if ($ending===true) $ending="&hellip;";
 
+		$text = trim($text);
+
 		$needsTrim = (self::strlen($text) > $length);
 		if (!$needsTrim) {
 			return $text;
@@ -5464,6 +5475,8 @@ class Strings {
 		}
 
 		$hardTrimmed .= $ending;
+
+		$hardTrimmed = trim($hardTrimmed);
 
 		return $hardTrimmed;
 	}

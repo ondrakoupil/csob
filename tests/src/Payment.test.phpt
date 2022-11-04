@@ -91,6 +91,22 @@ class PaymentTestCase extends TestCase {
 
 	}
 
+	function testCustomerNameTrimming() {
+
+		/** @var Config $config */
+		$config = require(__DIR__ . "/../dummy-config.php");
+		$client = new Client($config);
+
+		$payment = new Payment('100');
+		$customer = new Customer();
+		$customer->name = ' Alexander Random-Example-Surname - MyCompany   Example Random';
+		$payment->setCustomer($customer);
+		$out = $payment->signAndExport($client);
+		$customerNameCoded = $out['customer']['name'];
+		Assert::same('Alexander Random-Example-Surname - MyCompany', $customerNameCoded);;
+
+	}
+
 	function testSignature() {
 
 		/** @var Config $config */

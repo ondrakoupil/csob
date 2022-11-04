@@ -18,7 +18,7 @@
         }
     },
     "require": {
-        "ondrakoupil/tools": "^1.2.3",
+        "ondrakoupil/tools": "^1.2.4",
         "ext-openssl": "*",
 		"ext-curl": "*",
         "php": ">=5.4.8"
