@@ -849,7 +849,8 @@ class Client {
 
 		if ($version1_8) {
 			// A new parameter appeared in v 1.8
-			$payload['clientIp'] = $clientIp;
+			// Issue #48 - if $clientIp set to null, the resulting signature is rejected.
+			$payload['clientIp'] = $clientIp ?: '';
 		}
 
 		if ($totalAmount > 0) {
