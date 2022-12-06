@@ -894,7 +894,7 @@ class Client {
 		//
 		//$this->writeToLog($endpointName . " started for payment with orderNo " . $newPayment->orderNo);
 
-		$returnDataNames = array("payId", "dttm", "resultCode", "resultMessage", "?paymentStatus");
+		$returnDataNames = array("?payId", "dttm", "resultCode", "resultMessage", "?paymentStatus");
 		if ($this->getConfig()->queryApiVersion('1.9')){
 			$returnDataNames = array_merge($returnDataNames, array("?statusDetail","?actions"));
 		}
