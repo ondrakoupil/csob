@@ -26,5 +26,8 @@
     "require-dev": {
         "nette/tester": "1.7.2",
         "ondrakoupil/testing-utils": "~0.0.7"
+    },
+    "archive": {
+        "exclude": ["/dist"]
     }
 }
