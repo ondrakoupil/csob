@@ -134,12 +134,11 @@ class Payment {
 	public $customerId;
 
 	/**
-	 * Language of the gateway. Default is "CZ".
+	 * Language of the gateway. Default is "cs".
 	 *
-	 * See wiki on ČSOB's Github for other values, they are not the same
-	 * as standard ISO language codes.
+	 * See CSOB's wiki for possible options.
 	 *
-	 * @see https://github.com/csob/paymentgateway/wiki/Basic-Methods
+	 * @see https://github.com/csob/paymentgateway/wiki/Basic-Methods#paymentinit-method-
 	 *
 	 * @var string
 	 */
@@ -500,7 +499,7 @@ class Payment {
 		}
 
 		if (!$this->language) {
-			$this->language = "CZ";
+			$this->language = "cs";
 		}
 		
 		if (!$this->ttlSec or !is_numeric($this->ttlSec)) {
