@@ -50,6 +50,7 @@ Nejjednodušeji nainstalujete pomocí Composeru:
 `composer require ondrakoupil/csob-eapi-paygate`
 
 Pokud nepoužíváte Composer, stačí někam nakopírovat soubor `dist/csob-client.php` a includnout ho - obsahuje všechny potřebné třídy pohromadě.
+Soubor si stáhněte [přímo z Githubu](https://raw.githubusercontent.com/ondrakoupil/csob/master/dist/csob-client.php), v exportovaném balíčku není.
 
 
 ## Použití
