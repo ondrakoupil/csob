@@ -21,7 +21,7 @@
         "ondrakoupil/tools": "^1.2.4",
         "ext-openssl": "*",
 		"ext-curl": "*",
-        "php": ">=5.4.8"
+        "php": ">=7.4"
     },
     "require-dev": {
         "nette/tester": "1.7.2",

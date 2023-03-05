@@ -2310,9 +2310,8 @@ class Payment {
 	 * Leave empty if you don't want to use some features relying on knowing
 	 * customer ID.
 	 *
-	 * @var string
 	 */
-	public $customerId;
+	public string $customerId = '';
 
 	/**
 	 * Language of the gateway. Default is "CZ".
@@ -2439,7 +2438,7 @@ class Payment {
 	 * @param string $customerId
 	 * @param bool|null $oneClickPayment
 	 */
-	function __construct($orderNo = '', $merchantData = null, $customerId = null, $oneClickPayment = null) {
+	function __construct($orderNo = '', $merchantData = null, $customerId = '', $oneClickPayment = null) {
 		$this->orderNo = $orderNo;
 
 		if ($merchantData) {
