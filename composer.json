@@ -18,7 +18,7 @@
         }
     },
     "require": {
-        "ondrakoupil/tools": "~0.0.5",
+        "ondrakoupil/tools": "^1.2.4",
         "ext-openssl": "*",
 		"ext-curl": "*",
         "php": ">=7.4"
@@ -26,5 +26,8 @@
     "require-dev": {
         "nette/tester": "1.7.2",
         "ondrakoupil/testing-utils": "~0.0.7"
+    },
+    "archive": {
+        "exclude": ["/dist"]
     }
 }

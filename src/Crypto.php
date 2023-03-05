@@ -190,7 +190,8 @@ class Crypto {
 			$pos = $data;
 			$found = true;
 			foreach ($keyPath as $keyPathComponent) {
-				if (array_key_exists($keyPathComponent, $pos)) {
+				// NULLs are not included in signature as well
+				if (array_key_exists($keyPathComponent, $pos) and $pos[$keyPathComponent] !== null) {
 					$pos = $pos[$keyPathComponent];
 				} else {
 					$found = false;

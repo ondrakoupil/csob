@@ -16,3 +16,10 @@ if (strpos($source, '/* patched */') === false) {
 	file_put_contents($environmentSource, $source);
 
 }
+
+
+$patchFiles = __DIR__ . '/fixed-tester/src/Framework/*';
+$targetDir = __DIR__ . '/../vendor/nette/tester/src/Framework';
+foreach (glob($patchFiles) as $patch) {
+	copy($patch, $targetDir . '/' . basename($patch));
+}

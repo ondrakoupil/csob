@@ -12,7 +12,7 @@ nějaké metody, ověřovat podpisy apod.
 **[English readme is here][english]**.
 
 Podrobnosti o API platební brány, o generování klíčů a
-o jednotlivých krocích zpracováná platby najdete na [https://github.com/csob/paymentgateway][1].
+o jednotlivých krocích zpracováná platby najdete na [https://github.com/csob/platebnibrana][1].
 Testovací platební karty jsou na [wiki zde][7]
 
 Pozor pozor! Často na to někdo naráží, že to raději vypíchnu tady nahoře.
@@ -20,27 +20,26 @@ Pozor pozor! Často na to někdo naráží, že to raději vypíchnu tady nahoř
 
 ## Novinky
 
-### ČSOB API 1.8
-Na podzim 2019 vydala banka API verze 1.8, které kromě několika přidaných funkcí zavádí také malé, nicméně zpětně nekompatibilní, změny. 
-Používáte-li tedy knihovnu ve své aplikaci a používáte adresu nejnovější verze `GatewayUrl::PRODUCTION_LATEST`, tak pozor, updatem knihovny na verzi 1.8
-dojde i k update na API 1.8 a některé věci tedy mohou fungovat jinak.  
+### ČSOB API 1.9
+V létě 2022 vydala banka API verze 1.9, které kromě několika přidaných funkcí zavádí také některé změny.
+Používáte-li tedy knihovnu ve své aplikaci a používáte adresu nejnovější verze `GatewayUrl::PRODUCTION_LATEST`, tak pozor, updatem knihovny na verzi 1.9
+dojde i k update na API 1.9 a některé věci tedy mohou fungovat jinak.
 
-- Knihovna nyní podporuje ČSOB eAPI 1.8 a podpisy pomocí SHA 256. U metod API, které mají v knihovně svoji vlastní metodu, např. paymentInit nebo customerInfo,
-jsou všechny změny v API 1.8 již zohledněny. Voláte-li nějaké pokročilejší metody ručně přes `customRequest()`, zkontrolujte, že nedošlo k změně v API.
-- V Configu lze explicitně nastavit, jakou adresu a jakou verzi API má knihovna používat. Nespecifikujte nic, má-li se vše nastavit automaticky.
-- Nové platební metody (MallPay, ApplePay) nejsem dost dobře schopný otestovat, neexistují pro ně tedy přesné metody v knihovně. Používejte tedy univerzální metodu `customRequest()`, 
-  parametry zadejte manuálně a knihovna alespoň odešle request a ověří odpověď. Pokud pro tyto platby někdo vyvine a otestuje jednotlivé metody do knihovny do Client třídy, nechť pošle PR, rád ho zapojím.
-- Pro platbu platebními tlačítko ČSOB a ERA je od verze 1.8 nová metoda - buttonInit(). Pro API < 1.8 používejte nadále paymentButton().
-  Ve verzích 1.8 a 1.8.1 měla buttonInit() chybu, která je ve verzi 1.8.2 opravena.
-- Ve třídě Config přibyla možnost nastavit $sslVersion pro explicitní určení, jaká verze SSL/TLS se má pro komunikaci s bankou použít.
+Novinky:
 
-Jako výchozí adresa je testovací platební brána aktuální verze (nyní tedy 1.8 - `GatewayUrl::TEST_1_8`).
+- Změnily se metody pro práci s One click platbami. Nově se musí volat `paymentOneClickInit()` a potom `paymentOneClickProcess()`
+- Do objektu `Payment` pro metody `paymentInit()` a `paymentOneClickInit()` je nově možné předat mnohem, mnohem více dat o zákazníkovi a celé transakci. Tato data banka předá vydavateli karty, 
+  který podle svého interního algoritmu rozhodne, zda je nutné použít 3D ověření nebo ne. Předáním těchto pomocných dat údajně zvýšíte zákazníkův komfort, protože je pak větší šance,
+  že vydavatel transakci schválí jako bezpečnou, neboť dostatečně odpovídá jeho dosavadnímu profilu chování a placení na internetu.
+  Všechna tato nová data nastavíte pomocí `$payment->setCustomer($customer)` a `$payment->setOrder($order)` a pomocí tříd z namespacu `Metadata`. 
+
+Jako výchozí adresa je testovací platební brána aktuální verze (nyní tedy 1.9 - `GatewayUrl::TEST_1_9`).
 
 Doporučuji používat konstanty třídy GatewayUrl, které obsahují URL jednotlivých verzí API.
 
 ```
-$config->url = GatewayUrl::TEST_1_7;
-$config->url = GatewayUrl::PRODUCTION_1_8;
+$config->url = GatewayUrl::TEST_1_8;
+$config->url = GatewayUrl::PRODUCTION_1_9;
 $config->url = GatewayUrl::PRODUCTION_LATEST;
 ```
 
@@ -51,6 +50,7 @@ Nejjednodušeji nainstalujete pomocí Composeru:
 `composer require ondrakoupil/csob-eapi-paygate`
 
 Pokud nepoužíváte Composer, stačí někam nakopírovat soubor `dist/csob-client.php` a includnout ho - obsahuje všechny potřebné třídy pohromadě.
+Soubor si stáhněte [přímo z Githubu](https://raw.githubusercontent.com/ondrakoupil/csob/master/dist/csob-client.php), v exportovaném balíčku není.
 
 
 ## Použití
@@ -147,6 +147,15 @@ jen 100 Kč.
 
 Při zavolání `paymentInit()` se zadanému objektu $payment nastaví jeho PayID, odkud ho lze
 přečíst přes getter, anebo ho lze získat z vráceného pole.
+
+Volitelně lze od API 1.9 objektu Payment předat metadata o uživateli, což zjednoduší schválení transakce u vydavatele karty.
+
+```
+$customer = new Customer();
+$customer->name = 'John Rambo';
+$customer->email = 'john@rambo.cz';
+$payment->setCustomer($customer);
+```
 
 ### Zaplacení (payment/process)
 
@@ -283,24 +292,22 @@ Tyto metody vrací pole s různými daty, mimo jiné `redirect`, ve kterém je u
 na níž máte uživatele přesměrovat. Nepoužívejte tedy redirectToGateway() nebo něco podobného,
 ale přímo přesměrujte uživatele na adresu, kterou banka vrátí.
 
-### Opakované platby
+### Opakované platby (One click payments)
 
 Počínaje API 1.5 lze provádět opakované platby. Jak přesně to funguje se dočtete na
-[Wiki ČSOB][8]. Zhruba to je takto:
+[Wiki ČSOB][8]. Ve verzi API 1.9 je to zhruba takto: 
 
 - necháte zákazníka autorizovat platební šablonu tak, že provedete normálně
   celý platební proces jako obvykle, ale objektu Payment před voláním `paymentInit()`
-  nastavíte `$payOperation` na `Payment::OPERATION_ONE_CLICK`,
-  nejlépe zavoláním `$payment->setOneClickPayment(true)`
+  nastavíte `$payment->setOneClickPayment(true)`
 - zákazník pak zadá číslo karty, kód a provede 3D ověření jako u běžné platby
-- vy si uložíte PayID, abyste se na tuto autorizovanou transakci mohli odkazovat
+- vy si uložíte PayID, abyste se na tuto autorizovanou transakci mohli odkazovat. PayID zde bude sloužit jako jakési ID šablony transakce, kterou můžete později sami zopakovat i bez zákazníka.
 - od API verze 1.8 existuje `paymentOneClickEcho()` pro ověření, zda je originální PayID stále použitelné.
 - pak můžete kdykoliv zavolat metodu `paymentOneClickInit()` s PayID původní transakce
-  a s novým Payment objektem. Tím se založí nová platba. Následným zavoláním `paymentOneClickStart()`
-  se platba provede.
+  a s novým Payment objektem. Tím se založí nová platba. Následným zavoláním `paymentOneClickProcess()`
+  se platba provede (v API 1.8 a starších to bylo `paymentOneClickStart()`)
 - nová platba dostane své vlastní PayID a lze s ní pracovat jako s jakoukoliv jinou platbou
-- API 1.8 změnilo název endpointu, knihovna to sama zohlední, v PHP vždy volejte paymentOneClickInit() 
-  nebo paymentOneClickStart(). Také se v paymentOneClickInit přidal povinný parametr `clientIp`.
+- Od API 1.9 je možné přidávat metadata pomocí `$payment->setCustomer()` a `$payment->setOrder()` obdobně jako u `paymentInit`
 
 ## Logování
 
@@ -414,70 +421,10 @@ echo $extension->getMaskedCln() . ' ' . $extension->getExpiration();
 Dostupné metody jsou `getMaskedCln()`, `getLongMaskedCln()` a `getExpiration()`
  
 ## EET
-   
-Protože extension pro EET je o dost složitější, jsou připraveny již specializované třídy pro jednotlivé API metody:
- 
- - EETInitExtension pro payment/init a payment/oneclick/init
- - EETCloseExtension pro payment/close
- - EETRefundExtension pro payment/refund
- - EETStatusExtension pro payment/status
- 
-Při inicializaci platby přes payment/init je třeba při vytváření extension objektu předat
- objekt třídy `EETData`. Jeho public proměnné naplňte potřebnými hodnotami (tři jsou povinné
- a je třeba je vyplnit už v konstruktoru). Význam jednotlivých proměnných je podrobněji popsán na 
- [Wiki ČSOB v tomto článku][9]. Také si můžete pomocí `$verificationMode` zvolit, 
- zda se do EET má poslat jen v ověřovacím (testovacím) režimu.
- 
- Pozor, ceny v `EETData` jsou v korunách, narozdíl od cen v `Payment` třídě, kde jsou v haléřích.
-  
-Potvrzení nebo refundování platby (close a refund) je již možné udělat bez parametru, v tom případě
-se použijí data předaná v init metodě. 
- 
-Pro zjištění stavu platby je extension `EETStatusExtension`, které se posílá spolu s payment/status.
-Po zavolání `paymentStatus()` můžete z extension objektu přečíst výsledky pomocí `getReport()`
-a případně `getCancels()`. Ty vrací objekt nebo objekty třídy EETReport s podrobnostmi.
-Jsou k dispozici i zkratky `getFIK()`, `getEETStatus()`, `getBPK()` a `getPKP()`, přes které
- získáte z odpovědi ty nejčastěji používaná data.
- 
-Nezapomeňte, že pro používání EET rozšíření je nutné mít tuto službu povolenou v bance. 
-   
-Příklad (pomíjím namespaces):
 
-```php
-// $client mám vytvořený podle postupu v předchozích bodech
+EET je již od verze API 1.9 zrušené. Hurá 😀
 
-// Vytvoříme si payment, klasicky
-$payment = new Payment(12345);
-$payment->addCartItem('Jedna položka', 1, 50000); 
-$payment->addCartItem('Druhá s nižší DPH', 1, 50000); 
-
-// Vytvoříme data pro EET. Jen parametry v konstruktoru jsou povinné.
-$eetData = new EETData(123, 'abc123', 1000);
-$eetData->priceStandardVat = 413.22;
-$eetData->vatStandard = 86.78;
-$eetData->priceFirstReducedVat = 454.55;
-$eetData->vatFirstReduced = 45.45;
-
-// Vytvoříme extension pro payment/init v ověřovacím režimu
-$extensionInit = new EETInitExtension($eetData, true);
-
-// Zavoláme payment/init a odešleme prohlížeč na bránu
-$client->paymentInit($payment, $extensionInit);
-$url = $client->getPaymentProcessUrl($payment);
-
-// Nyní bychom měli přesměrovat prohlížeč na $url, nechat
-// zákazníka zadat platbu, přijmout vrácená data atd.
-// To nyní jakoby přeskakuji.
-
-$extensionStatus = new EETStatusExtension();
-$status = $client->paymentStatus($payment, true, $extensionStatus);
-
-echo "<p>Stav platby je: $status</p>";
-echo "<p>Stav odeslání do EET: " . $extensionStatus->getEETStatus() . "</p>";
-echo "<p>FIK: " . $extensionStatus->getFIK() . "</p>";
-
-// Mnoho dalších dat najdete v $extensionStatus->getReport()
-```
+Pokud je z nějakého důvodu chcete používat, je třebaa použít API 1.8 nebo 1.7.
 
 
 ## Problémy?
@@ -485,17 +432,15 @@ Pokud jste narazili na bug, něco nefunguje nebo máte návrh na zlepšení, př
 nebo mě bez obav [kontaktujte][5] napřímo :-)
 
 
-
-
-[1]: https://github.com/csob/paymentgateway
+[1]: https://github.com/csob/platebnibrana
 [2]: https://iplatebnibrana.csob.cz/keygen/
-[3]: https://github.com/csob/paymentgateway/tree/master/keys
-[4]: https://github.com/csob/paymentgateway/wiki/Průběh-platby#user-content-Životní-cyklus-transakce-
+[3]: https://github.com/csob/platebnibrana/tree/main/keys
+[4]: https://github.com/csob/platebnibrana/wiki/Průběh-platby#user-content-Životní-cyklus-transakce-
 [5]: https://github.com/ondrakoupil
 [6]: https://platebnibrana.csob.cz/
-[7]: https://github.com/csob/paymentgateway/wiki/Testovac%C3%AD-karty
-[8]: https://github.com/csob/paymentgateway/wiki/Opakovan%C3%A1-platba
-[9]: https://github.com/csob/paymentgateway/wiki/Specifikace-API-roz%C5%A1%C3%AD%C5%99en%C3%AD-pro-EET
+[7]: https://github.com/csob/platebnibrana/wiki/Testovac%C3%AD-karty
+[8]: https://github.com/csob/platebnibrana/wiki/OneClick-platba
+[9]: https://github.com/csob/paymentgateway/wiki/Specifikace-API-roz%C5%A1%C3%AD%C5%99en%C3%AD-pro-EET/61e54d1d966f5ce05d1c903f50d5a5082b676285
 [10]: docs/class-OndraKoupil.Csob.Config.html
 [issue43]: https://github.com/csob/paymentgateway/issues/43
 [english]: README.en.md

@@ -15,27 +15,23 @@ Heads up! People are often mistaken with this, so I am putting this right here:
 
 ## News
 
-The library now supports ČSOB eAPI 1.8. 
+The library now supports ČSOB eAPI 1.9.
+
 Select whichever eAPI version you want to use by setting proper API URL in Config constructor or explicitly by setting $apiVersion in Config. 
 Use GatewayUrl class constants for your convenience. Library automatically infers API version from URL, so in real world, you'll probably never need to 
 set $apiVersion manually. 
 
 ```
-$config->url = GatewayUrl::TEST_1_7;
-$config->url = GatewayUrl::PRODUCTION_1_8;
+$config->url = GatewayUrl::TEST_1_8;
+$config->url = GatewayUrl::PRODUCTION_1_9;
 $config->url = GatewayUrl::PRODUCTION_LATEST;
 $config->apiVersion = '1.5'; 
 // etc.
 ```
 
-API 1.8 introduced some minor BC breaks. The library tries to shield you from it and automatically handles small nuances in all pre-implemented
+API 1.9 introduced some minor BC breaks. The library tries to shield you from it and automatically handles small nuances in all pre-implemented
 methods that can be found in Client class in PHP. However, if you use universal `customRequest()` method, you might want to check that everything works
 before updating to new library version.
-
-API 1.8 also introduced new payment methods - ApplePay and MallPay. However it is not possible for me to implement and test the whole process
-with these specific payment methods, so the library doesn't ship with all methods required for calling these payments. You'll need to use `customRequest()` and
-set up the parameters for yourself. The library will then send a request and handle and verify the response for you.   
-
 
 ## Installation
 
@@ -118,11 +114,11 @@ In response, you'll receive a PayID. You should save that - it represents the pa
 and you will need it in future calls.
 
 Use `$payment->addCartItem()` to add one or two items (this is a restriction of payment gateway
-and will be changed in future versions).
+and will be changed in future versions). Just beware, use **hundreths** of base currency unit (halers, cents, pennies...).
 
 ```php
 $payment = new Payment("1234");
-$payment->addCartItem("Some cool stuff", 1, 10000);
+$payment->addCartItem("Some cool stuff", 1, 10000); // 100 CZK
 
 $response = $client->paymentInit($payment);
 
@@ -132,12 +128,20 @@ $payId = $response["payId"];
 
 You can set many more properties of `$payment`, this is just the minimum required.
 
+Optionally, since API 1.9, you can supply various customer's metadata to speed up evaluation process
+on card issuer's side and possibly avoid 3DS confirmation at all. Create a Customer and/or Order object and pass it to appropriate setters in Payment object.
+
+```php
+$customer = new Customer;
+$customer->name = 'John Rambo';
+$payment->setCustomer($customer);
+```
+
 After calling `paymentInit()`, you can get PayID either as part of response array, or just
 from the $payment object if everyrhing went right.
 
 Note that all strings with national characters should be encoded in UTF-8. If your application is
 not using this encoding, don't forget to `iconv` all strings before settings them into Payment.
-
 
 ### Processing payment (payment/process)
 
@@ -205,7 +209,7 @@ $client->paymentRefund($payId);
 
 Since eAPI 1.5 you can partially authorize (close) the payment or refund it.
 Just pass in third argument to `paymentClose()` or `paymentRefund()`
-- just beware, use **hundreths** of base currency unit.
+- just beware, use **hundreths** of base currency unit (halers, cents, pennies...).
 
 ```php
 // Confirm transaction with amount only 100 CZK
@@ -278,7 +282,7 @@ payment methods, just do a standard redirect to the address returned by the bank
 
 Since eAPI 1.5, you can make recurring payments. See the [wiki page][8] for details.
 
-Use paymentOneClickEcho(), paymentOneClickInit() and paymentOneClickStart() to implement recurring payments.
+Use paymentOneClickEcho(), paymentOneClickInit() and paymentOneClickProcess() to implement recurring payments.
 Former paymentRecurrent is deprecated now as it has been deprecated in CSOB API as well.
 
 ## Logging
@@ -305,8 +309,7 @@ See Extension class docs or czech readme for more information.
 
 ## EET
 
-EET extensions are implemented in OndraKoupil\Csob\Extensions\EET namespace.
-See CSOB github wiki and czech readme for more details.
+EET extensions are not supported anymore since API 1.9.
 
 
 ## Troubleshooting
@@ -318,10 +321,10 @@ Feel free to [contact me][5] if you have any questions or suggestions.
 [1]: https://github.com/csob/paymentgateway
 [2]: https://iplatebnibrana.csob.cz/keygen/
 [3]: https://github.com/csob/paymentgateway/tree/master/keys
-[4]: https://github.com/csob/paymentgateway/wiki/eAPI-v1-CZ#user-content-%C5%BDivotn%C3%AD-cyklus-transakce-
+[4]: https://github.com/csob/paymentgateway/wiki/Payment-lifecycle
 [5]: https://github.com/ondrakoupil
 [6]: https://platebnibrana.csob.cz/
-[7]: https://github.com/csob/paymentgateway/wiki/Testovac%C3%AD-karty
-[8]: https://github.com/csob/paymentgateway/wiki/Opakovan%C3%A1-platba
+[7]: https://github.com/csob/paymentgateway/wiki/Test-cards-and-credentials
+[8]: https://github.com/csob/paymentgateway/wiki/OneClick-Payment
 [10]: docs/class-OndraKoupil.Csob.Config.html
 [issue43]: https://github.com/csob/paymentgateway/issues/43
