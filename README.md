@@ -84,8 +84,8 @@ metodám, které API normálně nabízí.
 ```php
 $config = new Config(
 	"My Merchant ID",
-	"path/to/my/private/key/file.key",
-	"path/to/bank/public/key.pub",
+	new KeyFileProvider("path/to/my/private/key/file.key"),
+	new KeyFileProvider("path/to/bank/public/key.pub"),
 	"My shop name",
 
 	// Adresa, kam se mají zákazníci vracet poté, co zaplatí
