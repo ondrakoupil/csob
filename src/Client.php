@@ -1675,7 +1675,7 @@ class Client {
 	 */
 	protected function signRequest($arrayToSign) {
 		$stringToSign = Crypto::createSignatureBaseFromArray($arrayToSign);
-		$keyFile = $this->config->privateKeyFile;
+		$keyFile = $this->config->privateKeyProvider;
 		$signature = Crypto::signString(
 			$stringToSign,
 			$keyFile,
@@ -1933,9 +1933,9 @@ class Client {
 			$string = Crypto::createSignatureBaseFromArray($responseWithoutSignature, false);
 		}
 
-		$this->writeToTraceLog("String for verifying signature: \"" . $string . "\", using key " . $this->config->bankPublicKeyFile);
+		$this->writeToTraceLog("String for verifying signature: \"" . $string . "\", using key " . $this->config->bankPublicKeyProvider);
 
-		return Crypto::verifySignature($string, $signature, $this->config->bankPublicKeyFile, $this->config->getHashMethod());
+		return Crypto::verifySignature($string, $signature, $this->config->bankPublicKeyProvider, $this->config->getHashMethod());
 	}
 
 

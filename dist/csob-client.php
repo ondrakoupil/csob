@@ -1680,10 +1680,10 @@ class Client {
 	 */
 	protected function signRequest($arrayToSign) {
 		$stringToSign = Crypto::createSignatureBaseFromArray($arrayToSign);
-		$keyFile = $this->config->privateKeyFile;
+		$keyFile = $this->config->privateKeyProvider;
 		$signature = Crypto::signString(
 			$stringToSign,
-			$keyFile,
+			new KeyFileProvider($keyFile),
 			$this->config->privateKeyPassword,
 			$this->config->getHashMethod()
 		);
@@ -1938,9 +1938,9 @@ class Client {
 			$string = Crypto::createSignatureBaseFromArray($responseWithoutSignature, false);
 		}
 
-		$this->writeToTraceLog("String for verifying signature: \"" . $string . "\", using key " . $this->config->bankPublicKeyFile);
+		$this->writeToTraceLog("String for verifying signature: \"" . $string . "\", using key " . $this->config->bankPublicKeyProvider);
 
-		return Crypto::verifySignature($string, $signature, $this->config->bankPublicKeyFile, $this->config->getHashMethod());
+		return Crypto::verifySignature($string, $signature, $this->config->bankPublicKeyProvider, $this->config->getHashMethod());
 	}
 
 
@@ -2779,7 +2779,7 @@ class Payment {
 
 		$client->writeToTraceLog('Signing payment request, base for the signature:' . "\n" . $stringToSign);
 
-		$signed = Crypto::signString($stringToSign, $config->privateKeyFile, $config->privateKeyPassword, $client->getConfig()->getHashMethod());
+		$signed = Crypto::signString($stringToSign, $config->privateKeyProvider, $config->privateKeyPassword, $client->getConfig()->getHashMethod());
 		$arr["signature"] = $signed;
 
 		return $arr;
@@ -3309,7 +3309,7 @@ class Extension {
 
 		$baseString = $this->getRequestSignatureBase($sourceArray);
 		$client->writeToTraceLog('Signing request of extension ' . $this->extensionId . ', base string is:' . "\n" . $baseString);
-		$signature = Crypto::signString($baseString, $config->privateKeyFile, $config->privateKeyPassword, $this->hashMethod);
+		$signature = Crypto::signString($baseString, $config->privateKeyProvider, $config->privateKeyPassword, $this->hashMethod);
 
 		$sourceArray['signature'] = $signature;
 
@@ -3357,7 +3357,7 @@ class Extension {
 		$config = $client->getConfig();
 		$client->writeToTraceLog('Verifying signature of response of extension ' . $this->extensionId . ', base string is:' . "\n" . $baseString);
 
-		return Crypto::verifySignature($baseString, $signature, $config->bankPublicKeyFile, $this->hashMethod);
+		return Crypto::verifySignature($baseString, $signature, $config->bankPublicKeyProvider, $this->hashMethod);
 
 	}
 

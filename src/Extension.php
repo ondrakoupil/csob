@@ -170,7 +170,7 @@ class Extension {
 
 		$baseString = $this->getRequestSignatureBase($sourceArray);
 		$client->writeToTraceLog('Signing request of extension ' . $this->extensionId . ', base string is:' . "\n" . $baseString);
-		$signature = Crypto::signString($baseString, $config->privateKeyFile, $config->privateKeyPassword, $this->hashMethod);
+		$signature = Crypto::signString($baseString, $config->privateKeyProvider, $config->privateKeyPassword, $this->hashMethod);
 
 		$sourceArray['signature'] = $signature;
 
@@ -218,7 +218,7 @@ class Extension {
 		$config = $client->getConfig();
 		$client->writeToTraceLog('Verifying signature of response of extension ' . $this->extensionId . ', base string is:' . "\n" . $baseString);
 
-		return Crypto::verifySignature($baseString, $signature, $config->bankPublicKeyFile, $this->hashMethod);
+		return Crypto::verifySignature($baseString, $signature, $config->bankPublicKeyProvider, $this->hashMethod);
 
 	}
 

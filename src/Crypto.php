@@ -18,27 +18,23 @@ class Crypto {
 	 * Signs a string
 	 *
 	 * @param string $string
-	 * @param string $privateKeyFile Path to file with your private key (the .key file from https://iplatebnibrana.csob.cz/keygen/ )
+	 * @param KeyProvider $privateKeyProvider Path to file with your private key (the .key file from https://iplatebnibrana.csob.cz/keygen/ )
 	 * @param string $privateKeyPassword Password to the key, if it was generated with one. Leave empty if you created the key at https://iplatebnibrana.csob.cz/keygen/
 	 * @param int $hashMethod One of OPENSSL_HASH_* constants
 	 * @return string Signature encoded with Base64
 	 * @throws CryptoException When signing fails or key file path is not valid
 	 */
-	static function signString($string, $privateKeyFile, $privateKeyPassword = "", $hashMethod = self::DEFAULT_HASH_METHOD) {
+	static function signString($string, $privateKeyProvider, $privateKeyPassword = "", $hashMethod = self::DEFAULT_HASH_METHOD) {
 
 		if (!function_exists("openssl_get_privatekey")) {
 			throw new CryptoException("OpenSSL extension in PHP is required. Please install or enable it.");
 		}
 
-		if (!file_exists($privateKeyFile) or !is_readable($privateKeyFile)) {
-			throw new CryptoException("Private key file \"$privateKeyFile\" not found or not readable.");
-		}
-
-		$keyAsString = file_get_contents($privateKeyFile);
+		$keyAsString = $privateKeyProvider->getKey();
 
 		$privateKeyId = openssl_get_privatekey($keyAsString, $privateKeyPassword);
 		if (!$privateKeyId) {
-			throw new CryptoException("Private key could not be loaded from file \"$privateKeyFile\". Please make sure that the file contains valid private key in PEM format.");
+			throw new CryptoException('Private key could not be loaded. Please make sure that the key provider contains valid private key in PEM format.');
 		}
 
 		$ok = openssl_sign($string, $signature, $privateKeyId, $hashMethod);
@@ -60,24 +56,20 @@ class Crypto {
 	 *
 	 * @param string $textToVerify The text that was signed
 	 * @param string $signatureInBase64 The signature encoded with Base64
-	 * @param string $publicKeyFile Path to file where bank's public key is saved
+	 * @param KeyProvider $publicKeyProvider Provider of bank's public key
 	 * (you can obtain it from bank's app https://iposman.iplatebnibrana.csob.cz/posmerchant
 	 * or from their package on GitHub)
 	 * @param int $hashMethod One of OPENSSL_HASH_* constants
 	 *
 	 * @return bool True if signature is correct
 	 */
-	static function verifySignature($textToVerify, $signatureInBase64, $publicKeyFile, $hashMethod = self::DEFAULT_HASH_METHOD) {
+	static function verifySignature($textToVerify, $signatureInBase64, $publicKeyProvider, $hashMethod = self::DEFAULT_HASH_METHOD) {
 
 		if (!function_exists("openssl_get_privatekey")) {
 			throw new CryptoException("OpenSSL extension in PHP is required. Please install or enable it.");
 		}
 
-		if (!file_exists($publicKeyFile) or !is_readable($publicKeyFile)) {
-			throw new CryptoException("Public key file \"$publicKeyFile\" not found or not readable.");
-		}
-
-		$keyAsString = file_get_contents($publicKeyFile);
+		$keyAsString = $publicKeyProvider->getKey();
 		$publicKeyId = openssl_get_publickey($keyAsString);
 
 		$signature = base64_decode($signatureInBase64);
