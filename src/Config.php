@@ -41,7 +41,7 @@ class Config {
 	 *
 	 * @var KeyProvider
 	 */
-	public $bankPublicKeyProvider = "";
+	public $bankPublicKeyProvider = null;
 
 	/**
 	 * Your Merchant ID.
@@ -63,7 +63,7 @@ class Config {
 	 * Careful - that file MUST NOT BE publicly accessible on webserver!
 	 * @var KeyProvider
 	 */
-	public $privateKeyProvider = "";
+	public $privateKeyProvider = null;
 
 	/**
 	 * Password for your private key.
@@ -139,7 +139,7 @@ class Config {
 	 *
 	 * @param string $merchantId
 	 * @param KeyProvider $privateKeyProvider
-	 * @param string $bankPublicKeyFile
+	 * @param KeyProvider $bankPublicKeyProvider
 	 * @param string $shopName
 	 * @param string|null $returnUrl
 	 * @param string|null $bankApiUrl
@@ -151,7 +151,7 @@ class Config {
 	function __construct(
 		$merchantId,
 		$privateKeyProvider,
-		$bankPublicKeyFile,
+		$bankPublicKeyProvider,
 		$shopName,
 		$returnUrl = null,
 		$bankApiUrl = null,
@@ -169,7 +169,7 @@ class Config {
 
 		$this->merchantId = $merchantId;
 		$this->privateKeyProvider = $privateKeyProvider;
-		$this->bankPublicKeyProvider = $bankPublicKeyFile;
+		$this->bankPublicKeyProvider = $bankPublicKeyProvider;
 
 		$this->returnUrl = $returnUrl;
 		$this->shopName = $shopName;

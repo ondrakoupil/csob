@@ -1675,15 +1675,15 @@ class Client {
 	 */
 	protected function signRequest($arrayToSign) {
 		$stringToSign = Crypto::createSignatureBaseFromArray($arrayToSign);
-		$keyFile = $this->config->privateKeyProvider;
+
 		$signature = Crypto::signString(
 			$stringToSign,
-			$keyFile,
+			$this->config->privateKeyProvider,
 			$this->config->privateKeyPassword,
 			$this->config->getHashMethod()
 		);
 
-		$this->writeToTraceLog("Signing string \"$stringToSign\" using key $keyFile, result: ".$signature);
+		$this->writeToTraceLog("Signing string \"$stringToSign\" using provided private key {$this->config->privateKeyProvider->__toString()}, result: ".$signature);
 
 		return $signature;
 	}

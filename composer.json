@@ -25,7 +25,11 @@
     },
     "require-dev": {
         "nette/tester": "1.7.2",
-        "ondrakoupil/testing-utils": "~0.0.7"
+        "ondrakoupil/testing-utils": "~0.0.7",
+        "phpstan/phpstan": "1.10.x-dev"
+    },
+    "scripts": {
+        "run-phpstan": "./vendor/bin/phpstan analyse --memory-limit 512M"
     },
     "archive": {
         "exclude": ["/dist"]
