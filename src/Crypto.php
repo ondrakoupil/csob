@@ -26,14 +26,14 @@ class Crypto {
 	 */
 	static function signString($string, $privateKeyProvider, $privateKeyPassword = "", $hashMethod = self::DEFAULT_HASH_METHOD) {
 
-		if (!function_exists("openssl_get_privatekey")) {
+		if (!function_exists("openssl_pkey_get_private")) {
 			throw new CryptoException("OpenSSL extension in PHP is required. Please install or enable it.");
 		}
 
 		$keyAsString = $privateKeyProvider->getKey();
 
-		$privateKeyId = openssl_get_privatekey($keyAsString, $privateKeyPassword);
-		if (!$privateKeyId) {
+		$privateKeyId = openssl_pkey_get_private($keyAsString, $privateKeyPassword);
+		if (!(is_resource($privateKeyId) || is_object($privateKeyId))) {
 			throw new CryptoException("Private key could not be loaded. Please make sure that the key provider {$privateKeyProvider->__toString()} contains valid private key in PEM format.");
 		}
 
