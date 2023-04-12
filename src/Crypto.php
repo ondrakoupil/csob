@@ -34,7 +34,7 @@ class Crypto {
 
 		$privateKeyId = openssl_get_privatekey($keyAsString, $privateKeyPassword);
 		if (!$privateKeyId) {
-			throw new CryptoException('Private key could not be loaded. Please make sure that the key provider contains valid private key in PEM format.');
+			throw new CryptoException("Private key could not be loaded. Please make sure that the key provider {$privateKeyProvider->__toString()} contains valid private key in PEM format.");
 		}
 
 		$ok = openssl_sign($string, $signature, $privateKeyId, $hashMethod);
