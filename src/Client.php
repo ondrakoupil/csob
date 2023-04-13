@@ -1933,7 +1933,7 @@ class Client {
 			$string = Crypto::createSignatureBaseFromArray($responseWithoutSignature, false);
 		}
 
-		$this->writeToTraceLog("String for verifying signature: \"" . $string . "\", using key " . $this->config->bankPublicKeyProvider);
+		$this->writeToTraceLog("String for verifying signature: \"" . $string . "\", using key " . $this->config->bankPublicKeyProvider->__toString());
 
 		return Crypto::verifySignature($string, $signature, $this->config->bankPublicKeyProvider, $this->config->getHashMethod());
 	}

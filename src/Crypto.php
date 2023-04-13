@@ -25,7 +25,6 @@ class Crypto {
 	 * @throws CryptoException When signing fails or key file path is not valid
 	 */
 	static function signString($string, $privateKeyProvider, $privateKeyPassword = "", $hashMethod = self::DEFAULT_HASH_METHOD) {
-
 		if (!function_exists("openssl_pkey_get_private")) {
 			throw new CryptoException("OpenSSL extension in PHP is required. Please install or enable it.");
 		}
@@ -65,7 +64,7 @@ class Crypto {
 	 */
 	static function verifySignature($textToVerify, $signatureInBase64, $publicKeyProvider, $hashMethod = self::DEFAULT_HASH_METHOD) {
 
-		if (!function_exists("openssl_get_privatekey")) {
+		if (!function_exists("openssl_get_publickey")) {
 			throw new CryptoException("OpenSSL extension in PHP is required. Please install or enable it.");
 		}
 
