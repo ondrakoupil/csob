@@ -31,15 +31,17 @@ class Config {
 	public $hashMethod = null;
 
 	/**
-	 * Path to file where bank's public key is saved.
+	 * Provider for bank's public key.
+	 *
+	 * There are file and string providers out of the box available.
 	 *
 	 * You can obtain the key from bank's app
 	 * https://iposman.iplatebnibrana.csob.cz/posmerchant
 	 * or from their package on GitHub)
 	 *
-	 * @var string
+	 * @var KeyProvider
 	 */
-	public $bankPublicKeyFile = "";
+	public $bankPublicKeyProvider = null;
 
 	/**
 	 * Your Merchant ID.
@@ -51,15 +53,17 @@ class Config {
 	public $merchantId = "";
 
 	/**
-	 * Path to file where your private key is saved.
+	 * Provider to obtain private key.
+	 *
+	 * There are file and string providers out of the box available.
 	 *
 	 * You obtain that key from https://iplatebnibrana.csob.cz/keygen/ - it is
 	 * the .key file you download from the keygen.
 	 *
 	 * Careful - that file MUST NOT BE publicly accessible on webserver!
-	 * @var string
+	 * @var KeyProvider
 	 */
-	public $privateKeyFile = "";
+	public $privateKeyProvider = null;
 
 	/**
 	 * Password for your private key.
@@ -86,7 +90,6 @@ class Config {
 	 * @var string
 	 */
 	public $returnMethod = "POST";
-
 
 	/**
 	 * Name of your e-shop or app - it will be used on some points of
@@ -135,8 +138,8 @@ class Config {
 	 * To specify $bankApiUrl, you can use constants of GatewayUrl class.
 	 *
 	 * @param string $merchantId
-	 * @param string $privateKeyFile
-	 * @param string $bankPublicKeyFile
+	 * @param KeyProvider $privateKeyProvider
+	 * @param KeyProvider $bankPublicKeyProvider
 	 * @param string $shopName
 	 * @param string|null $returnUrl
 	 * @param string|null $bankApiUrl
@@ -147,8 +150,8 @@ class Config {
 	 */
 	function __construct(
 		$merchantId,
-		$privateKeyFile,
-		$bankPublicKeyFile,
+		$privateKeyProvider,
+		$bankPublicKeyProvider,
 		$shopName,
 		$returnUrl = null,
 		$bankApiUrl = null,
@@ -165,8 +168,8 @@ class Config {
 		}
 
 		$this->merchantId = $merchantId;
-		$this->privateKeyFile = $privateKeyFile;
-		$this->bankPublicKeyFile = $bankPublicKeyFile;
+		$this->privateKeyProvider = $privateKeyProvider;
+		$this->bankPublicKeyProvider = $bankPublicKeyProvider;
 
 		$this->returnUrl = $returnUrl;
 		$this->shopName = $shopName;
