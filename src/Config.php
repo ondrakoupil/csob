@@ -128,6 +128,28 @@ class Config {
 	public $sslVersion = null;
 
 	/**
+	 * Maximum time in seconds the whole request may take.
+	 *
+	 * Leave null to use cURL's default, which is no limit at all.
+	 *
+	 * @var number
+	 *
+	 * @see CURLOPT_TIMEOUT
+	 */
+	public $timeout = null;
+
+	/**
+	 * Maximum time in seconds the connection phase may take.
+	 *
+	 * Leave null to use cURL's default, which is 300 seconds.
+	 *
+	 * @var number
+	 *
+	 * @see CURLOPT_CONNECTTIMEOUT
+	 */
+	public $connectTimeout = null;
+
+	/**
 	 * Create config with all mandatory values.
 	 *
 	 * See equally named properties of this class for more info.

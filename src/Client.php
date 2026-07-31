@@ -1795,6 +1795,14 @@ class Client {
 			\curl_setopt($ch, CURLOPT_SSLVERSION, $this->config->sslVersion);
 		}
 
+		if ($this->config->connectTimeout) {
+			\curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, $this->config->connectTimeout);
+		}
+
+		if ($this->config->timeout) {
+			\curl_setopt($ch, CURLOPT_TIMEOUT, $this->config->timeout);
+		}
+
 		\curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 		\curl_setopt($ch, CURLOPT_HTTPHEADER, array(
 			'Content-Type: application/json',
