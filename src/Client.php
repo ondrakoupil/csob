@@ -1201,7 +1201,8 @@ class Client {
 			"merchantId" => $this->config->merchantId,
 			"orderNo" => $payment->orderNo,
 			"dttm" => $this->getDTTM(),
-			"clientIp" => $clientIp,
+			// Issue #48 - if $clientIp set to null, the resulting signature is rejected.
+			"clientIp" => $clientIp ?: '',
 			"totalAmount" => $payment->getTotalAmount(),
 			"currency" => $payment->currency,
 			"returnUrl" => $payment->returnUrl,
