@@ -1,0 +1,821 @@
+parameters:
+	ignoreErrors:
+		-
+			message: "#^Method OndraKoupil\\\\Csob\\\\Client\\:\\:buttonInit\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Client.php
+
+		-
+			message: "#^Method OndraKoupil\\\\Csob\\\\Client\\:\\:customRequest\\(\\) has parameter \\$expectedOutputFields with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Client.php
+
+		-
+			message: "#^Method OndraKoupil\\\\Csob\\\\Client\\:\\:customRequest\\(\\) has parameter \\$inputPayload with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Client.php
+
+		-
+			message: "#^Method OndraKoupil\\\\Csob\\\\Client\\:\\:customRequest\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Client.php
+
+		-
+			message: "#^Method OndraKoupil\\\\Csob\\\\Client\\:\\:customerInfo\\(\\) has parameter \\$customerId with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Client.php
+
+		-
+			message: "#^Method OndraKoupil\\\\Csob\\\\Client\\:\\:customerInfo\\(\\) should return bool\\|int but returns null\\.$#"
+			count: 1
+			path: src/Client.php
+
+		-
+			message: "#^Method OndraKoupil\\\\Csob\\\\Client\\:\\:getCustomerId\\(\\) has parameter \\$payment with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Client.php
+
+		-
+			message: "#^Method OndraKoupil\\\\Csob\\\\Client\\:\\:getPayId\\(\\) has parameter \\$payment with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Client.php
+
+		-
+			message: "#^Method OndraKoupil\\\\Csob\\\\Client\\:\\:paymentButton\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Client.php
+
+		-
+			message: "#^Method OndraKoupil\\\\Csob\\\\Client\\:\\:paymentClose\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Client.php
+
+		-
+			message: "#^Method OndraKoupil\\\\Csob\\\\Client\\:\\:paymentInit\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Client.php
+
+		-
+			message: "#^Method OndraKoupil\\\\Csob\\\\Client\\:\\:paymentOneClickInit\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Client.php
+
+		-
+			message: "#^Method OndraKoupil\\\\Csob\\\\Client\\:\\:paymentOneClickProcess\\(\\) has parameter \\$newPayId with no type specified\\.$#"
+			count: 1
+			path: src/Client.php
+
+		-
+			message: "#^Method OndraKoupil\\\\Csob\\\\Client\\:\\:paymentOneClickProcess\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Client.php
+
+		-
+			message: "#^Method OndraKoupil\\\\Csob\\\\Client\\:\\:paymentOneClickStart\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Client.php
+
+		-
+			message: "#^Method OndraKoupil\\\\Csob\\\\Client\\:\\:paymentRecurrent\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Client.php
+
+		-
+			message: "#^Method OndraKoupil\\\\Csob\\\\Client\\:\\:paymentRefund\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Client.php
+
+		-
+			message: "#^Method OndraKoupil\\\\Csob\\\\Client\\:\\:paymentReverse\\(\\) has parameter \\$payment with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Client.php
+
+		-
+			message: "#^Method OndraKoupil\\\\Csob\\\\Client\\:\\:paymentReverse\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Client.php
+
+		-
+			message: "#^Method OndraKoupil\\\\Csob\\\\Client\\:\\:paymentStatus\\(\\) has parameter \\$nullIfPaymentNotFound with no type specified\\.$#"
+			count: 1
+			path: src/Client.php
+
+		-
+			message: "#^Method OndraKoupil\\\\Csob\\\\Client\\:\\:paymentStatus\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Client.php
+
+		-
+			message: "#^Method OndraKoupil\\\\Csob\\\\Client\\:\\:paymentStatus\\(\\) should return array\\|float\\|int but returns null\\.$#"
+			count: 1
+			path: src/Client.php
+
+		-
+			message: "#^Method OndraKoupil\\\\Csob\\\\Client\\:\\:receiveReturningCustomer\\(\\) has parameter \\$input with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Client.php
+
+		-
+			message: "#^Method OndraKoupil\\\\Csob\\\\Client\\:\\:receiveReturningCustomer\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Client.php
+
+		-
+			message: "#^Method OndraKoupil\\\\Csob\\\\Client\\:\\:redirectToGateway\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: src/Client.php
+
+		-
+			message: "#^Method OndraKoupil\\\\Csob\\\\Client\\:\\:sendRequest\\(\\) has parameter \\$payload with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Client.php
+
+		-
+			message: "#^Method OndraKoupil\\\\Csob\\\\Client\\:\\:sendRequest\\(\\) has parameter \\$requestFieldsOrder with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Client.php
+
+		-
+			message: "#^Method OndraKoupil\\\\Csob\\\\Client\\:\\:sendRequest\\(\\) has parameter \\$responseFieldsOrder with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Client.php
+
+		-
+			message: "#^Method OndraKoupil\\\\Csob\\\\Client\\:\\:sendRequest\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Client.php
+
+		-
+			message: "#^Method OndraKoupil\\\\Csob\\\\Client\\:\\:signRequest\\(\\) has parameter \\$arrayToSign with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Client.php
+
+		-
+			message: "#^Method OndraKoupil\\\\Csob\\\\Client\\:\\:testGetConnection\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Client.php
+
+		-
+			message: "#^Method OndraKoupil\\\\Csob\\\\Client\\:\\:testPostConnection\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Client.php
+
+		-
+			message: "#^Method OndraKoupil\\\\Csob\\\\Client\\:\\:verifyResponseSignature\\(\\) has parameter \\$response with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Client.php
+
+		-
+			message: "#^Method OndraKoupil\\\\Csob\\\\Client\\:\\:verifyResponseSignature\\(\\) has parameter \\$responseFieldsOrder with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Client.php
+
+		-
+			message: "#^Method OndraKoupil\\\\Csob\\\\Client\\:\\:writeToLog\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: src/Client.php
+
+		-
+			message: "#^Method OndraKoupil\\\\Csob\\\\Client\\:\\:writeToTraceLog\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: src/Client.php
+
+		-
+			message: "#^Parameter \\$log of method OndraKoupil\\\\Csob\\\\Client\\:\\:setLog\\(\\) has invalid type OndraKoupil\\\\Csob\\\\callback\\.$#"
+			count: 1
+			path: src/Client.php
+
+		-
+			message: "#^Parameter \\$log of method OndraKoupil\\\\Csob\\\\Client\\:\\:setTraceLog\\(\\) has invalid type OndraKoupil\\\\Csob\\\\callback\\.$#"
+			count: 1
+			path: src/Client.php
+
+		-
+			message: "#^Property OndraKoupil\\\\Csob\\\\Client\\:\\:\\$logCallback \\(callable\\(\\)\\: mixed\\) does not accept null\\.$#"
+			count: 2
+			path: src/Client.php
+
+		-
+			message: "#^Property OndraKoupil\\\\Csob\\\\Client\\:\\:\\$logFile \\(string\\) does not accept null\\.$#"
+			count: 2
+			path: src/Client.php
+
+		-
+			message: "#^Property OndraKoupil\\\\Csob\\\\Client\\:\\:\\$traceLogCallback \\(callable\\(\\)\\: mixed\\) does not accept null\\.$#"
+			count: 2
+			path: src/Client.php
+
+		-
+			message: "#^Property OndraKoupil\\\\Csob\\\\Client\\:\\:\\$traceLogFile \\(string\\) does not accept null\\.$#"
+			count: 2
+			path: src/Client.php
+
+		-
+			message: "#^Variable \\$extension might not be defined\\.$#"
+			count: 3
+			path: src/Client.php
+
+		-
+			message: "#^Method OndraKoupil\\\\Csob\\\\Config\\:\\:getVersion\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: src/Config.php
+
+		-
+			message: "#^Call to function is_resource\\(\\) with OpenSSLAsymmetricKey\\|false will always evaluate to false\\.$#"
+			count: 1
+			path: src/Crypto.php
+
+		-
+			message: "#^Method OndraKoupil\\\\Csob\\\\Crypto\\:\\:createSignatureBaseFromArray\\(\\) has parameter \\$array with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Crypto.php
+
+		-
+			message: "#^Method OndraKoupil\\\\Csob\\\\Crypto\\:\\:createSignatureBaseFromArray\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Crypto.php
+
+		-
+			message: "#^Method OndraKoupil\\\\Csob\\\\Crypto\\:\\:createSignatureBaseRecursion\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: src/Crypto.php
+
+		-
+			message: "#^Method OndraKoupil\\\\Csob\\\\Crypto\\:\\:createSignatureBaseRecursion\\(\\) has parameter \\$array with no type specified\\.$#"
+			count: 1
+			path: src/Crypto.php
+
+		-
+			message: "#^Method OndraKoupil\\\\Csob\\\\Crypto\\:\\:createSignatureBaseRecursion\\(\\) has parameter \\$depthCheck with no type specified\\.$#"
+			count: 1
+			path: src/Crypto.php
+
+		-
+			message: "#^Method OndraKoupil\\\\Csob\\\\Crypto\\:\\:createSignatureBaseWithOrder\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Crypto.php
+
+		-
+			message: "#^Method OndraKoupil\\\\Csob\\\\Crypto\\:\\:createSignatureBaseWithOrder\\(\\) has parameter \\$order with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Crypto.php
+
+		-
+			message: "#^Method OndraKoupil\\\\Csob\\\\Crypto\\:\\:createSignatureBaseWithOrder\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Crypto.php
+
+		-
+			message: "#^Method OndraKoupil\\\\Csob\\\\Crypto\\:\\:createSignatureBaseWithOrder\\(\\) should return array but returns string\\.$#"
+			count: 1
+			path: src/Crypto.php
+
+		-
+			message: "#^Method OndraKoupil\\\\Csob\\\\Extension\\:\\:createRequestArray\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Extension.php
+
+		-
+			message: "#^Method OndraKoupil\\\\Csob\\\\Extension\\:\\:createRequestArray\\(\\) should return array but returns null\\.$#"
+			count: 1
+			path: src/Extension.php
+
+		-
+			message: "#^Method OndraKoupil\\\\Csob\\\\Extension\\:\\:getExpectedResponseKeysOrder\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Extension.php
+
+		-
+			message: "#^Method OndraKoupil\\\\Csob\\\\Extension\\:\\:getInputData\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Extension.php
+
+		-
+			message: "#^Method OndraKoupil\\\\Csob\\\\Extension\\:\\:getRequestSignatureBase\\(\\) has parameter \\$dataArray with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Extension.php
+
+		-
+			message: "#^Method OndraKoupil\\\\Csob\\\\Extension\\:\\:getResponseSignatureBase\\(\\) has parameter \\$responseWithoutSignature with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Extension.php
+
+		-
+			message: "#^Method OndraKoupil\\\\Csob\\\\Extension\\:\\:setExpectedResponseKeysOrder\\(\\) has parameter \\$expectedResponseKeysOrder with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Extension.php
+
+		-
+			message: "#^Method OndraKoupil\\\\Csob\\\\Extension\\:\\:setHashMethod\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: src/Extension.php
+
+		-
+			message: "#^Method OndraKoupil\\\\Csob\\\\Extension\\:\\:setInputData\\(\\) has parameter \\$inputData with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Extension.php
+
+		-
+			message: "#^Method OndraKoupil\\\\Csob\\\\Extension\\:\\:setResponseData\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: src/Extension.php
+
+		-
+			message: "#^Method OndraKoupil\\\\Csob\\\\Extension\\:\\:setSignatureCorrect\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: src/Extension.php
+
+		-
+			message: "#^Method OndraKoupil\\\\Csob\\\\Extension\\:\\:verifySignature\\(\\) has parameter \\$receivedData with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Extension.php
+
+		-
+			message: "#^Property OndraKoupil\\\\Csob\\\\Extension\\:\\:\\$expectedResponseKeysOrder type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Extension.php
+
+		-
+			message: "#^Property OndraKoupil\\\\Csob\\\\Extension\\:\\:\\$inputData type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Extension.php
+
+		-
+			message: "#^Property OndraKoupil\\\\Csob\\\\Extension\\:\\:\\$responseData type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Extension.php
+
+		-
+			message: "#^Method OndraKoupil\\\\Csob\\\\Extensions\\\\CardNumberExtension\\:\\:getExpectedResponseKeysOrder\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Extensions/CardNumberExtension.php
+
+		-
+			message: "#^Method OndraKoupil\\\\Csob\\\\Extensions\\\\CardNumberExtension\\:\\:setExpectedResponseKeysOrder\\(\\) has parameter \\$inputData with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Extensions/CardNumberExtension.php
+
+		-
+			message: "#^Method OndraKoupil\\\\Csob\\\\Extensions\\\\CardNumberExtension\\:\\:setInputData\\(\\) has parameter \\$inputData with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Extensions/CardNumberExtension.php
+
+		-
+			message: "#^Method OndraKoupil\\\\Csob\\\\Extensions\\\\CardNumberExtension\\:\\:setResponseData\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: src/Extensions/CardNumberExtension.php
+
+		-
+			message: "#^Method OndraKoupil\\\\Csob\\\\Extensions\\\\DatesExtension\\:\\:getExpectedResponseKeysOrder\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Extensions/DatesExtension.php
+
+		-
+			message: "#^Method OndraKoupil\\\\Csob\\\\Extensions\\\\DatesExtension\\:\\:setExpectedResponseKeysOrder\\(\\) has parameter \\$inputData with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Extensions/DatesExtension.php
+
+		-
+			message: "#^Method OndraKoupil\\\\Csob\\\\Extensions\\\\DatesExtension\\:\\:setInputData\\(\\) has parameter \\$inputData with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Extensions/DatesExtension.php
+
+		-
+			message: "#^Method OndraKoupil\\\\Csob\\\\Extensions\\\\DatesExtension\\:\\:setResponseData\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: src/Extensions/DatesExtension.php
+
+		-
+			message: "#^Property OndraKoupil\\\\Csob\\\\Extensions\\\\DatesExtension\\:\\:\\$authDate \\(DateTime\\) does not accept null\\.$#"
+			count: 2
+			path: src/Extensions/DatesExtension.php
+
+		-
+			message: "#^Property OndraKoupil\\\\Csob\\\\Extensions\\\\DatesExtension\\:\\:\\$createdDate \\(DateTime\\) does not accept null\\.$#"
+			count: 1
+			path: src/Extensions/DatesExtension.php
+
+		-
+			message: "#^Property OndraKoupil\\\\Csob\\\\Extensions\\\\DatesExtension\\:\\:\\$settlementDate \\(DateTime\\) does not accept null\\.$#"
+			count: 2
+			path: src/Extensions/DatesExtension.php
+
+		-
+			message: "#^Method OndraKoupil\\\\Csob\\\\Extensions\\\\EET\\\\EETCloseExtension\\:\\:getInputData\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Extensions/EET/EETCloseExtension.php
+
+		-
+			message: "#^Method OndraKoupil\\\\Csob\\\\Extensions\\\\EET\\\\EETCloseExtension\\:\\:getInputData\\(\\) should return array but returns null\\.$#"
+			count: 1
+			path: src/Extensions/EET/EETCloseExtension.php
+
+		-
+			message: "#^Method OndraKoupil\\\\Csob\\\\Extensions\\\\EET\\\\EETCloseExtension\\:\\:setData\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: src/Extensions/EET/EETCloseExtension.php
+
+		-
+			message: "#^Method OndraKoupil\\\\Csob\\\\Extensions\\\\EET\\\\EETCloseExtension\\:\\:setInputData\\(\\) has parameter \\$inputData with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Extensions/EET/EETCloseExtension.php
+
+		-
+			message: "#^Property OndraKoupil\\\\Csob\\\\Extension\\:\\:\\$expectedResponseKeysOrder \\(array\\) does not accept null\\.$#"
+			count: 1
+			path: src/Extensions/EET/EETCloseExtension.php
+
+		-
+			message: "#^Return type \\(void\\) of method OndraKoupil\\\\Csob\\\\Extensions\\\\EET\\\\EETCloseExtension\\:\\:setInputData\\(\\) should be compatible with return type \\(OndraKoupil\\\\Csob\\\\Extension\\) of method OndraKoupil\\\\Csob\\\\Extension\\:\\:setInputData\\(\\)$#"
+			count: 1
+			path: src/Extensions/EET/EETCloseExtension.php
+
+		-
+			message: "#^Method OndraKoupil\\\\Csob\\\\Extensions\\\\EET\\\\EETData\\:\\:asArray\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Extensions/EET/EETData.php
+
+		-
+			message: "#^Method OndraKoupil\\\\Csob\\\\Extensions\\\\EET\\\\EETData\\:\\:formatPriceValue\\(\\) should return float\\|int but returns string\\.$#"
+			count: 1
+			path: src/Extensions/EET/EETData.php
+
+		-
+			message: "#^Method OndraKoupil\\\\Csob\\\\Extensions\\\\EET\\\\EETData\\:\\:fromArray\\(\\) has parameter \\$array with no type specified\\.$#"
+			count: 1
+			path: src/Extensions/EET/EETData.php
+
+		-
+			message: "#^Property OndraKoupil\\\\Csob\\\\Extensions\\\\EET\\\\EETData\\:\\:\\$keyNames has no type specified\\.$#"
+			count: 1
+			path: src/Extensions/EET/EETData.php
+
+		-
+			message: "#^Property OndraKoupil\\\\Csob\\\\Extensions\\\\EET\\\\EETData\\:\\:\\$rawData type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Extensions/EET/EETData.php
+
+		-
+			message: "#^Method OndraKoupil\\\\Csob\\\\Extensions\\\\EET\\\\EETInitExtension\\:\\:getInputData\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Extensions/EET/EETInitExtension.php
+
+		-
+			message: "#^Method OndraKoupil\\\\Csob\\\\Extensions\\\\EET\\\\EETInitExtension\\:\\:setInputData\\(\\) has parameter \\$inputData with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Extensions/EET/EETInitExtension.php
+
+		-
+			message: "#^Property OndraKoupil\\\\Csob\\\\Extension\\:\\:\\$expectedResponseKeysOrder \\(array\\) does not accept null\\.$#"
+			count: 1
+			path: src/Extensions/EET/EETInitExtension.php
+
+		-
+			message: "#^Return type \\(void\\) of method OndraKoupil\\\\Csob\\\\Extensions\\\\EET\\\\EETInitExtension\\:\\:setInputData\\(\\) should be compatible with return type \\(OndraKoupil\\\\Csob\\\\Extension\\) of method OndraKoupil\\\\Csob\\\\Extension\\:\\:setInputData\\(\\)$#"
+			count: 1
+			path: src/Extensions/EET/EETInitExtension.php
+
+		-
+			message: "#^Method OndraKoupil\\\\Csob\\\\Extensions\\\\EET\\\\EETRefundExtension\\:\\:getInputData\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Extensions/EET/EETRefundExtension.php
+
+		-
+			message: "#^Method OndraKoupil\\\\Csob\\\\Extensions\\\\EET\\\\EETRefundExtension\\:\\:getInputData\\(\\) should return array but returns null\\.$#"
+			count: 1
+			path: src/Extensions/EET/EETRefundExtension.php
+
+		-
+			message: "#^Method OndraKoupil\\\\Csob\\\\Extensions\\\\EET\\\\EETRefundExtension\\:\\:setData\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: src/Extensions/EET/EETRefundExtension.php
+
+		-
+			message: "#^Method OndraKoupil\\\\Csob\\\\Extensions\\\\EET\\\\EETRefundExtension\\:\\:setInputData\\(\\) has parameter \\$inputData with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Extensions/EET/EETRefundExtension.php
+
+		-
+			message: "#^Property OndraKoupil\\\\Csob\\\\Extension\\:\\:\\$expectedResponseKeysOrder \\(array\\) does not accept null\\.$#"
+			count: 1
+			path: src/Extensions/EET/EETRefundExtension.php
+
+		-
+			message: "#^Return type \\(void\\) of method OndraKoupil\\\\Csob\\\\Extensions\\\\EET\\\\EETRefundExtension\\:\\:setInputData\\(\\) should be compatible with return type \\(OndraKoupil\\\\Csob\\\\Extension\\) of method OndraKoupil\\\\Csob\\\\Extension\\:\\:setInputData\\(\\)$#"
+			count: 1
+			path: src/Extensions/EET/EETRefundExtension.php
+
+		-
+			message: "#^Method OndraKoupil\\\\Csob\\\\Extensions\\\\EET\\\\EETReport\\:\\:fromArray\\(\\) has parameter \\$array with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Extensions/EET/EETReport.php
+
+		-
+			message: "#^Property OndraKoupil\\\\Csob\\\\Extensions\\\\EET\\\\EETReport\\:\\:\\$rawData type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Extensions/EET/EETReport.php
+
+		-
+			message: "#^Method OndraKoupil\\\\Csob\\\\Extensions\\\\EET\\\\EETStatusExtension\\:\\:getInputData\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Extensions/EET/EETStatusExtension.php
+
+		-
+			message: "#^Method OndraKoupil\\\\Csob\\\\Extensions\\\\EET\\\\EETStatusExtension\\:\\:getInputData\\(\\) should return array but returns null\\.$#"
+			count: 1
+			path: src/Extensions/EET/EETStatusExtension.php
+
+		-
+			message: "#^Method OndraKoupil\\\\Csob\\\\Extensions\\\\EET\\\\EETStatusExtension\\:\\:getResponseSignatureBase\\(\\) has parameter \\$dataArray with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Extensions/EET/EETStatusExtension.php
+
+		-
+			message: "#^Method OndraKoupil\\\\Csob\\\\Extensions\\\\EET\\\\EETStatusExtension\\:\\:setInputData\\(\\) has parameter \\$inputData with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Extensions/EET/EETStatusExtension.php
+
+		-
+			message: "#^Method OndraKoupil\\\\Csob\\\\Extensions\\\\EET\\\\EETStatusExtension\\:\\:setResponseData\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Extensions/EET/EETStatusExtension.php
+
+		-
+			message: "#^Return type \\(void\\) of method OndraKoupil\\\\Csob\\\\Extensions\\\\EET\\\\EETStatusExtension\\:\\:setInputData\\(\\) should be compatible with return type \\(OndraKoupil\\\\Csob\\\\Extension\\) of method OndraKoupil\\\\Csob\\\\Extension\\:\\:setInputData\\(\\)$#"
+			count: 1
+			path: src/Extensions/EET/EETStatusExtension.php
+
+		-
+			message: "#^Method OndraKoupil\\\\Csob\\\\Metadata\\\\Account\\:\\:export\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: src/Metadata/Account.php
+
+		-
+			message: "#^Method OndraKoupil\\\\Csob\\\\Metadata\\\\Address\\:\\:export\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: src/Metadata/Address.php
+
+		-
+			message: "#^Method OndraKoupil\\\\Csob\\\\Metadata\\\\Customer\\:\\:export\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: src/Metadata/Customer.php
+
+		-
+			message: "#^Method OndraKoupil\\\\Csob\\\\Metadata\\\\GiftCards\\:\\:export\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: src/Metadata/GiftCards.php
+
+		-
+			message: "#^Method OndraKoupil\\\\Csob\\\\Metadata\\\\Login\\:\\:export\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: src/Metadata/Login.php
+
+		-
+			message: "#^PHPDoc tag @param for parameter \\$authAt with type mixed is not subtype of native type DateTime\\.$#"
+			count: 1
+			path: src/Metadata/Login.php
+
+		-
+			message: "#^Property OndraKoupil\\\\Csob\\\\Metadata\\\\Login\\:\\:\\$authData has no type specified\\.$#"
+			count: 1
+			path: src/Metadata/Login.php
+
+		-
+			message: "#^Method OndraKoupil\\\\Csob\\\\Metadata\\\\Order\\:\\:export\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: src/Metadata/Order.php
+
+		-
+			message: "#^Method OndraKoupil\\\\Csob\\\\Payment\\:\\:getCart\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Payment.php
+
+		-
+			message: "#^Method OndraKoupil\\\\Csob\\\\Payment\\:\\:setCustomExpiry\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: src/Payment.php
+
+		-
+			message: "#^Method OndraKoupil\\\\Csob\\\\Payment\\:\\:setPayId\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: src/Payment.php
+
+		-
+			message: "#^Method OndraKoupil\\\\Csob\\\\Payment\\:\\:signAndExport\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Payment.php
+
+		-
+			message: "#^Property OndraKoupil\\\\Csob\\\\Payment\\:\\:\\$auxFieldsInOrder has no type specified\\.$#"
+			count: 1
+			path: src/Payment.php
+
+		-
+			message: "#^Property OndraKoupil\\\\Csob\\\\Payment\\:\\:\\$cart type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Payment.php
+
+		-
+			message: "#^Property OndraKoupil\\\\Csob\\\\Payment\\:\\:\\$customExpiry \\(DateTime\\) does not accept string\\.$#"
+			count: 1
+			path: src/Payment.php
+
+		-
+			message: "#^Property OndraKoupil\\\\Csob\\\\Payment\\:\\:\\$fieldsInOrder type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Payment.php
+
+		-
+			message: "#^Method OndraKoupil\\\\Csob\\\\Tools\\:\\:filterOutEmptyFields\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: src/Tools.php
+
+		-
+			message: "#^Method OndraKoupil\\\\Csob\\\\Tools\\:\\:filterOutEmptyFields\\(\\) has parameter \\$input with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Tools.php
+
+		-
+			message: "#^Method OndraKoupil\\\\Csob\\\\Tools\\:\\:linearizeForSigning\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: src/Tools.php
+
+		-
+			message: "#^Method OndraKoupil\\\\Csob\\\\Tools\\:\\:linearizeForSigning\\(\\) has parameter \\$input with no type specified\\.$#"
+			count: 1
+			path: src/Tools.php
+
+		-
+			message: "#^Method Tester\\\\Dumper\\:\\:_toPhp\\(\\) has parameter \\$level with no type specified\\.$#"
+			count: 1
+			path: tests/fixed-tester/src/Framework/Dumper.php
+
+		-
+			message: "#^Method Tester\\\\Dumper\\:\\:_toPhp\\(\\) has parameter \\$line with no type specified\\.$#"
+			count: 1
+			path: tests/fixed-tester/src/Framework/Dumper.php
+
+		-
+			message: "#^Method Tester\\\\Dumper\\:\\:_toPhp\\(\\) has parameter \\$list with no type specified\\.$#"
+			count: 1
+			path: tests/fixed-tester/src/Framework/Dumper.php
+
+		-
+			message: "#^Method Tester\\\\Dumper\\:\\:_toPhp\\(\\) has parameter \\$var with no type specified\\.$#"
+			count: 1
+			path: tests/fixed-tester/src/Framework/Dumper.php
+
+		-
+			message: "#^Method Tester\\\\Dumper\\:\\:color\\(\\) has parameter \\$color with no type specified\\.$#"
+			count: 1
+			path: tests/fixed-tester/src/Framework/Dumper.php
+
+		-
+			message: "#^Method Tester\\\\Dumper\\:\\:color\\(\\) has parameter \\$s with no type specified\\.$#"
+			count: 1
+			path: tests/fixed-tester/src/Framework/Dumper.php
+
+		-
+			message: "#^Method Tester\\\\Dumper\\:\\:dumpException\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/fixed-tester/src/Framework/Dumper.php
+
+		-
+			message: "#^Method Tester\\\\Dumper\\:\\:dumpException\\(\\) has parameter \\$e with no type specified\\.$#"
+			count: 1
+			path: tests/fixed-tester/src/Framework/Dumper.php
+
+		-
+			message: "#^Method Tester\\\\Dumper\\:\\:hash\\(\\) has parameter \\$object with no type specified\\.$#"
+			count: 1
+			path: tests/fixed-tester/src/Framework/Dumper.php
+
+		-
+			message: "#^Method Tester\\\\Dumper\\:\\:objectToLine\\(\\) has parameter \\$object with no type specified\\.$#"
+			count: 1
+			path: tests/fixed-tester/src/Framework/Dumper.php
+
+		-
+			message: "#^Method Tester\\\\Dumper\\:\\:removeColors\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: tests/fixed-tester/src/Framework/Dumper.php
+
+		-
+			message: "#^Method Tester\\\\Dumper\\:\\:removeColors\\(\\) has parameter \\$s with no type specified\\.$#"
+			count: 1
+			path: tests/fixed-tester/src/Framework/Dumper.php
+
+		-
+			message: "#^Method Tester\\\\Dumper\\:\\:saveOutput\\(\\) has parameter \\$content with no type specified\\.$#"
+			count: 1
+			path: tests/fixed-tester/src/Framework/Dumper.php
+
+		-
+			message: "#^Method Tester\\\\Dumper\\:\\:saveOutput\\(\\) has parameter \\$suffix with no type specified\\.$#"
+			count: 1
+			path: tests/fixed-tester/src/Framework/Dumper.php
+
+		-
+			message: "#^Method Tester\\\\Dumper\\:\\:saveOutput\\(\\) has parameter \\$testFile with no type specified\\.$#"
+			count: 1
+			path: tests/fixed-tester/src/Framework/Dumper.php
+
+		-
+			message: "#^Method Tester\\\\Dumper\\:\\:toLine\\(\\) has parameter \\$var with no type specified\\.$#"
+			count: 1
+			path: tests/fixed-tester/src/Framework/Dumper.php
+
+		-
+			message: "#^Method Tester\\\\Dumper\\:\\:toPhp\\(\\) has parameter \\$var with no type specified\\.$#"
+			count: 1
+			path: tests/fixed-tester/src/Framework/Dumper.php
+
+		-
+			message: "#^PHPDoc tag @param has invalid value \\(\\\\Exception\\|\\\\Throwable\\)\\: Unexpected token \"\\\\n\\\\t \\* \", expected variable at offset 37$#"
+			count: 1
+			path: tests/fixed-tester/src/Framework/Dumper.php
+
+		-
+			message: "#^PHPDoc tag @param has invalid value \\(mixed  variable to dump\\)\\: Unexpected token \"variable\", expected variable at offset 57$#"
+			count: 1
+			path: tests/fixed-tester/src/Framework/Dumper.php
+
+		-
+			message: "#^PHPDoc tag @param has invalid value \\(mixed  variable to dump\\)\\: Unexpected token \"variable\", expected variable at offset 82$#"
+			count: 1
+			path: tests/fixed-tester/src/Framework/Dumper.php
+
+		-
+			message: "#^PHPDoc tag @param has invalid value \\(object\\)\\: Unexpected token \"\\\\n\\\\t \\* \", expected variable at offset 50$#"
+			count: 1
+			path: tests/fixed-tester/src/Framework/Dumper.php
+
+		-
+			message: "#^PHPDoc tag @param has invalid value \\(object\\)\\: Unexpected token \"\\\\n\\\\t \\* \", expected variable at offset 58$#"
+			count: 1
+			path: tests/fixed-tester/src/Framework/Dumper.php
+
+		-
+			message: "#^Property Tester\\\\Dumper\\:\\:\\$dumpDir has no type specified\\.$#"
+			count: 1
+			path: tests/fixed-tester/src/Framework/Dumper.php
+
+		-
+			message: "#^Property Tester\\\\Dumper\\:\\:\\$maxDepth has no type specified\\.$#"
+			count: 1
+			path: tests/fixed-tester/src/Framework/Dumper.php
+
+		-
+			message: "#^Property Tester\\\\Dumper\\:\\:\\$maxLength has no type specified\\.$#"
+			count: 1
+			path: tests/fixed-tester/src/Framework/Dumper.php
+
+		-
+			message: "#^Property Tester\\\\Dumper\\:\\:\\$maxPathSegments has no type specified\\.$#"
+			count: 1
+			path: tests/fixed-tester/src/Framework/Dumper.php
+
+		-
+			message: "#^Right side of && is always true\\.$#"
+			count: 1
+			path: tests/fixed-tester/src/Framework/Dumper.php
+
+		-
+			message: "#^Method Tester\\\\TestCase\\:\\:getData\\(\\) has parameter \\$provider with no type specified\\.$#"
+			count: 1
+			path: tests/fixed-tester/src/Framework/TestCase.php
+
+		-
+			message: "#^Method Tester\\\\TestCase\\:\\:getData\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: tests/fixed-tester/src/Framework/TestCase.php
+
+		-
+			message: "#^Method Tester\\\\TestCase\\:\\:run\\(\\) has parameter \\$method with no type specified\\.$#"
+			count: 1
+			path: tests/fixed-tester/src/Framework/TestCase.php
+
+		-
+			message: "#^Method Tester\\\\TestCase\\:\\:runTest\\(\\) has parameter \\$args with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: tests/fixed-tester/src/Framework/TestCase.php
+
+		-
+			message: "#^Method Tester\\\\TestCase\\:\\:runTest\\(\\) has parameter \\$method with no type specified\\.$#"
+			count: 1
+			path: tests/fixed-tester/src/Framework/TestCase.php
+
+		-
+			message: "#^PHPDoc tag @param has invalid value \\(array  test method parameters \\(dataprovider bypass\\)\\)\\: Unexpected token \"test\", expected variable at offset 86$#"
+			count: 1
+			path: tests/fixed-tester/src/Framework/TestCase.php
+
+		-
+			message: "#^PHPDoc tag @param has invalid value \\(string  test method name\\)\\: Unexpected token \"test\", expected variable at offset 50$#"
+			count: 1
+			path: tests/fixed-tester/src/Framework/TestCase.php
+
+		-
+			message: "#^Parameter \\#1 \\$callback of function set_error_handler expects \\(callable\\(int, string, string, int\\)\\: bool\\)\\|null, Closure\\(\\)\\: void given\\.$#"
+			count: 1
+			path: tests/fixed-tester/src/Framework/TestCase.php

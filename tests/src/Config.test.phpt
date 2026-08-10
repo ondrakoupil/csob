@@ -14,8 +14,8 @@ class ConfigTestCase extends TestCase {
 		$c = new Config("1234", "aaa", "bbb", "ccc", "ddd", "eee", "fff", "ggg", '1.7', Crypto::HASH_SHA256);
 
 		Assert::equal("1234", $c->merchantId);
-		Assert::equal("aaa", $c->privateKeyFile);
-		Assert::equal("bbb", $c->bankPublicKeyFile);
+		Assert::equal("aaa", $c->privateKeyProvider);
+		Assert::equal("bbb", $c->bankPublicKeyProvider);
 		Assert::equal("ccc", $c->shopName);
 		Assert::equal("ddd", $c->returnUrl);
 		Assert::equal("eee", $c->url);

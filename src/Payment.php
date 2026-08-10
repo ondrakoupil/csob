@@ -597,7 +597,7 @@ class Payment {
 
 		$client->writeToTraceLog('Signing payment request, base for the signature:' . "\n" . $stringToSign);
 
-		$signed = Crypto::signString($stringToSign, $config->privateKeyFile, $config->privateKeyPassword, $client->getConfig()->getHashMethod());
+		$signed = Crypto::signString($stringToSign, $config->privateKeyProvider, $config->privateKeyPassword, $client->getConfig()->getHashMethod());
 		$arr["signature"] = $signed;
 
 		return $arr;
