@@ -855,7 +855,8 @@ class Client {
 
 		if ($version1_8) {
 			// A new parameter appeared in v 1.8
-			$payload['clientIp'] = $clientIp;
+			// Issue #48 - if $clientIp set to null, the resulting signature is rejected.
+			$payload['clientIp'] = $clientIp ?: '';
 		}
 
 		if ($totalAmount > 0) {
@@ -900,7 +901,7 @@ class Client {
 		//
 		//$this->writeToLog($endpointName . " started for payment with orderNo " . $newPayment->orderNo);
 
-		$returnDataNames = array("payId", "dttm", "resultCode", "resultMessage", "?paymentStatus");
+		$returnDataNames = array("?payId", "dttm", "resultCode", "resultMessage", "?paymentStatus");
 		if ($this->getConfig()->queryApiVersion('1.9')){
 			$returnDataNames = array_merge($returnDataNames, array("?statusDetail","?actions"));
 		}
@@ -1206,7 +1207,8 @@ class Client {
 			"merchantId" => $this->config->merchantId,
 			"orderNo" => $payment->orderNo,
 			"dttm" => $this->getDTTM(),
-			"clientIp" => $clientIp,
+			// Issue #48 - if $clientIp set to null, the resulting signature is rejected.
+			"clientIp" => $clientIp ?: '',
 			"totalAmount" => $payment->getTotalAmount(),
 			"currency" => $payment->currency,
 			"returnUrl" => $payment->returnUrl,
@@ -1800,6 +1802,14 @@ class Client {
 			\curl_setopt($ch, CURLOPT_SSLVERSION, $this->config->sslVersion);
 		}
 
+		if ($this->config->connectTimeout) {
+			\curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, $this->config->connectTimeout);
+		}
+
+		if ($this->config->timeout) {
+			\curl_setopt($ch, CURLOPT_TIMEOUT, $this->config->timeout);
+		}
+
 		\curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 		\curl_setopt($ch, CURLOPT_HTTPHEADER, array(
 			'Content-Type: application/json',
@@ -2080,6 +2090,28 @@ class Config {
 	public $sslVersion = null;
 
 	/**
+	 * Maximum time in seconds the whole request may take.
+	 *
+	 * Leave null to use cURL's default, which is no limit at all.
+	 *
+	 * @var number
+	 *
+	 * @see CURLOPT_TIMEOUT
+	 */
+	public $timeout = null;
+
+	/**
+	 * Maximum time in seconds the connection phase may take.
+	 *
+	 * Leave null to use cURL's default, which is 300 seconds.
+	 *
+	 * @var number
+	 *
+	 * @see CURLOPT_CONNECTTIMEOUT
+	 */
+	public $connectTimeout = null;
+
+	/**
 	 * Create config with all mandatory values.
 	 *
 	 * See equally named properties of this class for more info.
@@ -2315,12 +2347,11 @@ class Payment {
 	public $customerId;
 
 	/**
-	 * Language of the gateway. Default is "CZ".
+	 * Language of the gateway. Default is "cs".
 	 *
-	 * See wiki on ČSOB's Github for other values, they are not the same
-	 * as standard ISO language codes.
+	 * See CSOB's wiki for possible options.
 	 *
-	 * @see https://github.com/csob/paymentgateway/wiki/Basic-Methods
+	 * @see https://github.com/csob/paymentgateway/wiki/Basic-Methods#paymentinit-method-
 	 *
 	 * @var string
 	 */
@@ -2681,7 +2712,7 @@ class Payment {
 		}
 
 		if (!$this->language) {
-			$this->language = "CZ";
+			$this->language = "cs";
 		}
 		
 		if (!$this->ttlSec or !is_numeric($this->ttlSec)) {
